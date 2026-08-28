@@ -285,7 +285,35 @@ export default function MatchesHub() {
         .calendar-panel {
           background: #090c0a;
           max-height: 70vh;
+        }
+
+        .match-list-panel {
           overflow: hidden;
+        }
+
+        .calendar-panel {
+          overflow-y: auto;
+          overflow-x: hidden;
+          overscroll-behavior: contain;
+          scrollbar-width: thin;
+          scrollbar-color: #263029 #090c0a;
+        }
+
+        .calendar-panel::-webkit-scrollbar {
+          width: 6px;
+        }
+
+        .calendar-panel::-webkit-scrollbar-track {
+          background: #090c0a;
+        }
+
+        .calendar-panel::-webkit-scrollbar-thumb {
+          background: #263029;
+          border-radius: 999px;
+        }
+
+        .calendar-panel::-webkit-scrollbar-thumb:hover {
+          background: #344039;
         }
 
         .match-list-title {
@@ -655,6 +683,10 @@ export default function MatchesHub() {
           .match-list-panel,
           .calendar-panel {
             max-height: none;
+          }
+
+          .calendar-panel {
+            overflow: visible;
           }
 
           .match-list {
