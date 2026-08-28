@@ -1,0 +1,7 @@
+@import url('https://fonts.googleapis.com/css2?family=Allura&family=Anton&family=Barlow+Condensed:wght@400;500;600;700;800&display=swap');
+
+:root {
+  --font-signature: 'Allura', 'Brush Script MT', cursive;
+  --font-impact: 'Anton', Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+  --font-tactical: 'Barlow Condensed', 'Arial Narrow', sans-serif;
+}
