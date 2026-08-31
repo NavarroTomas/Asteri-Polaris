@@ -1,7 +1,7 @@
 export default function HeroVideo() {
   const videoUrl =
     import.meta.env.VITE_HERO_VIDEO_URL ||
-    '/media/ejemplox.mp4'
+    '/media/hero.mp4'
 
   return (
     <section
