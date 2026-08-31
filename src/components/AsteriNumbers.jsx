@@ -8,6 +8,10 @@ function GridMotion({ items }) {
   )
 
   useEffect(() => {
+    if (window.matchMedia('(max-width: 768px), (pointer: coarse)').matches) {
+      return undefined
+    }
+
     const handleMouseMove = event => {
       mouseXRef.current = event.clientX
     }
@@ -479,52 +483,119 @@ export default function AsteriNumbers() {
         ) {
 
           .asteri-numbers {
-            min-height:
-              680px;
+            height: auto;
+            min-height: 0;
+            padding: 64px 16px;
+            overflow: hidden;
+          }
+
+          .asteri-grid-motion {
+            position: relative;
+            inset: auto;
+            overflow: visible;
           }
 
           .asteri-grid-motion-container {
-            width:
-              290vw;
-
-            height:
-              145vh;
-
-            gap:
-              11px;
+            position: static;
+            width: 100%;
+            height: auto;
+            transform: none;
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            grid-template-rows: none;
+            gap: 8px;
           }
 
           .asteri-grid-motion-row {
-            gap:
-              11px;
+            display: contents;
+            transform: none !important;
+          }
+
+          .asteri-grid-motion-item {
+            display: none;
+          }
+
+          .asteri-grid-motion-row:nth-child(1)
+          .asteri-grid-motion-item:nth-child(1),
+          .asteri-grid-motion-row:nth-child(1)
+          .asteri-grid-motion-item:nth-child(2),
+          .asteri-grid-motion-row:nth-child(2)
+          .asteri-grid-motion-item:nth-child(1),
+          .asteri-grid-motion-row:nth-child(2)
+          .asteri-grid-motion-item:nth-child(2),
+          .asteri-grid-motion-row:nth-child(2)
+          .asteri-grid-motion-item:nth-child(3),
+          .asteri-grid-motion-row:nth-child(2)
+          .asteri-grid-motion-item:nth-child(4),
+          .asteri-grid-motion-row:nth-child(2)
+          .asteri-grid-motion-item:nth-child(5),
+          .asteri-grid-motion-row:nth-child(4)
+          .asteri-grid-motion-item:nth-child(3) {
+            display: block;
+          }
+
+          .asteri-grid-motion-row:nth-child(2)
+          .asteri-grid-motion-item:nth-child(1),
+          .asteri-grid-motion-row:nth-child(4)
+          .asteri-grid-motion-item:nth-child(3) {
+            grid-column: 1 / -1;
           }
 
           .asteri-grid-motion-item-inner {
-            min-height:
-              125px;
+            min-height: 104px;
+            padding: 14px;
+          }
 
-            padding:
-              14px;
+          .asteri-grid-motion-row:nth-child(2)
+          .asteri-grid-motion-item:nth-child(1)
+          .asteri-grid-motion-item-inner {
+            min-height: 138px;
+          }
+
+          .asteri-grid-motion-row:nth-child(4)
+          .asteri-grid-motion-item:nth-child(3)
+          .asteri-grid-motion-item-inner {
+            min-height: 116px;
           }
 
           .asteri-grid-text {
-            font-size:
-              clamp(
-                19px,
-                4.5vw,
-                28px
-              );
+            font-size: clamp(18px, 5.6vw, 24px);
+          }
+
+          .asteri-grid-text--statement {
+            font-size: clamp(27px, 8.4vw, 38px);
+            line-height: .86;
+          }
+
+          .asteri-grid-number {
+            gap: 8px;
           }
 
           .asteri-grid-number strong {
-            font-size:
-              clamp(
-                70px,
-                15vw,
-                110px
-              );
+            font-size: clamp(56px, 18vw, 78px);
           }
 
+          .asteri-grid-number span {
+            font-size: 9px;
+            letter-spacing: .13em;
+          }
+        }
+
+        @media (
+          max-width: 390px
+        ) {
+          .asteri-numbers {
+            padding-inline: 12px;
+          }
+
+          .asteri-grid-motion-container {
+            gap: 6px;
+          }
+
+          .asteri-grid-motion-item-inner {
+            min-height: 96px;
+            padding: 11px;
+          }
         }
 
 

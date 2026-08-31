@@ -12,10 +12,13 @@ import VodPage from './pages/VodPage'
 import VodAdminPage from './pages/VodAdminPage'
 import ProtectedRoute from './components/ProtectedRoute'
 import StaffRoute from './components/StaffRoute'
+import RouteScrollManager from './components/RouteScrollManager'
 
 export default function App() {
   return (
-    <Routes>
+    <>
+      <RouteScrollManager />
+      <Routes>
       <Route path="/" element={<HomePage />} />
 
       <Route path="/login" element={<LoginPage />} />
@@ -61,7 +64,8 @@ export default function App() {
         }
       />
 
-      <Route path="*" element={<Navigate to="/" replace />} />
-    </Routes>
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </>
   )
 }

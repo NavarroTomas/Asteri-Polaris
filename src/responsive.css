@@ -1,0 +1,345 @@
+/* ASTERI — responsive utilities shared by private/public pages.
+   Home section composition lives in each component so mobile behavior
+   stays close to the markup it controls. */
+
+html {
+  scroll-padding-top: calc(var(--header-h) + 16px);
+}
+
+#plantel,
+#partidos,
+#historia {
+  scroll-margin-top: calc(var(--header-h) + 16px);
+}
+
+:where(a, button, input, select, textarea):focus-visible {
+  outline: 2px solid #00d96e;
+  outline-offset: 3px;
+}
+
+:where(button, a) {
+  touch-action: manipulation;
+}
+
+:where(button, input, select, textarea):disabled {
+  cursor: not-allowed;
+}
+
+.auth-loading,
+.public-player-state,
+.vod-state {
+  box-sizing: border-box;
+}
+
+@supports (height: 100dvh) {
+  .public-player-hero,
+  .player-control-shell,
+  .asteri-auth-page,
+  .asteri-admin,
+  .vod-admin-page,
+  .vod-page,
+  .vod-state {
+    min-height: 100dvh;
+  }
+}
+
+@media (max-width: 900px) {
+  .asteri-auth-layout {
+    gap: 42px;
+  }
+
+  .vod-hero {
+    gap: 38px;
+  }
+
+  .vod-description,
+  .vod-section {
+    gap: 32px;
+  }
+
+  .roster-manager-layout,
+  .audit-manager {
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 760px) {
+  :where(input, select, textarea) {
+    font-size: 16px !important;
+  }
+
+  .asteri-auth-page {
+    padding-inline: 18px;
+  }
+
+  .asteri-auth-back {
+    left: 18px;
+  }
+
+  .asteri-auth-form {
+    padding: 22px 18px;
+  }
+
+  .player-control-top {
+    gap: 12px;
+    padding-inline: 18px;
+  }
+
+  .player-control-top > div {
+    min-width: 0;
+    gap: 14px;
+  }
+
+  .player-control-tabs,
+  .asteri-admin-nav {
+    scrollbar-width: none;
+    overscroll-behavior-x: contain;
+  }
+
+  .player-control-tabs::-webkit-scrollbar,
+  .asteri-admin-nav::-webkit-scrollbar {
+    display: none;
+  }
+
+  .player-control-message {
+    margin-inline: 18px;
+  }
+
+  .player-save {
+    width: 100%;
+  }
+
+  .asteri-admin-sidebar {
+    padding: 16px 14px 12px;
+  }
+
+  .asteri-admin-nav {
+    margin-top: 16px;
+    padding-bottom: 2px;
+  }
+
+  .asteri-admin-nav button {
+    min-height: 44px;
+    padding-inline: 12px;
+  }
+
+  .asteri-admin-user {
+    display: flex !important;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: 12px;
+    padding-top: 12px;
+  }
+
+  .asteri-admin-user strong {
+    display: none;
+  }
+
+  .asteri-admin-user button {
+    min-height: 36px;
+    margin-top: 0;
+    padding: 0 8px;
+  }
+
+  .asteri-admin-top {
+    position: sticky;
+    top: 0;
+    z-index: 16;
+    padding-inline: 18px;
+    background: #050706;
+  }
+
+  .asteri-admin-view {
+    padding-inline: 18px;
+  }
+
+  .asteri-admin-heading h1,
+  .player-control-identity h1,
+  .public-player-hero h1,
+  .vod-hero h1 {
+    overflow-wrap: anywhere;
+  }
+
+  .asteri-request-actions,
+  .asteri-user-actions,
+  .roster-manager-actions,
+  .vod-admin-actions,
+  .vod-admin-clips article > div:last-child {
+    flex-wrap: wrap;
+  }
+
+  .roster-manager-head,
+  .audit-heading {
+    gap: 18px;
+  }
+
+  .roster-manager-actions button {
+    min-height: 44px;
+  }
+
+  .vod-admin-page {
+    padding-inline: 18px;
+  }
+
+  .vod-admin-top {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    background: #050706;
+  }
+
+  .vod-admin-heading {
+    padding: 42px 0 30px;
+  }
+
+  .vod-admin-editor {
+    padding: 18px;
+  }
+
+  .vod-admin-actions button,
+  .vod-admin-addclip {
+    min-height: 48px;
+  }
+
+  .vod-actions a,
+  .public-player-socials a {
+    min-height: 44px;
+  }
+}
+
+@media (max-width: 680px) {
+  :root {
+    --header-h: 64px;
+  }
+
+  .section-shell {
+    width: calc(100vw - 36px) !important;
+    margin-inline: 18px !important;
+  }
+
+  .public-player-hero,
+  .vod-hero {
+    padding-inline: 18px;
+  }
+
+  .public-player-section,
+  .public-player-story,
+  .public-player-section-title,
+  .vod-description,
+  .vod-section,
+  .vod-back {
+    padding-inline: 18px;
+  }
+
+  .player-control-content {
+    padding-bottom: 54px;
+  }
+
+  .player-form-heading {
+    margin-bottom: 30px;
+  }
+
+  .player-file-picker {
+    padding: 18px;
+  }
+
+  .vod-admin-actions {
+    flex-direction: column;
+  }
+
+  .vod-admin-actions button,
+  .vod-admin-addclip {
+    width: 100%;
+  }
+
+  .site-footer {
+    padding: 54px 20px 40px !important;
+    gap: 42px !important;
+  }
+
+  .footer-newsletter form {
+    grid-template-columns: 1fr !important;
+  }
+
+  .footer-newsletter button {
+    min-height: 48px;
+  }
+
+  .footer-links {
+    gap: 28px !important;
+  }
+
+  .footer-meta {
+    flex-direction: column;
+    gap: 8px;
+  }
+}
+
+@media (max-width: 520px) {
+  .asteri-auth-copy h1,
+  .asteri-admin-heading h1,
+  .player-control-identity h1,
+  .player-pending h1,
+  .public-player-state h1,
+  .vod-state h1 {
+    overflow-wrap: anywhere;
+  }
+
+  .asteri-admin-metrics article {
+    min-height: 118px;
+  }
+
+  .asteri-admin-block {
+    margin-top: 38px;
+  }
+
+  .roster-manager-editor,
+  .vod-admin-editor,
+  .vod-admin-clipform {
+    padding-inline: 14px;
+  }
+
+  .roster-manager-stat-grid,
+  .vod-admin-lineup {
+    grid-template-columns: 1fr !important;
+  }
+
+  .player-clip-mode {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .player-clip-mode button {
+    width: 100%;
+    min-height: 42px;
+  }
+
+  .public-player-primary-stats article {
+    min-width: 0;
+  }
+
+  .vod-meta {
+    flex-wrap: wrap;
+  }
+
+  .vod-meta b {
+    flex: 1 1 auto;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto !important;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

@@ -512,9 +512,119 @@ export default function RosterShowcase() {
         }
 
         @media (max-width: 580px) {
+          .roster {
+            min-height: 0 !important;
+            padding-top: 76px !important;
+            padding-bottom: 0 !important;
+          }
+
+          .roster-heading {
+            padding: 28px 0 18px !important;
+            margin-bottom: 0 !important;
+          }
+
+          .roster-heading h2 {
+            font-size: clamp(52px, 17vw, 70px) !important;
+          }
+
+          .roster-carousel {
+            flex-basis: 214px !important;
+          }
+
+          .roster-carousel-track {
+            padding-left: 18px !important;
+            padding-right: 18px !important;
+            gap: 10px !important;
+          }
+
+          .player-card {
+            flex-basis: 126px !important;
+            width: 126px !important;
+          }
+
+          .selected-player-shell {
+            min-height: 0 !important;
+          }
+
+          .selected-player {
+            min-height: 0 !important;
+            display: flex !important;
+            flex-direction: column !important;
+            align-items: stretch !important;
+            gap: 0 !important;
+            padding: 18px 0 58px !important;
+          }
+
+          .selected-player-figure {
+            order: 1 !important;
+            width: 100%;
+            min-height: 300px !important;
+            max-height: 360px;
+          }
+
+          .selected-player-figure img {
+            max-height: 360px;
+          }
+
+          .selected-player-copy {
+            order: 2 !important;
+            width: 100%;
+            padding: 24px 0 18px !important;
+          }
+
+          .selected-player-name strong {
+            font-size: clamp(3rem, 15vw, 4.5rem) !important;
+          }
+
+          .selected-player-bio {
+            max-width: 100% !important;
+            font-size: 13px !important;
+            line-height: 1.55 !important;
+          }
+
+          .selected-player-actions {
+            gap: 7px;
+          }
+
+          .selected-player-profile-link {
+            min-height: 42px;
+            flex: 1 1 auto;
+            justify-content: center;
+            margin-left: 0;
+          }
+
+          .selected-player-stats {
+            order: 3 !important;
+            width: 100%;
+            grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+            gap: 8px !important;
+          }
+
+          .selected-player-stats > div,
+          .selected-player-stats > div:nth-child(even),
+          .selected-player-stats > div:nth-last-child(-n+2) {
+            min-height: 86px !important;
+            padding: 10px 0 !important;
+          }
+
+          .selected-player-stats strong {
+            font-size: clamp(28px, 10vw, 40px) !important;
+          }
+
           .selected-player-depth-name {
-            top: 12%;
-            opacity: .34;
+            top: 8%;
+            opacity: .28;
+          }
+        }
+
+        @media (max-width: 380px) {
+          .player-card {
+            flex-basis: 116px !important;
+            width: 116px !important;
+          }
+
+          .selected-player-figure {
+            min-height: 280px !important;
           }
         }
 

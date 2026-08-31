@@ -904,17 +904,29 @@ export default function MatchesHub() {
         }
 
         @media (max-width: 720px) {
+          .matches-minimal {
+            padding-top: 72px;
+          }
+
           .matches-minimal-heading {
             display: block;
           }
 
           .matches-minimal-heading p {
-            margin-top: 24px;
+            margin-top: 18px;
+          }
+
+          .matches-minimal-layout {
+            gap: 26px;
+          }
+
+          .calendar-panel {
+            padding-inline: 12px;
           }
 
           .calendar-day {
-            min-height: 72px;
-            padding: 8px;
+            min-height: clamp(44px, 11vw, 56px);
+            padding: 5px;
           }
 
           .calendar-day-match span {
@@ -922,7 +934,7 @@ export default function MatchesHub() {
           }
 
           .calendar-selected {
-            grid-template-columns: 64px minmax(0, 1fr) 90px;
+            grid-template-columns: 58px minmax(0, 1fr) 78px;
           }
 
           .calendar-selected-vod {
@@ -932,32 +944,43 @@ export default function MatchesHub() {
 
         @media (max-width: 520px) {
           .matches-minimal {
-            padding-top: 80px;
+            padding-top: 64px;
           }
 
           .matches-minimal-heading h2 {
-            font-size: clamp(64px, 19vw, 90px);
+            font-size: clamp(54px, 15vw, 68px);
           }
 
           .match-list-row {
-            grid-template-columns: 62px minmax(0, 1fr);
+            min-height: 80px;
+            grid-template-columns: 54px minmax(0, 1fr);
+            gap: 10px;
           }
 
           .match-list-score {
             display: none;
           }
 
+          .calendar-panel {
+            padding-inline: 8px;
+          }
+
           .calendar-weekdays span {
-            font-size: 7px;
-            letter-spacing: .05em;
+            font-size: 6px;
+            letter-spacing: .03em;
           }
 
           .calendar-day {
-            min-height: 68px;
+            min-height: clamp(40px, 10.5vw, 48px);
+            padding: 4px 2px;
+          }
+
+          .calendar-day > strong {
+            font-size: 10px;
           }
 
           .calendar-selected {
-            grid-template-columns: 58px minmax(0, 1fr);
+            grid-template-columns: 52px minmax(0, 1fr);
           }
 
           .calendar-selected-result {

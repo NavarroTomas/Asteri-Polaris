@@ -268,28 +268,42 @@ export default function NextObjective() {
         }
 
         @media (max-width: 640px) {
+          .next-objective {
+            min-height: auto;
+          }
+
           .next-objective-shell {
-            width: calc(100vw - 34px);
-            padding: 82px 0;
-            gap: 44px;
+            width: calc(100vw - 36px);
+            padding: 68px 0;
+            gap: 36px;
+          }
+
+          .next-objective-hero {
+            gap: 24px;
           }
 
           .next-objective-title {
-            font-size: clamp(4.4rem, 18vw, 7rem);
+            font-size: clamp(3.8rem, 16vw, 5.4rem);
           }
 
           .next-objective-typing {
-            font-size: clamp(1.45rem, 8vw, 2.4rem);
-            min-height: 3em;
+            font-size: clamp(1.35rem, 6.8vw, 2rem);
+            min-height: 2.5em;
+            line-height: 1;
           }
 
           .next-objective-card {
-            min-height: 220px;
-            padding: 24px 22px;
+            min-height: 190px;
+            padding: 22px 20px;
           }
 
           .next-objective-card h3 {
-            font-size: clamp(2.5rem, 12vw, 4rem);
+            font-size: clamp(2.2rem, 10vw, 3.2rem);
+          }
+
+          .next-objective-card p {
+            font-size: .95rem;
+            line-height: 1.55;
           }
         }
 

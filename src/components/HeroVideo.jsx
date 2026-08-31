@@ -221,39 +221,49 @@ export default function HeroVideo() {
           max-width: 700px
         ) {
           .hero-video-section {
-            min-height:
-              620px;
+            height: 88svh;
+            min-height: 580px;
+            max-height: 760px;
+          }
+
+          .hero-background-video {
+            object-position: 52% center;
+          }
+
+          .hero-video-overlay {
+            background: rgba(5, 7, 6, .16);
           }
 
           .hero-brand-entry {
-            left:
-              22px;
-
-            bottom:
-              40px;
-
-            gap:
-              12px;
+            left: 20px;
+            right: 20px;
+            bottom: 28px;
+            gap: 11px;
           }
 
           .hero-brand-line {
-            width:
-              28px;
+            width: 26px;
           }
 
           .hero-brand-text {
-            gap:
-              8px;
+            gap: 7px;
           }
 
           .hero-brand-text strong {
-            font-size:
-              18px;
+            font-size: 22px;
           }
 
           .hero-brand-text span {
-            font-size:
-              8px;
+            font-size: 7px;
+            letter-spacing: .2em;
+          }
+        }
+
+        @supports (height: 100dvh) {
+          @media (max-width: 700px) {
+            .hero-video-section {
+              height: 88dvh;
+            }
           }
         }
 

@@ -21,6 +21,14 @@ export default function FounderSection() {
     const root = rootRef.current
     if (!root) return undefined
 
+    if (window.matchMedia('(max-width: 700px)').matches) {
+      gsap.set([imageRef.current, copyRef.current], {
+        opacity: 1,
+        y: 0,
+      })
+      return undefined
+    }
+
     const context = gsap.context(() => {
       gsap.fromTo(
         imageRef.current,
@@ -297,64 +305,103 @@ export default function FounderSection() {
 
           .founder-minimal-shell {
             width: calc(100vw - 48px);
-
             grid-template-columns: 1fr;
-            gap: 38px;
-
-            padding: 84px 0 70px;
+            gap: 30px;
+            padding: 76px 0 52px;
           }
 
           .founder-minimal-copy {
             order: 1;
+            max-width: 680px;
+            opacity: 1 !important;
+            transform: none !important;
+          }
+
+          .founder-minimal-visual img {
+            opacity: 1 !important;
+            transform: none !important;
           }
 
           .founder-minimal-visual {
             order: 2;
-
-            min-height: 540px;
+            min-height: 430px;
           }
 
           .founder-minimal-visual img {
-            max-height: 560px;
+            width: min(520px, 92%);
+            max-height: 450px;
           }
 
           .founder-minimal-copy blockquote {
-            font-size:
-              clamp(
-                26px,
-                7vw,
-                42px
-              );
+            font-size: clamp(24px, 5.9vw, 34px);
+            line-height: 1.08;
+            letter-spacing: -.036em;
+          }
+
+          .founder-minimal-kicker {
+            margin-bottom: 20px;
+          }
+
+          .founder-minimal-signature {
+            margin-top: 28px;
           }
         }
 
         @media (max-width: 560px) {
           .founder-minimal-shell {
-            width: calc(100vw - 32px);
+            width: calc(100vw - 36px);
+            gap: 18px;
+            padding: 64px 0 26px;
           }
 
-          .founder-minimal-visual {
-            min-height: 470px;
-          }
-
-          .founder-minimal-visual img {
-            max-height: 490px;
-          }
-
-          .founder-minimal-visual::before {
-            width: 92%;
-            height: 78px;
-          }
-
-          .founder-minimal-visual::after {
-            width: 68%;
-            height: 46px;
+          .founder-minimal-copy blockquote {
+            font-size: clamp(22px, 6.15vw, 27px);
+            line-height: 1.1;
           }
 
           .founder-minimal-signature {
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 8px;
+            flex-direction: row;
+            flex-wrap: wrap;
+            align-items: baseline;
+            gap: 8px 12px;
+            margin-top: 24px;
+          }
+
+          .founder-minimal-visual {
+            min-height: 345px;
+          }
+
+          .founder-minimal-visual img {
+            width: min(360px, 88%);
+            max-height: 370px;
+          }
+
+          .founder-minimal-visual::before {
+            width: 88%;
+            height: 66px;
+          }
+
+          .founder-minimal-visual::after {
+            width: 62%;
+            height: 40px;
+          }
+        }
+
+        @media (max-width: 390px) {
+          .founder-minimal-shell {
+            width: calc(100vw - 30px);
+          }
+
+          .founder-minimal-copy blockquote {
+            font-size: 22px;
+          }
+
+          .founder-minimal-visual {
+            min-height: 320px;
+          }
+
+          .founder-minimal-visual img {
+            max-height: 340px;
           }
         }
 

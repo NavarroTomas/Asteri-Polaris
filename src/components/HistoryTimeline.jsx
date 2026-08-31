@@ -48,6 +48,15 @@ function ScrollRevealText({ children }) {
     const element = containerRef.current
     if (!element) return undefined
 
+    if (window.matchMedia('(max-width: 720px)').matches) {
+      gsap.set(element, { rotate: 0 })
+      gsap.set(
+        element.querySelectorAll('.history-reveal-word'),
+        { opacity: 1, filter: 'blur(0px)', y: 0 },
+      )
+      return undefined
+    }
+
     const context = gsap.context(() => {
       const wordElements = element.querySelectorAll('.history-reveal-word')
 
@@ -109,6 +118,17 @@ export default function HistoryTimeline() {
   useEffect(() => {
     const root = rootRef.current
     if (!root) return undefined
+
+    if (window.matchMedia('(max-width: 720px)').matches) {
+      const stories = root.querySelectorAll('.history-scroll-story')
+      stories.forEach((story) => {
+        gsap.set(
+          story.querySelectorAll('.history-scroll-period, .history-scroll-title'),
+          { opacity: 1, y: 0 },
+        )
+      })
+      return undefined
+    }
 
     const context = gsap.context(() => {
       const stories = gsap.utils.toArray('.history-scroll-story', root)
@@ -212,6 +232,12 @@ export default function HistoryTimeline() {
         <div className="history-scroll-copy-column">
           {eras.map((era) => (
             <article className="history-scroll-story" key={era.title}>
+              <img
+                src={era.logo}
+                alt=""
+                className="history-scroll-mobile-logo"
+                aria-hidden="true"
+              />
               <span className="history-scroll-period">{era.period}</span>
               <h3 className="history-scroll-title">{era.title}</h3>
               <ScrollRevealText>{era.text}</ScrollRevealText>
@@ -274,6 +300,10 @@ export default function HistoryTimeline() {
         .history-scroll-story:last-of-type {
           min-height: 78vh;
           padding-bottom: 10vh;
+        }
+
+        .history-scroll-mobile-logo {
+          display: none;
         }
 
         .history-scroll-period {
@@ -373,59 +403,87 @@ export default function HistoryTimeline() {
         }
 
         @media (max-width: 720px) {
+          .history-scroll-section {
+            overflow: hidden;
+          }
+
           .history-scroll-layout {
             width: calc(100vw - 40px);
             display: block;
           }
 
           .history-scroll-logo-column {
-            position: absolute;
-            inset: 0 0 auto;
-            height: 100%;
-            pointer-events: none;
-          }
-
-          .history-scroll-logo-sticky {
-            top: 72px;
-            height: 32vh;
-            min-height: 250px;
-            opacity: .26;
-          }
-
-          .history-logo-kicker,
-          .history-scroll-logo-stage::before {
             display: none;
           }
 
-          .history-scroll-logo {
-            width: min(250px, 58vw);
-            max-height: 28vh;
-          }
-
           .history-scroll-copy-column {
-            position: relative;
-            z-index: 2;
-            padding: 12vh 0 8vh;
+            padding: 72px 0 18px;
           }
 
-          .history-scroll-story {
-            min-height: 82vh;
-            padding: 8vh 0;
-          }
-
+          .history-scroll-story,
           .history-scroll-story:last-of-type {
-            min-height: 76vh;
-            padding-bottom: 8vh;
+            min-height: auto;
+            padding: 0 0 88px;
+          }
+
+          .history-scroll-mobile-logo {
+            width: 132px;
+            height: 118px;
+            display: block;
+            margin: 0 0 26px;
+            object-fit: contain;
+            object-position: left center;
+          }
+
+          .history-scroll-period {
+            margin-bottom: 12px;
+            font-size: 9px;
           }
 
           .history-scroll-title {
-            max-width: 92%;
-            font-size: clamp(34px, 11vw, 54px);
+            max-width: 100%;
+            margin-bottom: 18px;
+            font-size: clamp(34px, 9.8vw, 46px);
+            line-height: .94;
           }
 
           .history-scroll-reveal {
-            max-width: 94%;
-            font-size: 16px;
+            max-width: 100%;
+            font-size: 15px;
+            line-height: 1.68;
+          }
+
+          .history-reveal-word,
+          .history-scroll-period,
+          .history-scroll-title {
+            opacity: 1 !important;
+            filter: none !important;
+            transform: none !important;
+          }
+        }
+
+        @media (max-width: 420px) {
+          .history-scroll-layout {
+            width: calc(100vw - 32px);
+          }
+
+          .history-scroll-copy-column {
+            padding-top: 62px;
+          }
+
+          .history-scroll-story,
+          .history-scroll-story:last-of-type {
+            padding-bottom: 76px;
+          }
+
+          .history-scroll-mobile-logo {
+            width: 116px;
+            height: 102px;
+            margin-bottom: 22px;
+          }
+
+          .history-scroll-title {
+            font-size: clamp(32px, 10.2vw, 42px);
           }
         }
 

@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { gsap } from 'gsap'
 import asteriA from '../assets/brand/asteri-a.png'
@@ -161,12 +161,15 @@ function PillButton({ label, href }) {
 
 export default function Header() {
   const { loading, isAuthenticated } = useAuth()
+  const [mobileOpen, setMobileOpen] = useState(false)
 
   return (
-    <header className="site-header">
+    <header className={`site-header ${mobileOpen ? 'mobile-menu-open' : ''}`}>
       <nav
-        className="header-nav header-nav-left"
+        className={`header-nav header-nav-left ${mobileOpen ? 'is-mobile-open' : ''}`}
         aria-label="Navegación principal"
+        id="asteri-mobile-nav"
+        onClick={() => setMobileOpen(false)}
       >
         <PillButton label="PLANTEL" href="/#plantel" />
         <PillButton label="PARTIDOS" href="/#partidos" />
@@ -177,6 +180,7 @@ export default function Header() {
         className="header-logo"
         to="/"
         aria-label="ASTERI inicio"
+        onClick={() => setMobileOpen(false)}
       >
         <img src={asteriA} alt="ASTERI" />
       </Link>
@@ -191,6 +195,18 @@ export default function Header() {
             href={isAuthenticated ? '/account' : '/login'}
           />
         )}
+
+        <button
+          type="button"
+          className="asteri-mobile-menu-toggle"
+          aria-label={mobileOpen ? 'Cerrar menú' : 'Abrir menú'}
+          aria-controls="asteri-mobile-nav"
+          aria-expanded={mobileOpen}
+          onClick={() => setMobileOpen((open) => !open)}
+        >
+          <span />
+          <span />
+        </button>
       </nav>
 
       <style>{`
@@ -274,7 +290,112 @@ export default function Header() {
           opacity: 0;
         }
 
+        .asteri-mobile-menu-toggle {
+          display: none;
+          width: 40px;
+          height: 40px;
+          padding: 0;
+          border: 1px solid #29312c;
+          border-radius: 999px;
+          background: #0d100e;
+          cursor: pointer;
+        }
+
+        .asteri-mobile-menu-toggle span {
+          width: 14px;
+          height: 1px;
+          display: block;
+          margin: 4px auto;
+          background: #f2f4f0;
+          transition: transform .2s ease, opacity .2s ease;
+        }
+
+        .mobile-menu-open .asteri-mobile-menu-toggle span:first-child {
+          transform: translateY(2.5px) rotate(45deg);
+        }
+
+        .mobile-menu-open .asteri-mobile-menu-toggle span:last-child {
+          transform: translateY(-2.5px) rotate(-45deg);
+        }
+
         @media (max-width: 680px) {
+          .site-header {
+            height: 64px;
+            grid-template-columns: auto 1fr auto !important;
+            padding: 0 14px !important;
+            background: #050706 !important;
+            border-bottom: 1px solid #171d19;
+          }
+
+          .site-header .header-logo {
+            grid-column: 1 !important;
+            justify-self: start !important;
+            width: 44px !important;
+            height: 44px !important;
+          }
+
+          .site-header .header-nav-right {
+            grid-column: 3 !important;
+            justify-self: end;
+            gap: 7px !important;
+          }
+
+          .site-header .header-nav-left {
+            position: fixed;
+            z-index: 120;
+            top: 72px;
+            left: 12px;
+            right: 12px;
+            width: auto;
+            display: grid !important;
+            grid-template-columns: 1fr;
+            gap: 1px !important;
+            padding: 4px;
+            border: 1px solid #29312c;
+            background: #0d100e;
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+            transform: translateY(-8px);
+            transition: opacity .18s ease, transform .18s ease, visibility .18s ease;
+          }
+
+          .site-header .header-nav-left.is-mobile-open {
+            opacity: 1;
+            visibility: visible;
+            pointer-events: auto;
+            transform: translateY(0);
+          }
+
+          .site-header .header-nav-left.is-mobile-open .asteri-pill {
+            width: 100%;
+            min-height: 48px;
+            display: inline-flex !important;
+            justify-content: flex-start;
+            padding: 0 15px;
+            border: 0;
+            border-radius: 0;
+            background: #0d100e;
+            font-size: 10px;
+          }
+
+          .site-header .header-nav-left.is-mobile-open .asteri-pill + .asteri-pill {
+            border-top: 1px solid #1b211d;
+          }
+
+          .asteri-mobile-menu-toggle {
+            display: block;
+            flex: 0 0 40px;
+          }
+
+          .site-header .header-nav-right .asteri-pill {
+            min-height: 38px;
+            max-width: 96px;
+            padding-inline: 11px;
+            font-size: 9px;
+            letter-spacing: .055em;
+          }
+
           .site-header .asteri-pill {
             min-height: 36px;
             padding-inline: 13px;

@@ -112,8 +112,39 @@ export default function CommunitySection() {
         }
 
         @media (max-width: 580px) {
-          .community-shell { width: calc(100vw - 36px); }
-          .community-link { grid-template-columns: 82px 1fr 24px; gap: 10px; }
+          .community-section {
+            min-height: auto;
+            padding: 68px 0;
+          }
+
+          .community-shell {
+            width: calc(100vw - 36px);
+            gap: 40px;
+          }
+
+          .community-heading h2 {
+            margin: 14px 0 18px;
+            font-size: clamp(46px, 14vw, 62px);
+            line-height: .86;
+          }
+
+          .community-heading p {
+            font-size: 14px;
+          }
+
+          .community-link {
+            min-height: 72px;
+            grid-template-columns: 68px 1fr 20px;
+            gap: 8px;
+          }
+
+          .community-link-label {
+            font-size: 8px;
+          }
+
+          .community-link strong {
+            font-size: clamp(20px, 6.6vw, 28px);
+          }
         }
       `}</style>
     </section>
