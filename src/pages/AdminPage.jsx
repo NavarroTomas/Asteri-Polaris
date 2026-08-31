@@ -12,6 +12,7 @@ import {
 import './AdminPage.css'
 import RosterManager from '../components/RosterManager'
 import AuditLogManager from '../components/AuditLogManager'
+import SiteStatsManager from '../components/SiteStatsManager'
 
 const TABS = [
   { id: 'overview', label: 'OVERVIEW' },
@@ -253,6 +254,20 @@ export default function AdminPage() {
                 <strong>{snapshot.clips.length.toString().padStart(2, '0')}</strong>
               </article>
             </div>
+
+            {isOwner && (
+              <div className="asteri-admin-block">
+                <div className="asteri-admin-block-head">
+                  <div>
+                    <small>HOME / NUMBERS</small>
+                    <h2>NÚMEROS PÚBLICOS</h2>
+                  </div>
+                  <span>OWNER</span>
+                </div>
+
+                <SiteStatsManager />
+              </div>
+            )}
 
             <div className="asteri-admin-block">
               <div className="asteri-admin-block-head">

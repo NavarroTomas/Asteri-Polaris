@@ -1,5 +1,6 @@
-import { useEffect, useMemo, useRef } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { gsap } from 'gsap'
+import { DEFAULT_SITE_STATS, getSiteStats } from '../lib/siteStats'
 
 function GridMotion({ items }) {
   const rowRefs = useRef([])
@@ -113,6 +114,27 @@ function NumberCell({ value, label }) {
 }
 
 export default function AsteriNumbers() {
+  const [stats, setStats] = useState(DEFAULT_SITE_STATS)
+
+  useEffect(() => {
+    let alive = true
+
+    getSiteStats()
+      .then(data => {
+        if (alive) setStats(data)
+      })
+      .catch(error => {
+        console.error('No se pudieron cargar los números de ASTERI:', error)
+      })
+
+    return () => {
+      alive = false
+    }
+  }, [])
+
+  const formatNumber = value =>
+    String(Math.max(0, Number(value) || 0)).padStart(2, '0')
+
   const items = useMemo(
     () => [
       // ========================================
@@ -137,25 +159,25 @@ export default function AsteriNumbers() {
 
       <NumberCell
         key="9"
-        value="06"
+        value={formatNumber(stats.players)}
         label="PLAYERS"
       />,
 
       <NumberCell
         key="10"
-        value="02"
+        value={formatNumber(stats.matches)}
         label="MATCHES"
       />,
 
       <NumberCell
         key="11"
-        value="02"
+        value={formatNumber(stats.wins)}
         label="WINS"
       />,
 
       <NumberCell
         key="12"
-        value="01"
+        value={formatNumber(stats.teams)}
         label="TEAM"
       />,
 
@@ -188,7 +210,7 @@ export default function AsteriNumbers() {
       <TextCell key="27">SEASON 01</TextCell>,
       <TextCell muted key="28">NEW ERA</TextCell>,
     ],
-    []
+    [stats]
   )
 
   return (
