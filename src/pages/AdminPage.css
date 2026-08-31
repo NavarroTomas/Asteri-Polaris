@@ -1,0 +1,506 @@
+.asteri-admin {
+  min-height: 100svh;
+  display: grid;
+  grid-template-columns: 230px minmax(0, 1fr);
+  background: #050706;
+  color: #f2f4f0;
+}
+
+.asteri-admin-sidebar {
+  position: sticky;
+  top: 0;
+  height: 100svh;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 30px 20px 22px;
+  border-right: 1px solid #1d231f;
+  background: #080b09;
+}
+
+.asteri-admin-brand {
+  display: flex;
+  flex-direction: column;
+  width: fit-content;
+  color: #f2f4f0;
+  text-decoration: none;
+  font: 400 27px/.82 Anton, Impact, sans-serif;
+  letter-spacing: -.02em;
+}
+
+.asteri-admin-brand span {
+  color: #00d96e;
+}
+
+.asteri-admin-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-top: 54px;
+}
+
+.asteri-admin-nav button {
+  min-height: 46px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border: 0;
+  padding: 0 13px;
+  background: transparent;
+  color: #68736c;
+  cursor: pointer;
+  text-align: left;
+  font: 700 9px/1 Inter, sans-serif;
+  letter-spacing: .14em;
+}
+
+.asteri-admin-nav button.active,
+.asteri-admin-nav button:hover {
+  background: #101411;
+  color: #f2f4f0;
+}
+
+.asteri-admin-nav button.active i {
+  color: #00d96e;
+}
+
+.asteri-admin-nav i {
+  font-style: normal;
+}
+
+.asteri-admin-user {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  padding-top: 18px;
+  border-top: 1px solid #1d231f;
+}
+
+.asteri-admin-user small {
+  color: #00d96e;
+  font: 700 8px/1 Inter, sans-serif;
+  letter-spacing: .15em;
+}
+
+.asteri-admin-user strong {
+  overflow-wrap: anywhere;
+  color: #dfe4e1;
+  font: 600 12px/1.35 Inter, sans-serif;
+}
+
+.asteri-admin-user button {
+  width: fit-content;
+  margin-top: 8px;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: #6f7973;
+  cursor: pointer;
+  font: 700 8px/1 Inter, sans-serif;
+  letter-spacing: .12em;
+}
+
+.asteri-admin-main {
+  min-width: 0;
+}
+
+.asteri-admin-top {
+  height: 64px;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 clamp(26px, 4vw, 60px);
+  border-bottom: 1px solid #1d231f;
+}
+
+.asteri-admin-top span,
+.asteri-admin-top button {
+  font: 700 9px/1 Inter, sans-serif;
+  letter-spacing: .14em;
+}
+
+.asteri-admin-top span {
+  color: #66716a;
+}
+
+.asteri-admin-top button {
+  border: 0;
+  background: transparent;
+  color: #9aa49e;
+  cursor: pointer;
+}
+
+.asteri-admin-view {
+  padding: clamp(44px, 5vw, 72px) clamp(26px, 4vw, 60px) 80px;
+}
+
+.asteri-admin-heading > span {
+  display: block;
+  margin-bottom: 18px;
+  color: #00d96e;
+  font: 700 9px/1 Inter, sans-serif;
+  letter-spacing: .17em;
+}
+
+.asteri-admin-heading h1 {
+  margin: 0;
+  font: 400 clamp(64px, 8vw, 125px)/.75 Anton, Impact, sans-serif;
+  letter-spacing: -.035em;
+}
+
+.asteri-admin-heading p {
+  max-width: 540px;
+  margin: 24px 0 0;
+  color: #7f8a83;
+  font: 500 13px/1.6 Inter, sans-serif;
+}
+
+.asteri-admin-metrics {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1px;
+  margin-top: 54px;
+  background: #1d231f;
+}
+
+.asteri-admin-metrics article {
+  min-height: 150px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 18px;
+  background: #0a0d0b;
+}
+
+.asteri-admin-metrics small {
+  color: #6e7972;
+  font: 700 8px/1 Inter, sans-serif;
+  letter-spacing: .15em;
+}
+
+.asteri-admin-metrics strong {
+  font: 400 clamp(50px, 5vw, 80px)/.75 Anton, Impact, sans-serif;
+}
+
+.asteri-admin-block {
+  margin-top: 54px;
+}
+
+.asteri-admin-block-head {
+  min-height: 60px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 20px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid #1d231f;
+}
+
+.asteri-admin-block-head small {
+  display: block;
+  margin-bottom: 7px;
+  color: #68736c;
+  font: 700 8px/1 Inter, sans-serif;
+  letter-spacing: .15em;
+}
+
+.asteri-admin-block-head h2 {
+  margin: 0;
+  font: 700 18px/1 'Barlow Condensed', Inter, sans-serif;
+  letter-spacing: .04em;
+}
+
+.asteri-admin-block-head > span {
+  color: #00d96e;
+  font: 700 18px/1 'Barlow Condensed', Inter, sans-serif;
+}
+
+.asteri-admin-empty {
+  padding: 32px 0;
+  color: #5f6963;
+  font: 700 9px/1 Inter, sans-serif;
+  letter-spacing: .15em;
+}
+
+.asteri-request-row {
+  min-height: 78px;
+  display: grid;
+  grid-template-columns: minmax(180px, 1fr) minmax(180px, 240px) auto;
+  gap: 20px;
+  align-items: center;
+  border-bottom: 1px solid #191e1b;
+}
+
+.asteri-request-person {
+  min-width: 0;
+}
+
+.asteri-request-person span,
+.asteri-request-person small {
+  display: block;
+}
+
+.asteri-request-person span {
+  font: 700 15px/1.2 'Barlow Condensed', Inter, sans-serif;
+  text-transform: uppercase;
+}
+
+.asteri-request-person small {
+  margin-top: 6px;
+  color: #748078;
+  font: 500 11px/1.3 Inter, sans-serif;
+}
+
+.asteri-request-row select,
+.asteri-users-row select {
+  height: 38px;
+  border: 1px solid #252c28;
+  border-radius: 0;
+  outline: 0;
+  background: #0b0e0c;
+  color: #dfe4e1;
+  padding: 0 10px;
+  font: 700 9px/1 Inter, sans-serif;
+  letter-spacing: .08em;
+}
+
+.asteri-request-actions,
+.asteri-user-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 6px;
+}
+
+.asteri-request-actions button,
+.asteri-user-actions button {
+  min-height: 36px;
+  border: 1px solid #29312c;
+  padding: 0 12px;
+  background: #0d100e;
+  color: #a6afa9;
+  cursor: pointer;
+  font: 700 8px/1 Inter, sans-serif;
+  letter-spacing: .09em;
+}
+
+.asteri-request-actions button.approve {
+  border-color: #00d96e;
+  background: #00d96e;
+  color: #031109;
+}
+
+.asteri-request-actions button:disabled,
+.asteri-user-actions button:disabled {
+  opacity: .45;
+  cursor: wait;
+}
+
+.asteri-activity-list article,
+.asteri-full-log article {
+  display: grid;
+  grid-template-columns: 150px 1fr 130px;
+  gap: 18px;
+  align-items: center;
+  min-height: 58px;
+  border-bottom: 1px solid #191e1b;
+}
+
+.asteri-activity-list time,
+.asteri-full-log time {
+  color: #657069;
+  font: 600 9px/1 Inter, sans-serif;
+}
+
+.asteri-activity-list strong,
+.asteri-full-log strong {
+  font: 700 11px/1.3 Inter, sans-serif;
+  text-transform: uppercase;
+}
+
+.asteri-activity-list > article > span,
+.asteri-full-log > article > span {
+  color: #657069;
+  text-align: right;
+  font: 700 8px/1 Inter, sans-serif;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+}
+
+.asteri-full-log article {
+  grid-template-columns: 150px 1fr auto;
+  min-height: 68px;
+}
+
+.asteri-full-log article > div {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.asteri-full-log small {
+  color: #647068;
+  font: 700 8px/1 Inter, sans-serif;
+  letter-spacing: .1em;
+}
+
+.asteri-admin-error {
+  margin: 22px clamp(26px, 4vw, 60px) 0;
+  padding: 12px 14px;
+  background: #17100f;
+  color: #ed9890;
+  font: 600 11px/1.45 Inter, sans-serif;
+}
+
+.asteri-users-table {
+  margin-top: 52px;
+}
+
+.asteri-users-table-head,
+.asteri-users-row {
+  display: grid;
+  grid-template-columns: minmax(190px, 1.25fr) minmax(100px, .7fr) 120px 100px minmax(180px, 1fr);
+  gap: 16px;
+  align-items: center;
+}
+
+.asteri-users-table-head {
+  min-height: 38px;
+  border-bottom: 1px solid #272e2a;
+  color: #606b64;
+  font: 700 8px/1 Inter, sans-serif;
+  letter-spacing: .14em;
+}
+
+.asteri-users-row {
+  min-height: 76px;
+  border-bottom: 1px solid #191e1b;
+}
+
+.asteri-users-row > div:first-child strong,
+.asteri-users-row > div:first-child small {
+  display: block;
+}
+
+.asteri-users-row > div:first-child strong {
+  font: 700 13px/1.2 Inter, sans-serif;
+}
+
+.asteri-users-row > div:first-child small {
+  margin-top: 5px;
+  color: #707c74;
+  font: 500 10px/1.2 Inter, sans-serif;
+}
+
+.asteri-users-row > div:nth-child(2) strong {
+  font: 700 14px/1 'Barlow Condensed', Inter, sans-serif;
+  text-transform: uppercase;
+}
+
+.user-status {
+  font: 700 8px/1 Inter, sans-serif;
+  letter-spacing: .1em;
+}
+
+.user-status.active {
+  color: #00d96e;
+}
+
+.user-status.pending {
+  color: #d5c170;
+}
+
+.user-status.suspended {
+  color: #df7777;
+}
+
+@media (max-width: 1050px) {
+  .asteri-admin {
+    grid-template-columns: 190px minmax(0, 1fr);
+  }
+
+  .asteri-admin-metrics {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .asteri-users-table-head {
+    display: none;
+  }
+
+  .asteri-users-row {
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    padding: 18px 0;
+  }
+
+  .asteri-user-actions {
+    justify-content: flex-start;
+  }
+}
+
+@media (max-width: 720px) {
+  .asteri-admin {
+    display: block;
+  }
+
+  .asteri-admin-sidebar {
+    position: relative;
+    width: 100%;
+    height: auto;
+    padding: 18px 20px;
+    border-right: 0;
+    border-bottom: 1px solid #1d231f;
+  }
+
+  .asteri-admin-nav {
+    flex-direction: row;
+    overflow-x: auto;
+    margin-top: 22px;
+  }
+
+  .asteri-admin-nav button {
+    min-width: max-content;
+  }
+
+  .asteri-admin-user {
+    display: none;
+  }
+
+  .asteri-admin-metrics {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .asteri-request-row {
+    grid-template-columns: 1fr;
+    gap: 12px;
+    padding: 18px 0;
+  }
+
+  .asteri-request-actions {
+    justify-content: flex-start;
+  }
+
+  .asteri-activity-list article,
+  .asteri-full-log article {
+    grid-template-columns: 1fr;
+    gap: 7px;
+    padding: 14px 0;
+  }
+
+  .asteri-activity-list > article > span,
+  .asteri-full-log > article > span {
+    text-align: left;
+  }
+}
+
+@media (max-width: 520px) {
+  .asteri-admin-metrics {
+    grid-template-columns: 1fr;
+  }
+
+  .asteri-users-row {
+    grid-template-columns: 1fr;
+  }
+}

@@ -1,77 +1,90 @@
-# ASTERI Web — v0.6.0
+# ASTERI POLARIS
 
-Base React + Vite del sitio de ASTERI.
+Sitio y plataforma de gestión del equipo ASTERI POLARIS, construido con React + Vite y Supabase.
 
-## Cambios de esta versión
+## Stack
 
-- Hero simplificado: ya no usa secuencia de imágenes ni scroll-scrub.
-- El hero reproduce un MP4 normal en loop desde `public/media/hero.mp4`.
-- Se eliminaron los 83 frames WebP del proyecto para reducir peso.
-- Nueva paleta más sobria: negro neutro + verde del logo + verdes profundos y un lima usado solamente como acento.
-- Historia más angosta, títulos más chicos y menor separación vertical entre los tres escudos.
-- Historia sobre fondo negro puro.
-- El selector superior del plantel ahora cambia el jugador activo al hacer click en su imagen/nombre, sin obligar a desplazar la página.
-- El nombre gigante detrás del jugador destacado se redujo y usa aproximadamente 40% de opacidad.
-- El wordmark inferior del footer vuelve a usar el PNG `src/assets/brand/asteri-wordmark-wide.png`.
-- Footer y PNG comparten el fondo `#020505` para integrarse visualmente.
+- React + Vite
+- React Router
+- Supabase Auth
+- Supabase PostgreSQL + RLS
+- Supabase Storage para imágenes y clips
+- GSAP / Motion para animaciones
 
-## Paleta v0.6
+## Módulos actuales
 
-```css
---color-primary: #01D069;
---color-secondary: #78A887;
---color-accent: #B5E925;
---color-green-medium: #168252;
---color-green-dark: #123A28;
+### Público
 
---color-bg: #050706;
---color-bg-secondary: #0D100E;
---color-surface: #151A17;
---color-border: #29312C;
+- Home del equipo
+- Roster cargado desde Supabase
+- Partidos / calendario cargados desde VODs publicados
+- Fichas públicas en `/players/:slug`
+- VODs públicas en `/vods/:slug`
 
---color-text: #F2F4F0;
---color-text-muted: #939F97;
-```
+### Jugadores
 
-El verde principal mantiene el tono central del logo. El lima queda reservado para pequeños puntos de atención, evitando convertir toda la UI en una composición neón.
+- Registro e inicio de sesión
+- Estado pendiente hasta aprobación del staff
+- Edición de ficha, estadísticas y configuración CS2
+- Cambio y recuperación de contraseña
 
-## Video del hero
+### Staff
 
-Reemplazá:
+- `/admin` — overview, usuarios, plantel y auditoría
+- `/admin/vods` — gestión de VODs, lineup y clips
+- Aprobación y vínculo de cuentas con jugadores
+- Activar/desactivar y ordenar jugadores
 
-`public/media/hero.mp4`
+## Variables de entorno
 
-por el highlight definitivo. No hace falta modificar código si conservás ese nombre y ruta.
-
-También podés definir otra ruta mediante:
+Copiá `.env.example` como `.env` y completá:
 
 ```env
-VITE_HERO_VIDEO_URL=/media/otro-video.mp4
+VITE_SUPABASE_URL=https://TU-PROYECTO.supabase.co
+VITE_SUPABASE_PUBLISHABLE_KEY=sb_publishable_TU_CLAVE_PUBLICA
 ```
 
-Recomendación para producción: MP4 H.264, 1920x1080, sin audio, 8–15 segundos.
+`.env` está ignorado por Git y no debe subirse al repositorio.
 
-## Jugadores
-
-Las imágenes siguen configurándose desde `src/data/players.js`.
-
-Ejemplo:
-
-```js
-image: '/players/character1.png'
-```
-
-Los PNG transparentes se reutilizan automáticamente tanto en el selector como en la ficha destacada.
-
-## Ejecutar
+## Desarrollo
 
 ```bash
 npm install
 npm run dev
 ```
 
-## Build
+## Build de producción
 
 ```bash
 npm run build
 ```
+
+El resultado se genera en `dist/`.
+
+## Hero
+
+Por defecto se utiliza:
+
+```text
+public/media/ejemplox.mp4
+```
+
+Se puede cambiar sin tocar código con:
+
+```env
+VITE_HERO_VIDEO_URL=/media/otro-video.mp4
+```
+
+## Datos de jugadores
+
+La fuente principal es Supabase. `src/lib/rosterPlayers.js` conserva un fallback visual de los seis jugadores actuales para que el Home no quede inutilizable si falla temporalmente la consulta.
+
+## VODs
+
+ASTERI no almacena demos `.dem`. La VOD principal se gestiona mediante una URL externa, por ejemplo YouTube o Google Drive. Los clips sí pueden usar URL externa o Supabase Storage.
+
+## Vercel
+
+`vercel.json` contiene el rewrite necesario para que las rutas de React Router funcionen al recargar una URL directa.
+
+Antes de producción, configurar en Vercel las mismas variables de entorno y agregar el dominio final a los Redirect URLs de Supabase Auth para `/update-password`.

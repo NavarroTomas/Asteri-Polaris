@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { players } from '../data/players'
+import { Link } from 'react-router-dom'
+import { getRosterPlayers, rosterFallback } from '../lib/rosterPlayers'
 import './AsteriTypography.css'
 
 const MAX_LAYERS = 64
@@ -206,10 +207,36 @@ function DepthText({
 }
 
 export default function RosterShowcase() {
+  const [players, setPlayers] = useState(rosterFallback)
   const [active, setActive] = useState(0)
   const scrollerRef = useRef(null)
   const dragRef = useRef({ down: false, startX: 0, startScroll: 0, moved: false })
-  const player = players[active]
+  const player = players[active] ?? players[0]
+
+  useEffect(() => {
+    let alive = true
+
+    const loadRoster = async () => {
+      try {
+        const nextPlayers = await getRosterPlayers()
+
+        if (!alive || nextPlayers.length === 0) return
+
+        setPlayers(nextPlayers)
+        setActive((current) =>
+          Math.min(current, Math.max(0, nextPlayers.length - 1)),
+        )
+      } catch (error) {
+        console.error('No se pudo cargar el roster desde Supabase:', error)
+      }
+    }
+
+    loadRoster()
+
+    return () => {
+      alive = false
+    }
+  }, [])
 
   const onPointerDown = (event) => {
     const scroller = scrollerRef.current
@@ -255,10 +282,7 @@ export default function RosterShowcase() {
 
   return (
     <section className="roster" id="plantel">
-      {/*
-        El CSS de DepthText está acá adentro para que esta prueba requiera
-        reemplazar UN SOLO archivo: RosterShowcase.jsx.
-      */}
+      {/* Estilos locales del efecto DepthText del jugador seleccionado. */}
       <style>{`
         /*
           TIPOGRAFÍA ASTERI
@@ -380,6 +404,34 @@ export default function RosterShowcase() {
 
         .selected-player-stats strong {
           color: #f2f4f0;
+        }
+
+        .selected-player-actions {
+          display: flex;
+          align-items: center;
+          flex-wrap: wrap;
+          gap: 8px;
+        }
+
+        .selected-player-profile-link {
+          min-height: 38px;
+          display: inline-flex;
+          align-items: center;
+          padding: 0 13px;
+          margin-left: 4px;
+          border: 1px solid #29312c;
+          background: #0d100e;
+          color: #aeb7b1;
+          text-decoration: none;
+          font: 700 8px/1 'Inter', sans-serif;
+          letter-spacing: .11em;
+          transition: border-color .18s ease, color .18s ease, background .18s ease;
+        }
+
+        .selected-player-profile-link:hover {
+          border-color: #00e875;
+          color: #00e875;
+          background: #0d100e;
         }
 
         /*
@@ -554,6 +606,13 @@ export default function RosterShowcase() {
               >
                 →
               </button>
+
+              <Link
+                className="selected-player-profile-link"
+                to={`/players/${player.slug}`}
+              >
+                FICHA DEL JUGADOR →
+              </Link>
             </div>
           </div>
 

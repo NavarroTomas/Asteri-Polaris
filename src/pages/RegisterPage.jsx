@@ -1,33 +1,332 @@
-import { useState } from 'react'
-import { Link } from 'react-router-dom'
-import { registerUser } from '../lib/demoAuth'
+import {
+  useEffect,
+  useState,
+} from 'react'
+import {
+  Link,
+  useNavigate,
+} from 'react-router-dom'
+import { supabase } from '../lib/supabase'
+import { useAuth } from '../context/AuthContext'
+import './AuthPages.css'
 
 export default function RegisterPage() {
-  const [data, setData] = useState({ email: '', password: '', nickname: '', role: 'Jugador' })
-  const [message, setMessage] = useState('')
-  const [error, setError] = useState('')
-  const set = (key, value) => setData((d) => ({ ...d, [key]: value }))
-  const submit = (e) => {
-    e.preventDefault(); setError(''); setMessage('')
-    try {
-      registerUser(data)
-      setMessage('Solicitud creada. El fundador debe aprobarla desde su panel.')
-      setData({ email: '', password: '', nickname: '', role: 'Jugador' })
-    } catch (err) { setError(err.message) }
+  const [form, setForm] =
+    useState({
+      displayName: '',
+      email: '',
+      password: '',
+      repeatPassword: '',
+    })
+
+  const [error, setError] =
+    useState('')
+
+  const [sending, setSending] =
+    useState(false)
+
+  const {
+    loading,
+    isAuthenticated,
+    isSuspended,
+    isOwner,
+    isAdmin,
+  } = useAuth()
+
+  const navigate = useNavigate()
+
+  useEffect(() => {
+    if (
+      loading ||
+      !isAuthenticated
+    ) {
+      return
+    }
+
+    if (isSuspended) {
+      navigate(
+        '/suspended',
+        {
+          replace: true,
+        },
+      )
+      return
+    }
+
+    if (isOwner || isAdmin) {
+      navigate(
+        '/admin',
+        {
+          replace: true,
+        },
+      )
+      return
+    }
+
+    navigate(
+      '/account',
+      {
+        replace: true,
+      },
+    )
+  }, [
+    loading,
+    isAuthenticated,
+    isSuspended,
+    isOwner,
+    isAdmin,
+    navigate,
+  ])
+
+  const set = (
+    key,
+    value,
+  ) => {
+    setError('')
+
+    setForm(
+      (current) => ({
+        ...current,
+        [key]: value,
+      }),
+    )
   }
+
+  const submit =
+    async (event) => {
+      event.preventDefault()
+
+      setError('')
+
+      if (
+        form.password.length < 8
+      ) {
+        setError(
+          'La contraseña debe tener al menos 8 caracteres.',
+        )
+        return
+      }
+
+      if (
+        form.password !==
+        form.repeatPassword
+      ) {
+        setError(
+          'Las contraseñas no coinciden.',
+        )
+        return
+      }
+
+      setSending(true)
+
+      try {
+        const {
+          error: signUpError,
+        } =
+          await supabase.auth.signUp({
+            email:
+              form.email.trim(),
+            password:
+              form.password,
+            options: {
+              data: {
+                display_name:
+                  form.displayName.trim(),
+              },
+            },
+          })
+
+        if (signUpError) {
+          throw signUpError
+        }
+
+        /*
+          Email confirmation está desactivado
+          en ASTERI.
+
+          El trigger crea:
+          role = player
+          status = pending
+
+          AuthContext detecta la nueva sesión
+          y la página redirige a /account.
+        */
+      } catch (err) {
+        setError(
+          err.message ||
+          'No se pudo crear la cuenta.',
+        )
+      } finally {
+        setSending(false)
+      }
+    }
+
   return (
-    <main className="auth-page">
-      <Link className="auth-back" to="/">← ASTERI</Link>
-      <form className="auth-card" onSubmit={submit}>
-        <span className="section-kicker">PLAYER AREA</span><h1>SOLICITAR CUENTA</h1>
-        <label>Nickname<input value={data.nickname} onChange={(e) => set('nickname', e.target.value)} required /></label>
-        <label>Rol<select value={data.role} onChange={(e) => set('role', e.target.value)}><option>Jugador</option><option>Coach</option><option>Manager</option></select></label>
-        <label>Email<input type="email" value={data.email} onChange={(e) => set('email', e.target.value)} required /></label>
-        <label>Contraseña<input type="password" minLength="6" value={data.password} onChange={(e) => set('password', e.target.value)} required /></label>
-        {error && <p className="form-error">{error}</p>}{message && <p className="form-success">{message}</p>}
-        <button className="button primary">ENVIAR SOLICITUD</button>
-        <Link to="/login">Ya tengo cuenta →</Link>
-      </form>
+    <main className="asteri-auth-page">
+      <Link
+        className="asteri-auth-back"
+        to="/"
+      >
+        ← ASTERI
+      </Link>
+
+      <section className="asteri-auth-layout">
+        <div className="asteri-auth-copy">
+          <span>
+            PLAYER SYSTEM / 02
+          </span>
+
+          <h1>
+            CREAR
+            <br />
+            CUENTA.
+          </h1>
+
+          <p>
+            El registro crea una
+            solicitud de acceso. El
+            Owner deberá aprobarla y
+            vincularla con el jugador
+            correspondiente.
+          </p>
+        </div>
+
+        <form
+          className="asteri-auth-form"
+          onSubmit={submit}
+        >
+          <div className="asteri-auth-form-head">
+            <span>
+              REGISTER
+            </span>
+
+            <strong>
+              SOLICITAR ACCESO
+            </strong>
+          </div>
+
+          <label>
+            <span>
+              NOMBRE / NICKNAME
+            </span>
+
+            <input
+              value={
+                form.displayName
+              }
+              onChange={(event) =>
+                set(
+                  'displayName',
+                  event.target.value,
+                )
+              }
+              placeholder="Onlyfran"
+              minLength="2"
+              required
+            />
+          </label>
+
+          <label>
+            <span>
+              EMAIL
+            </span>
+
+            <input
+              type="email"
+              autoComplete="email"
+              value={form.email}
+              onChange={(event) =>
+                set(
+                  'email',
+                  event.target.value,
+                )
+              }
+              placeholder="player@email.com"
+              required
+            />
+          </label>
+
+          <label>
+            <span>
+              CONTRASEÑA
+            </span>
+
+            <input
+              type="password"
+              autoComplete="new-password"
+              minLength="8"
+              value={
+                form.password
+              }
+              onChange={(event) =>
+                set(
+                  'password',
+                  event.target.value,
+                )
+              }
+              placeholder="Mínimo 8 caracteres"
+              required
+            />
+          </label>
+
+          <label>
+            <span>
+              REPETIR CONTRASEÑA
+            </span>
+
+            <input
+              type="password"
+              autoComplete="new-password"
+              minLength="8"
+              value={
+                form.repeatPassword
+              }
+              onChange={(event) =>
+                set(
+                  'repeatPassword',
+                  event.target.value,
+                )
+              }
+              placeholder="Repetí la contraseña"
+              required
+            />
+          </label>
+
+          {error && (
+            <p className="asteri-auth-message error">
+              {error}
+            </p>
+          )}
+
+          <p className="asteri-auth-note">
+            Después del registro podés
+            iniciar sesión normalmente,
+            pero el perfil permanecerá
+            PENDIENTE hasta que el Owner
+            lo apruebe.
+          </p>
+
+          <button
+            className="asteri-auth-submit"
+            type="submit"
+            disabled={sending}
+          >
+            {sending
+              ? 'CREANDO…'
+              : 'CREAR CUENTA'}
+          </button>
+
+          <div className="asteri-auth-bottom">
+            <span>
+              ¿YA TENÉS CUENTA?
+            </span>
+
+            <Link to="/login">
+              INICIAR SESIÓN →
+            </Link>
+          </div>
+        </form>
+      </section>
     </main>
   )
 }

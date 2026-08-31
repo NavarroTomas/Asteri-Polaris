@@ -1,5 +1,6 @@
-import { useMemo, useState } from 'react'
-import { matches } from '../data/matches'
+import { useEffect, useMemo, useState } from 'react'
+import { Link } from 'react-router-dom'
+import { getHomeMatches } from '../lib/homeMatches'
 import './AsteriTypography.css'
 
 const MONTHS = [
@@ -38,40 +39,126 @@ function opponentShort(name = '') {
   return `${clean.slice(0, 12)}…`
 }
 
+function initialCalendarDate(matches) {
+  const now = new Date()
+
+  if (!matches.length) {
+    return new Date(now.getFullYear(), now.getMonth(), 1)
+  }
+
+  const upcoming = matches.find((match) => {
+    const date = new Date(`${match.dateISO}T23:59:59`)
+    return date >= now && match.status !== 'CANCELADO'
+  })
+
+  const target = upcoming || matches[matches.length - 1]
+  const date = new Date(`${target.dateISO}T12:00:00`)
+
+  return new Date(date.getFullYear(), date.getMonth(), 1)
+}
+
 export default function MatchesHub() {
-  const [viewDate, setViewDate] = useState(new Date(2026, 7, 1))
+  const [matches, setMatches] = useState([])
+  const [viewDate, setViewDate] = useState(() => {
+    const now = new Date()
+    return new Date(now.getFullYear(), now.getMonth(), 1)
+  })
   const [selectedMatchId, setSelectedMatchId] = useState(null)
+  const [loading, setLoading] = useState(true)
+  const [loadError, setLoadError] = useState('')
+
+  useEffect(() => {
+    let alive = true
+
+    const load = async () => {
+      try {
+        const nextMatches = await getHomeMatches()
+
+        if (!alive) return
+
+        setMatches(nextMatches)
+
+        if (nextMatches.length > 0) {
+          const date = initialCalendarDate(nextMatches)
+          setViewDate(date)
+
+          const monthMatch = nextMatches.find((match) => {
+            const matchDate = new Date(`${match.dateISO}T12:00:00`)
+
+            return (
+              matchDate.getFullYear() === date.getFullYear() &&
+              matchDate.getMonth() === date.getMonth()
+            )
+          })
+
+          setSelectedMatchId(monthMatch?.id ?? null)
+        }
+      } catch (error) {
+        console.error('No se pudieron cargar los partidos:', error)
+
+        if (alive) {
+          setLoadError('NO SE PUDIERON CARGAR LOS PARTIDOS.')
+        }
+      } finally {
+        if (alive) setLoading(false)
+      }
+    }
+
+    load()
+
+    return () => {
+      alive = false
+    }
+  }, [])
 
   const year = viewDate.getFullYear()
   const month = viewDate.getMonth()
 
-  const monthDays = useMemo(() => buildMonth(year, month), [year, month])
+  const monthDays = useMemo(
+    () => buildMonth(year, month),
+    [year, month],
+  )
 
   const matchesByDay = useMemo(() => {
     const map = new Map()
 
-    matches.forEach(match => {
+    matches.forEach((match) => {
       const date = new Date(`${match.dateISO}T12:00:00`)
 
-      if (date.getFullYear() !== year || date.getMonth() !== month) return
+      if (
+        date.getFullYear() !== year ||
+        date.getMonth() !== month
+      ) {
+        return
+      }
 
       const day = date.getDate()
-      if (!map.has(day)) map.set(day, [])
+
+      if (!map.has(day)) {
+        map.set(day, [])
+      }
+
       map.get(day).push(match)
     })
 
     return map
-  }, [year, month])
+  }, [matches, year, month])
 
   const firstMatchInMonth = useMemo(() => {
-    return matches.find(match => {
+    return matches.find((match) => {
       const date = new Date(`${match.dateISO}T12:00:00`)
-      return date.getFullYear() === year && date.getMonth() === month
+
+      return (
+        date.getFullYear() === year &&
+        date.getMonth() === month
+      )
     })
-  }, [year, month])
+  }, [matches, year, month])
 
   const selectedMatch =
-    matches.find(match => match.id === selectedMatchId) || firstMatchInMonth || null
+    matches.find((match) => match.id === selectedMatchId) ||
+    firstMatchInMonth ||
+    null
 
   const selectedDate = selectedMatch
     ? new Date(`${selectedMatch.dateISO}T12:00:00`)
@@ -84,20 +171,37 @@ export default function MatchesHub() {
       ? selectedDate.getDate()
       : null
 
-  const changeMonth = delta => {
+  const changeMonth = (delta) => {
     setSelectedMatchId(null)
-    setViewDate(current => new Date(current.getFullYear(), current.getMonth() + delta, 1))
+
+    setViewDate((current) =>
+      new Date(
+        current.getFullYear(),
+        current.getMonth() + delta,
+        1,
+      ),
+    )
   }
 
-  const selectMatch = match => {
+  const selectMatch = (match) => {
     setSelectedMatchId(match.id)
 
     const date = new Date(`${match.dateISO}T12:00:00`)
-    setViewDate(new Date(date.getFullYear(), date.getMonth(), 1))
+
+    setViewDate(
+      new Date(
+        date.getFullYear(),
+        date.getMonth(),
+        1,
+      ),
+    )
   }
 
   return (
-    <section className="matches matches-minimal" id="partidos">
+    <section
+      className="matches matches-minimal"
+      id="partidos"
+    >
       <div className="section-shell matches-minimal-heading">
         <div>
           <h2>PARTIDOS.</h2>
@@ -112,19 +216,46 @@ export default function MatchesHub() {
         <div className="match-list-panel">
           <div className="match-list-title">
             <span>PARTIDOS</span>
-            <span>{String(matches.length).padStart(2, '0')}</span>
+            <span>
+              {loading
+                ? '—'
+                : String(matches.length).padStart(2, '0')}
+            </span>
           </div>
 
           <div className="match-list">
-            {matches.map(match => {
-              const active = selectedMatch?.id === match.id
+            {loading && (
+              <div className="matches-data-state">
+                CARGANDO PARTIDOS…
+              </div>
+            )}
+
+            {!loading && loadError && (
+              <div className="matches-data-state error">
+                {loadError}
+              </div>
+            )}
+
+            {!loading &&
+              !loadError &&
+              matches.length === 0 && (
+                <div className="matches-data-state">
+                  TODAVÍA NO HAY PARTIDOS PUBLICADOS.
+                </div>
+              )}
+
+            {matches.map((match) => {
+              const active =
+                selectedMatch?.id === match.id
               const played = Boolean(match.score)
 
               return (
                 <button
                   type="button"
                   key={match.id}
-                  className={`match-list-row ${active ? 'active' : ''}`}
+                  className={`match-list-row ${
+                    active ? 'active' : ''
+                  }`}
                   onClick={() => selectMatch(match)}
                 >
                   <div className="match-list-date">
@@ -133,13 +264,29 @@ export default function MatchesHub() {
                   </div>
 
                   <div className="match-list-opponent">
-                    <small>{match.type}</small>
-                    <strong>ASTERI <em>VS</em> {match.opponent}</strong>
+                    <small>
+                      {match.type}
+                      {match.map
+                        ? ` · ${match.map}`
+                        : ''}
+                    </small>
+
+                    <strong>
+                      ASTERI <em>VS</em>{' '}
+                      {match.opponent}
+                    </strong>
                   </div>
 
                   <div className="match-list-score">
-                    <small>{played ? 'FINAL' : 'PRÓXIMO'}</small>
-                    <strong>{match.score || '—'}</strong>
+                    <small>
+                      {played
+                        ? 'FINAL'
+                        : match.status}
+                    </small>
+
+                    <strong>
+                      {match.score || '—'}
+                    </strong>
                   </div>
                 </button>
               )
@@ -155,17 +302,26 @@ export default function MatchesHub() {
             </div>
 
             <div className="calendar-nav">
-              <button type="button" onClick={() => changeMonth(-1)} aria-label="Mes anterior">
+              <button
+                type="button"
+                onClick={() => changeMonth(-1)}
+                aria-label="Mes anterior"
+              >
                 ←
               </button>
-              <button type="button" onClick={() => changeMonth(1)} aria-label="Mes siguiente">
+
+              <button
+                type="button"
+                onClick={() => changeMonth(1)}
+                aria-label="Mes siguiente"
+              >
                 →
               </button>
             </div>
           </div>
 
           <div className="calendar-weekdays">
-            {WEEKDAYS.map(day => (
+            {WEEKDAYS.map((day) => (
               <span key={day}>{day}</span>
             ))}
           </div>
@@ -173,21 +329,34 @@ export default function MatchesHub() {
           <div className="calendar-grid">
             {monthDays.map((day, index) => {
               if (!day) {
-                return <span className="calendar-day empty" key={`empty-${index}`} />
+                return (
+                  <span
+                    className="calendar-day empty"
+                    key={`empty-${index}`}
+                  />
+                )
               }
 
-              const dayMatches = matchesByDay.get(day) || []
+              const dayMatches =
+                matchesByDay.get(day) || []
+
               const match = dayMatches[0]
               const hasMatch = Boolean(match)
-              const active = selectedDay === day
+              const active =
+                selectedDay === day
 
               return (
                 <button
                   type="button"
                   key={day}
                   disabled={!hasMatch}
-                  onClick={() => hasMatch && setSelectedMatchId(match.id)}
-                  className={`calendar-day ${hasMatch ? 'has-match' : ''} ${active ? 'active' : ''}`}
+                  onClick={() =>
+                    hasMatch &&
+                    setSelectedMatchId(match.id)
+                  }
+                  className={`calendar-day ${
+                    hasMatch ? 'has-match' : ''
+                  } ${active ? 'active' : ''}`}
                 >
                   <span className="calendar-day-number">
                     {String(day).padStart(2, '0')}
@@ -196,7 +365,17 @@ export default function MatchesHub() {
                   {hasMatch && (
                     <div className="calendar-day-match">
                       <i aria-hidden="true" />
-                      <span>{opponentShort(match.opponent)}</span>
+                      <span>
+                        {dayMatches.length > 1
+                          ? `${opponentShort(
+                              match.opponent,
+                            )} +${
+                              dayMatches.length - 1
+                            }`
+                          : opponentShort(
+                              match.opponent,
+                            )}
+                      </span>
                     </div>
                   )}
                 </button>
@@ -208,42 +387,68 @@ export default function MatchesHub() {
             {selectedMatch ? (
               <>
                 <div className="calendar-selected-date">
-                  <strong>{String(selectedDay || '').padStart(2, '0')}</strong>
-                  <span>{MONTHS[month].slice(0, 3)}</span>
+                  <strong>
+                    {String(
+                      selectedDay || '',
+                    ).padStart(2, '0')}
+                  </strong>
+                  <span>
+                    {MONTHS[month].slice(0, 3)}
+                  </span>
                 </div>
 
                 <div className="calendar-selected-match">
-                  <small>{selectedMatch.type} · {selectedMatch.time}</small>
-                  <strong>ASTERI <em>VS</em> {selectedMatch.opponent}</strong>
+                  <small>
+                    {selectedMatch.type} ·{' '}
+                    {selectedMatch.time}
+                    {selectedMatch.map
+                      ? ` · ${selectedMatch.map}`
+                      : ''}
+                  </small>
+
+                  <strong>
+                    ASTERI <em>VS</em>{' '}
+                    {selectedMatch.opponent}
+                  </strong>
                 </div>
 
                 <div className="calendar-selected-result">
-                  <small>{selectedMatch.score ? 'RESULTADO' : 'ESTADO'}</small>
-                  <strong>{selectedMatch.score || selectedMatch.status}</strong>
+                  <small>
+                    {selectedMatch.score
+                      ? 'RESULTADO'
+                      : 'ESTADO'}
+                  </small>
+
+                  <strong>
+                    {selectedMatch.score ||
+                      selectedMatch.status}
+                  </strong>
                 </div>
 
                 <div className="calendar-selected-vod">
                   {selectedMatch.vod ? (
-                    <a href={selectedMatch.vod}>VOD ↗</a>
+                    <Link
+                      to={selectedMatch.vod}
+                    >
+                      VOD ↗
+                    </Link>
                   ) : (
                     <span>—</span>
                   )}
                 </div>
               </>
             ) : (
-              <span className="calendar-empty-copy">SIN PARTIDOS ESTE MES</span>
+              <span className="calendar-empty-copy">
+                {loading
+                  ? 'CARGANDO…'
+                  : 'SIN PARTIDOS ESTE MES'}
+              </span>
             )}
           </div>
         </div>
       </div>
 
       <style>{`
-        /*
-          Calendario ASTERI inspirado en la lectura rápida de CS:
-          plano, compacto, tipografía condensada y jerarquía de información.
-          Sin glow, sin gradients, sin bordes de color.
-        */
-
         .matches-minimal {
           min-height: auto;
           padding: clamp(52px, 5.2vh, 68px) 0 clamp(46px, 4.6vh, 62px);
@@ -345,7 +550,22 @@ export default function MatchesHub() {
           background: #263029;
         }
 
+        .matches-data-state {
+          min-height: 90px;
+          display: flex;
+          align-items: center;
+          padding: 0 16px;
+          color: #66716a;
+          font: 700 8px/1.5 var(--font-tactical);
+          letter-spacing: .12em;
+        }
+
+        .matches-data-state.error {
+          color: #d98b85;
+        }
+
         .match-list-row {
+          position: relative;
           width: 100%;
           min-height: 68px;
           display: grid;
@@ -378,10 +598,6 @@ export default function MatchesHub() {
           height: 34px;
           left: 0;
           background: #00d96e;
-        }
-
-        .match-list-row {
-          position: relative;
         }
 
         .match-list-date,
@@ -440,10 +656,6 @@ export default function MatchesHub() {
           color: #e6e9e7;
           font-size: 17px;
         }
-
-        /* ============================
-           CALENDAR
-        ============================ */
 
         .calendar-head {
           min-height: 52px;
@@ -594,10 +806,6 @@ export default function MatchesHub() {
           white-space: nowrap;
           text-overflow: ellipsis;
         }
-
-        /* ============================
-           SELECTED MATCH
-        ============================ */
 
         .calendar-selected {
           min-height: 64px;
