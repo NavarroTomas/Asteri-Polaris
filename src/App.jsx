@@ -1,4 +1,4 @@
-import { Navigate, Route, Routes } from 'react-router-dom'
+import { Route, Routes } from 'react-router-dom'
 import HomePage from './pages/HomePage'
 import LoginPage from './pages/LoginPage'
 import RegisterPage from './pages/RegisterPage'
@@ -10,61 +10,66 @@ import AdminPage from './pages/AdminPage'
 import PlayerPage from './pages/PlayerPage'
 import VodPage from './pages/VodPage'
 import VodAdminPage from './pages/VodAdminPage'
+import NotFoundPage from './pages/NotFoundPage'
 import ProtectedRoute from './components/ProtectedRoute'
 import StaffRoute from './components/StaffRoute'
 import RouteScrollManager from './components/RouteScrollManager'
+import SeoManager from './components/SeoManager'
 
 export default function App() {
   return (
     <>
+      <SeoManager />
       <RouteScrollManager />
+
       <Routes>
-      <Route path="/" element={<HomePage />} />
+        <Route path="/" element={<HomePage />} />
 
-      <Route path="/login" element={<LoginPage />} />
-      <Route path="/register" element={<RegisterPage />} />
-      <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-      <Route path="/update-password" element={<UpdatePasswordPage />} />
-      <Route
-        path="/suspended"
-        element={
-          <ProtectedRoute allowSuspended>
-            <SuspendedPage />
-          </ProtectedRoute>
-        }
-      />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<RegisterPage />} />
+        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+        <Route path="/update-password" element={<UpdatePasswordPage />} />
 
-      <Route
-        path="/account"
-        element={
-          <ProtectedRoute>
-            <AccountPage />
-          </ProtectedRoute>
-        }
-      />
+        <Route
+          path="/suspended"
+          element={
+            <ProtectedRoute allowSuspended>
+              <SuspendedPage />
+            </ProtectedRoute>
+          }
+        />
 
-      <Route
-        path="/admin"
-        element={
-          <StaffRoute>
-            <AdminPage />
-          </StaffRoute>
-        }
-      />
+        <Route
+          path="/account"
+          element={
+            <ProtectedRoute>
+              <AccountPage />
+            </ProtectedRoute>
+          }
+        />
 
-      <Route path="/players/:slug" element={<PlayerPage />} />
-      <Route path="/vods/:slug" element={<VodPage />} />
+        <Route
+          path="/admin"
+          element={
+            <StaffRoute>
+              <AdminPage />
+            </StaffRoute>
+          }
+        />
 
-      <Route
-        path="/admin/vods"
-        element={
-          <StaffRoute>
-            <VodAdminPage />
-          </StaffRoute>
-        }
-      />
+        <Route path="/players/:slug" element={<PlayerPage />} />
+        <Route path="/vods/:slug" element={<VodPage />} />
 
-        <Route path="*" element={<Navigate to="/" replace />} />
+        <Route
+          path="/admin/vods"
+          element={
+            <StaffRoute>
+              <VodAdminPage />
+            </StaffRoute>
+          }
+        />
+
+        <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </>
   )
