@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import wordmark from '../assets/brand/asteri-wordmark-wide.png'
+import { SOCIAL_LINKS } from '../config/socialLinks'
 
 export default function Footer() {
   const [subscribed, setSubscribed] =
@@ -73,20 +74,36 @@ export default function Footer() {
               COMUNIDAD
             </span>
 
-            <a href="#">
+            <a
+              href={SOCIAL_LINKS.discord}
+              target="_blank"
+              rel="noreferrer"
+            >
               Discord ↗
             </a>
 
-            <a href="#">
+            <a
+              href={SOCIAL_LINKS.instagram}
+              target="_blank"
+              rel="noreferrer"
+            >
               Instagram ↗
             </a>
 
-            <a href="#">
-              YouTube ↗
+            <a
+              href={SOCIAL_LINKS.x}
+              target="_blank"
+              rel="noreferrer"
+            >
+              X ↗
             </a>
 
-            <a href="#">
-              Steam ↗
+            <a
+              href={SOCIAL_LINKS.faceit}
+              target="_blank"
+              rel="noreferrer"
+            >
+              FACEIT ↗
             </a>
           </div>
         </div>
@@ -105,7 +122,9 @@ export default function Footer() {
 
           <a
             className="footer-discord"
-            href="#"
+            href={SOCIAL_LINKS.discord}
+            target="_blank"
+            rel="noreferrer"
           >
             ENTRAR AL DISCORD
             <span>→</span>

@@ -13,58 +13,69 @@ const eras = [
     period: 'PRIMER ESCUDO',
     title: 'ASTERI POLARIS',
     logo: polarisClassic,
-    text: 'El primer escudo nace de una idea simple: nunca dejar de mirar hacia arriba. La figura central representa los sueños, la ambición y la voluntad de seguir superándose; las estrellas simbolizan esas metas que solo se alcanzan con trabajo, perseverancia y la decisión de ir siempre un poco más lejos.'
+    text: 'El primer escudo nace de una idea simple: nunca dejar de mirar hacia arriba. La figura central representa los sueños, la ambición y la voluntad de seguir superándose; las estrellas simbolizan esas metas que solo se alcanzan con trabajo, perseverancia y la decisión de ir siempre un poco más lejos.',
   },
   {
     period: 'SEGUNDA IDENTIDAD',
     title: 'ESTRELLA POLAR',
     logo: polarisStar,
-    text: 'La segunda identidad toma una representación directa de la Estrella Polar. Durante siglos fue una referencia para encontrar el rumbo incluso en la oscuridad; para ASTERI representa una dirección clara, una guía constante y una meta que nunca se deja de perseguir.'
+    text: 'La segunda identidad toma una representación directa de la Estrella Polar. Durante siglos fue una referencia para encontrar el rumbo incluso en la oscuridad; para ASTERI representa una dirección clara, una guía constante y una meta que nunca se deja de perseguir.',
   },
   {
     period: 'IDENTIDAD ACTUAL',
     title: 'ASTERI',
     logo: asteriA,
-    text: 'El escudo actual representa la evolución de ASTERI sin borrar su origen. Conserva los valores que dieron forma a Polaris y los transforma en una identidad más moderna, competitiva y reconocible: un símbolo propio para afrontar cada nuevo desafío.'
-  }
+    text: 'El escudo actual representa la evolución de ASTERI sin borrar su origen. Conserva los valores que dieron forma a Polaris y los transforma en una identidad más moderna, competitiva y reconocible: un símbolo propio para afrontar cada nuevo desafío.',
+  },
 ]
 
 function ScrollRevealText({ children }) {
   const containerRef = useRef(null)
 
-  const words = useMemo(() => {
-    return children.split(/(\s+)/).map((part, index) => {
-      if (/^\s+$/.test(part)) return part
+  const words = useMemo(
+    () =>
+      children.split(/(\s+)/).map((part, index) => {
+        if (/^\s+$/.test(part)) return part
 
-      return (
-        <span className="history-reveal-word" key={`${part}-${index}`}>
-          {part}
-        </span>
-      )
-    })
-  }, [children])
+        return (
+          <span
+            className="history-reveal-word"
+            key={`${part}-${index}`}
+          >
+            {part}
+          </span>
+        )
+      }),
+    [children],
+  )
 
   useEffect(() => {
     const element = containerRef.current
     if (!element) return undefined
 
-    if (window.matchMedia('(max-width: 720px)').matches) {
+    const mm = gsap.matchMedia()
+
+    mm.add('(max-width: 720px)', () => {
       gsap.set(element, { rotate: 0 })
       gsap.set(
         element.querySelectorAll('.history-reveal-word'),
-        { opacity: 1, filter: 'blur(0px)', y: 0 },
+        {
+          opacity: 1,
+          filter: 'blur(0px)',
+          y: 0,
+        },
       )
-      return undefined
-    }
+    })
 
-    const context = gsap.context(() => {
-      const wordElements = element.querySelectorAll('.history-reveal-word')
+    mm.add('(min-width: 721px)', () => {
+      const wordElements =
+        element.querySelectorAll('.history-reveal-word')
 
-      gsap.fromTo(
+      const rotateTween = gsap.fromTo(
         element,
         {
           rotate: 2.2,
-          transformOrigin: '0% 50%'
+          transformOrigin: '0% 50%',
         },
         {
           rotate: 0,
@@ -73,17 +84,18 @@ function ScrollRevealText({ children }) {
             trigger: element,
             start: 'top 88%',
             end: 'bottom 52%',
-            scrub: 0.7
-          }
-        }
+            scrub: 0.7,
+            invalidateOnRefresh: true,
+          },
+        },
       )
 
-      gsap.fromTo(
+      const wordsTween = gsap.fromTo(
         wordElements,
         {
           opacity: 0.08,
           filter: 'blur(7px)',
-          y: 9
+          y: 9,
         },
         {
           opacity: 1,
@@ -95,13 +107,21 @@ function ScrollRevealText({ children }) {
             trigger: element,
             start: 'top 84%',
             end: 'bottom 68%',
-            scrub: 0.75
-          }
-        }
+            scrub: 0.75,
+            invalidateOnRefresh: true,
+          },
+        },
       )
-    }, element)
 
-    return () => context.revert()
+      return () => {
+        rotateTween.scrollTrigger?.kill()
+        wordsTween.scrollTrigger?.kill()
+        rotateTween.kill()
+        wordsTween.kill()
+      }
+    })
+
+    return () => mm.revert()
   }, [])
 
   return (
@@ -119,93 +139,151 @@ export default function HistoryTimeline() {
     const root = rootRef.current
     if (!root) return undefined
 
-    if (window.matchMedia('(max-width: 720px)').matches) {
-      const stories = root.querySelectorAll('.history-scroll-story')
-      stories.forEach((story) => {
-        gsap.set(
-          story.querySelectorAll('.history-scroll-period, .history-scroll-title'),
-          { opacity: 1, y: 0 },
-        )
-      })
-      return undefined
-    }
+    const mm = gsap.matchMedia()
 
-    const context = gsap.context(() => {
-      const stories = gsap.utils.toArray('.history-scroll-story', root)
+    mm.add('(max-width: 720px)', () => {
+      gsap.set(
+        root.querySelectorAll(
+          '.history-scroll-period, .history-scroll-title, .history-scroll-mobile-logo',
+        ),
+        {
+          opacity: 1,
+          visibility: 'visible',
+          x: 0,
+          y: 0,
+          scale: 1,
+          rotate: 0,
+        },
+      )
+
+      gsap.set(
+        root.querySelectorAll('.history-reveal-word'),
+        {
+          opacity: 1,
+          filter: 'blur(0px)',
+          y: 0,
+        },
+      )
+    })
+
+    mm.add('(min-width: 721px)', () => {
+      const stories = Array.from(
+        root.querySelectorAll('.history-scroll-story'),
+      )
       const logos = logoRefs.current.filter(Boolean)
 
-      const showLogo = (activeIndex, immediate = false) => {
-        logos.forEach((logo, index) => {
-          if (!logo) return
+      if (!stories.length || !logos.length) return undefined
 
-          if (index === activeIndex) {
+      let activeIndex = -1
+
+      gsap.set(logos, {
+        autoAlpha: 0,
+        x: 0,
+        y: 0,
+        scale: 1,
+        rotate: 0,
+      })
+
+      const showLogo = (nextIndex, immediate = false) => {
+        if (nextIndex === activeIndex && !immediate) return
+
+        activeIndex = nextIndex
+
+        logos.forEach((logo, index) => {
+          gsap.killTweensOf(logo)
+
+          if (index === nextIndex) {
             if (immediate) {
               gsap.set(logo, {
                 autoAlpha: 1,
-                y: 0,
                 x: 0,
+                y: 0,
                 scale: 1,
-                rotate: 0
+                rotate: 0,
               })
               return
             }
 
-            gsap.killTweensOf(logo)
             gsap.fromTo(
               logo,
               {
                 autoAlpha: 0,
-                y: 42,
-                x: 26,
-                scale: 0.9,
-                rotate: 3
+                y: 22,
+                scale: 0.965,
               },
               {
                 autoAlpha: 1,
-                y: 0,
                 x: 0,
+                y: 0,
                 scale: 1,
                 rotate: 0,
-                duration: 0.72,
-                ease: 'power3.out',
-                overwrite: true
-              }
+                duration: 0.42,
+                ease: 'power2.out',
+                overwrite: true,
+              },
             )
-          } else {
-            gsap.killTweensOf(logo)
-            gsap.to(logo, {
-              autoAlpha: 0,
-              y: -34,
-              x: -18,
-              scale: 0.94,
-              rotate: -2,
-              duration: immediate ? 0 : 0.38,
-              ease: 'power2.in',
-              overwrite: true
-            })
+            return
           }
+
+          gsap.to(logo, {
+            autoAlpha: 0,
+            y: index < nextIndex ? -18 : 18,
+            scale: 0.98,
+            duration: immediate ? 0 : 0.22,
+            ease: 'power1.out',
+            overwrite: true,
+          })
         })
       }
 
-      showLogo(0, true)
+      const getClosestStoryIndex = () => {
+        const targetY = window.innerHeight * 0.5
 
-      stories.forEach((story, index) => {
-        ScrollTrigger.create({
-          trigger: story,
-          start: 'top 58%',
-          end: 'bottom 42%',
-          onEnter: () => showLogo(index),
-          onEnterBack: () => showLogo(index)
+        let closestIndex = 0
+        let closestDistance = Infinity
+
+        stories.forEach((story, index) => {
+          const rect = story.getBoundingClientRect()
+          const storyCenter = rect.top + rect.height / 2
+          const distance = Math.abs(storyCenter - targetY)
+
+          if (distance < closestDistance) {
+            closestDistance = distance
+            closestIndex = index
+          }
         })
 
-        const period = story.querySelector('.history-scroll-period')
-        const title = story.querySelector('.history-scroll-title')
+        return closestIndex
+      }
 
-        gsap.fromTo(
+      const syncLogo = (immediate = false) => {
+        showLogo(getClosestStoryIndex(), immediate)
+      }
+
+      syncLogo(true)
+
+      const masterTrigger = ScrollTrigger.create({
+        trigger: root,
+        start: 'top bottom',
+        end: 'bottom top',
+        invalidateOnRefresh: true,
+        onUpdate: () => syncLogo(false),
+        onRefresh: () => syncLogo(true),
+        onEnter: () => syncLogo(true),
+        onEnterBack: () => syncLogo(true),
+      })
+
+      const titleTweens = stories.map((story) => {
+        const period =
+          story.querySelector('.history-scroll-period')
+        const title =
+          story.querySelector('.history-scroll-title')
+
+        return gsap.fromTo(
           [period, title],
           {
             opacity: 0,
-            y: 28
+            y: 28,
           },
           {
             opacity: 1,
@@ -216,38 +294,97 @@ export default function HistoryTimeline() {
             scrollTrigger: {
               trigger: story,
               start: 'top 78%',
-              toggleActions: 'play none none reverse'
-            }
-          }
+              toggleActions: 'play none none reverse',
+              invalidateOnRefresh: true,
+            },
+          },
         )
       })
-    }, root)
 
-    return () => context.revert()
+      const refresh = () => {
+        syncLogo(true)
+        ScrollTrigger.refresh()
+      }
+
+      const onResize = () => {
+        window.requestAnimationFrame(refresh)
+      }
+
+      window.addEventListener('resize', onResize)
+
+      const imageCleanups = logos.map((logo) => {
+        if (logo.complete) return null
+
+        const onLoad = () => refresh()
+        logo.addEventListener('load', onLoad, { once: true })
+
+        return () => logo.removeEventListener('load', onLoad)
+      })
+
+      window.requestAnimationFrame(refresh)
+
+      return () => {
+        window.removeEventListener('resize', onResize)
+
+        imageCleanups.forEach((cleanup) => cleanup?.())
+
+        masterTrigger.kill()
+
+        titleTweens.forEach((tween) => {
+          tween.scrollTrigger?.kill()
+          tween.kill()
+        })
+
+        gsap.killTweensOf(logos)
+      }
+    })
+
+    return () => mm.revert()
   }, [])
 
   return (
-    <section id="historia" className="history-scroll-section" ref={rootRef}>
+    <section
+      id="historia"
+      className="history-scroll-section"
+      ref={rootRef}
+    >
       <div className="history-scroll-layout">
         <div className="history-scroll-copy-column">
           {eras.map((era) => (
-            <article className="history-scroll-story" key={era.title}>
+            <article
+              className="history-scroll-story"
+              key={era.title}
+            >
               <img
                 src={era.logo}
                 alt=""
                 className="history-scroll-mobile-logo"
                 aria-hidden="true"
               />
-              <span className="history-scroll-period">{era.period}</span>
-              <h3 className="history-scroll-title">{era.title}</h3>
-              <ScrollRevealText>{era.text}</ScrollRevealText>
+
+              <span className="history-scroll-period">
+                {era.period}
+              </span>
+
+              <h3 className="history-scroll-title">
+                {era.title}
+              </h3>
+
+              <ScrollRevealText>
+                {era.text}
+              </ScrollRevealText>
             </article>
           ))}
         </div>
 
-        <div className="history-scroll-logo-column" aria-hidden="true">
+        <div
+          className="history-scroll-logo-column"
+          aria-hidden="true"
+        >
           <div className="history-scroll-logo-sticky">
-            <span className="history-logo-kicker">IDENTIDAD / EVOLUCIÓN</span>
+            <span className="history-logo-kicker">
+              IDENTIDAD / EVOLUCIÓN
+            </span>
 
             <div className="history-scroll-logo-stage">
               {eras.map((era, index) => (
@@ -343,9 +480,10 @@ export default function HistoryTimeline() {
 
         .history-scroll-logo-sticky {
           position: sticky;
-          top: 10vh;
-          height: 80vh;
-          min-height: 520px;
+          top: clamp(86px, 9vh, 120px);
+          height: calc(100vh - clamp(110px, 15vh, 180px));
+          min-height: 360px;
+          max-height: 760px;
           display: grid;
           grid-template-rows: auto 1fr;
           align-items: center;
@@ -362,6 +500,7 @@ export default function HistoryTimeline() {
           position: relative;
           width: 100%;
           height: 100%;
+          min-height: 0;
           display: grid;
           place-items: center;
         }
@@ -378,27 +517,58 @@ export default function HistoryTimeline() {
         .history-scroll-logo {
           position: absolute;
           width: min(340px, 27vw);
-          max-height: 48vh;
+          max-width: 88%;
+          max-height: min(48vh, 440px);
           object-fit: contain;
           opacity: 0;
           visibility: hidden;
           filter: none;
+          transform: translate3d(0, 0, 0);
+          backface-visibility: hidden;
           will-change: transform, opacity;
         }
 
-        @media (max-width: 900px) {
-          .history-scroll-layout {
-            width: calc(100vw - 64px);
-            grid-template-columns: minmax(0, 1fr) minmax(250px, .56fr);
-            gap: 32px;
-          }
+        .history-scroll-logo:first-child {
+          opacity: 1;
+          visibility: visible;
+        }
 
-          .history-scroll-story {
-            min-height: 78vh;
+        @media (max-width: 1100px) {
+          .history-scroll-layout {
+            width: calc(100vw - 80px);
+            grid-template-columns: minmax(0, 1fr) minmax(270px, .6fr);
+            gap: 42px;
           }
 
           .history-scroll-logo {
-            width: min(280px, 31vw);
+            width: min(300px, 29vw);
+          }
+        }
+
+        @media (max-width: 900px) and (min-width: 721px) {
+          .history-scroll-layout {
+            width: calc(100vw - 56px);
+            grid-template-columns: minmax(0, 1fr) minmax(220px, .52fr);
+            gap: 28px;
+          }
+
+          .history-scroll-story {
+            min-height: 74vh;
+          }
+
+          .history-scroll-logo-sticky {
+            top: 82px;
+            height: calc(100vh - 112px);
+            min-height: 320px;
+          }
+
+          .history-scroll-logo {
+            width: min(250px, 29vw);
+            max-height: 42vh;
+          }
+
+          .history-scroll-logo-stage::before {
+            width: min(270px, 31vw);
           }
         }
 
@@ -433,6 +603,9 @@ export default function HistoryTimeline() {
             margin: 0 0 26px;
             object-fit: contain;
             object-position: left center;
+            opacity: 1 !important;
+            visibility: visible !important;
+            transform: none !important;
           }
 
           .history-scroll-period {
@@ -492,7 +665,6 @@ export default function HistoryTimeline() {
           .history-scroll-logo,
           .history-scroll-period,
           .history-scroll-title {
-            opacity: 1 !important;
             filter: none !important;
             transform: none !important;
           }

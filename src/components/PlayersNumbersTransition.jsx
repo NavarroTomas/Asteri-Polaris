@@ -1,6 +1,8 @@
+import { SOCIAL_LINKS } from '../config/socialLinks'
+
 const INSTAGRAM = {
   handle: '@ASTERIPOLARIS',
-  url: '#', // Reemplazá # por el link real de Instagram
+  url: SOCIAL_LINKS.instagram,
 }
 
 function InstagramIcon() {
@@ -39,9 +41,7 @@ export default function PlayersNumbersTransition() {
               SEGUÍ AL EQUIPO
             </span>
 
-            <strong>
-              {INSTAGRAM.handle}
-            </strong>
+            <strong>{INSTAGRAM.handle}</strong>
           </div>
         </div>
 
@@ -72,17 +72,13 @@ export default function PlayersNumbersTransition() {
           width: min(1500px, calc(100vw - 8vw));
           min-height: 92px;
           margin: 0 auto;
-
           display: grid;
           grid-template-columns: auto 1fr auto;
           align-items: center;
           gap: clamp(28px, 5vw, 84px);
-
           color: #f2f4f0;
           text-decoration: none;
-
-          transition:
-            color .24s ease;
+          transition: color .24s ease;
         }
 
         .instagram-transition::before {
@@ -99,15 +95,13 @@ export default function PlayersNumbersTransition() {
           transform: scaleY(1);
         }
 
-        .instagram-transition:hover
-        .instagram-transition-link {
+        .instagram-transition:hover .instagram-transition-link {
           color: #07110b;
         }
 
         .instagram-transition-left {
           position: relative;
           z-index: 2;
-
           display: flex;
           align-items: center;
           gap: 16px;
@@ -116,20 +110,14 @@ export default function PlayersNumbersTransition() {
         .instagram-transition-icon-wrap {
           width: 42px;
           height: 42px;
-
           display: inline-flex;
           align-items: center;
           justify-content: center;
-
           border: 1px solid rgba(255, 255, 255, .14);
-
-          transition:
-            border-color .24s ease,
-            transform .24s ease;
+          transition: border-color .24s ease, transform .24s ease;
         }
 
-        .instagram-transition:hover
-        .instagram-transition-icon-wrap {
+        .instagram-transition:hover .instagram-transition-icon-wrap {
           border-color: rgba(7, 17, 11, .24);
           transform: rotate(-5deg);
         }
@@ -137,7 +125,6 @@ export default function PlayersNumbersTransition() {
         .instagram-cta-icon {
           width: 20px;
           height: 20px;
-
           fill: none;
           stroke: currentColor;
           stroke-width: 1.7;
@@ -156,62 +143,38 @@ export default function PlayersNumbersTransition() {
 
         .instagram-transition-kicker {
           color: #00e875;
-
-          font:
-            800 8px/1
-            'Inter',
-            sans-serif;
-
+          font: 800 8px/1 'Inter', sans-serif;
           letter-spacing: .18em;
           text-transform: uppercase;
-
           transition: color .24s ease;
         }
 
-        .instagram-transition:hover
-        .instagram-transition-kicker {
+        .instagram-transition:hover .instagram-transition-kicker {
           color: rgba(7, 17, 11, .62);
         }
 
         .instagram-transition-copy strong {
-          font:
-            800 14px/1
-            'Inter',
-            sans-serif;
-
+          font: 800 14px/1 'Inter', sans-serif;
           letter-spacing: .08em;
         }
 
         .instagram-transition-center {
           position: relative;
           z-index: 2;
-
           min-width: 0;
           overflow: hidden;
-
           display: flex;
           justify-content: center;
           gap: 28px;
-
           color: rgba(242, 244, 240, 0.98);
-
-          font:
-            850
-            clamp(24px, 2.7vw, 44px)/1
-            'Bricolage Grotesque',
-            sans-serif;
-
+          font: 850 clamp(24px, 2.7vw, 44px)/1 'Bricolage Grotesque', sans-serif;
           letter-spacing: -.045em;
           white-space: nowrap;
           text-transform: uppercase;
-
-          transition:
-            color .24s ease,
-            transform .28s ease;
+          transition: color .24s ease, transform .28s ease;
         }
 
-        .instagram-transition:hover
-        .instagram-transition-center {
+        .instagram-transition:hover .instagram-transition-center {
           color: rgba(7, 17, 11, .12);
           transform: translateX(10px);
         }
@@ -219,16 +182,10 @@ export default function PlayersNumbersTransition() {
         .instagram-transition-action {
           position: relative;
           z-index: 2;
-
           display: flex;
           align-items: center;
           gap: 14px;
-
-          font:
-            800 9px/1
-            'Inter',
-            sans-serif;
-
+          font: 800 9px/1 'Inter', sans-serif;
           letter-spacing: .15em;
           text-transform: uppercase;
         }
@@ -236,25 +193,17 @@ export default function PlayersNumbersTransition() {
         .instagram-transition-arrow {
           width: 34px;
           height: 34px;
-
           display: inline-flex;
           align-items: center;
           justify-content: center;
-
           border: 1px solid rgba(255,255,255,.14);
-
           color: #00e875;
           font-size: 14px;
           letter-spacing: 0;
-
-          transition:
-            transform .24s ease,
-            color .24s ease,
-            border-color .24s ease;
+          transition: transform .24s ease, color .24s ease, border-color .24s ease;
         }
 
-        .instagram-transition:hover
-        .instagram-transition-arrow {
+        .instagram-transition:hover .instagram-transition-arrow {
           transform: translate(3px, -3px);
           color: #07110b;
           border-color: rgba(7, 17, 11, .24);

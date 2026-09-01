@@ -1,8 +1,26 @@
+import { SOCIAL_LINKS } from '../config/socialLinks'
+
 const channels = [
-  { name: 'DISCORD', label: 'COMUNIDAD', href: '#' },
-  { name: 'INSTAGRAM', label: 'SOCIAL', href: '#' },
-  { name: 'YOUTUBE', label: 'VODS + CLIPS', href: '#' },
-  { name: 'STEAM', label: 'TEAM', href: '#' },
+  {
+    name: 'DISCORD',
+    label: 'COMUNIDAD',
+    href: SOCIAL_LINKS.discord,
+  },
+  {
+    name: 'INSTAGRAM',
+    label: 'SOCIAL',
+    href: SOCIAL_LINKS.instagram,
+  },
+  {
+    name: 'X',
+    label: 'ACTUALIDAD',
+    href: SOCIAL_LINKS.x,
+  },
+  {
+    name: 'FACEIT',
+    label: 'COMPETICIÓN',
+    href: SOCIAL_LINKS.faceit,
+  },
 ]
 
 export default function CommunitySection() {
@@ -19,7 +37,13 @@ export default function CommunitySection() {
 
         <div className="community-links">
           {channels.map((channel) => (
-            <a key={channel.name} href={channel.href} className="community-link">
+            <a
+              key={channel.name}
+              href={channel.href}
+              className="community-link"
+              target="_blank"
+              rel="noreferrer"
+            >
               <span className="community-link-label">{channel.label}</span>
               <strong>{channel.name}</strong>
               <span className="community-link-arrow" aria-hidden="true">↗</span>
