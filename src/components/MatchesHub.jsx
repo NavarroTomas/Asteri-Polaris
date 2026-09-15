@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { getHomeMatches } from '../lib/homeMatches'
+import { getHomeCalendarData } from '../lib/homeMatches'
 import './AsteriTypography.css'
 
 const MONTHS = [
@@ -18,91 +18,313 @@ const MONTHS = [
   'DICIEMBRE',
 ]
 
-const WEEKDAYS = ['LUN', 'MAR', 'MIÉ', 'JUE', 'VIE', 'SÁB', 'DOM']
+const WEEKDAYS = [
+  'LUN',
+  'MAR',
+  'MIÉ',
+  'JUE',
+  'VIE',
+  'SÁB',
+  'DOM',
+]
+
+const EVENT_LABELS = {
+  event: 'EVENTO',
+  matchday: 'FECHA',
+  tournament: 'TORNEO',
+  scrim: 'SCRIM',
+  other: 'OTRO',
+}
 
 function buildMonth(year, month) {
-  const daysInMonth = new Date(year, month + 1, 0).getDate()
-  const firstDay = new Date(year, month, 1).getDay()
-  const mondayIndex = (firstDay + 6) % 7
+  const daysInMonth =
+    new Date(
+      year,
+      month + 1,
+      0,
+    ).getDate()
+
+  const firstDay =
+    new Date(
+      year,
+      month,
+      1,
+    ).getDay()
+
+  const mondayIndex =
+    (firstDay + 6) % 7
+
   const cells = []
 
-  for (let i = 0; i < mondayIndex; i += 1) cells.push(null)
-  for (let day = 1; day <= daysInMonth; day += 1) cells.push(day)
-  while (cells.length % 7 !== 0) cells.push(null)
+  for (
+    let index = 0;
+    index < mondayIndex;
+    index += 1
+  ) {
+    cells.push(null)
+  }
+
+  for (
+    let day = 1;
+    day <= daysInMonth;
+    day += 1
+  ) {
+    cells.push(day)
+  }
+
+  while (
+    cells.length % 7 !== 0
+  ) {
+    cells.push(null)
+  }
 
   return cells
 }
 
-function opponentShort(name = '') {
-  const clean = name.trim()
-  if (clean.length <= 13) return clean
+function dateFromISO(value) {
+  return value
+    ? new Date(
+        `${value}T12:00:00`,
+      )
+    : null
+}
+
+function isoFromDay(
+  year,
+  month,
+  day,
+) {
+  return [
+    year,
+    String(
+      month + 1,
+    ).padStart(2, '0'),
+    String(day).padStart(2, '0'),
+  ].join('-')
+}
+
+function opponentShort(
+  name = '',
+) {
+  const clean =
+    name.trim()
+
+  if (
+    clean.length <= 13
+  ) {
+    return clean
+  }
+
   return `${clean.slice(0, 12)}…`
 }
 
-function initialCalendarDate(matches) {
-  const now = new Date()
+function initialCalendarDate(
+  matches,
+  events,
+) {
+  const now =
+    new Date()
 
-  if (!matches.length) {
-    return new Date(now.getFullYear(), now.getMonth(), 1)
+  const dated = [
+    ...matches.map(
+      (match) => ({
+        dateISO:
+          match.dateISO,
+        status:
+          match.status,
+      }),
+    ),
+    ...events.map(
+      (event) => ({
+        dateISO:
+          event.dateISO,
+        status:
+          'EVENTO',
+      }),
+    ),
+  ]
+    .filter(
+      (item) =>
+        item.dateISO,
+    )
+    .sort(
+      (a, b) =>
+        a.dateISO.localeCompare(
+          b.dateISO,
+        ),
+    )
+
+  if (!dated.length) {
+    return new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      1,
+    )
   }
 
-  const upcoming = matches.find((match) => {
-    const date = new Date(`${match.dateISO}T23:59:59`)
-    return date >= now && match.status !== 'CANCELADO'
-  })
+  const upcoming =
+    dated.find(
+      (item) => {
+        const date =
+          new Date(
+            `${item.dateISO}T23:59:59`,
+          )
 
-  const target = upcoming || matches[matches.length - 1]
-  const date = new Date(`${target.dateISO}T12:00:00`)
+        return (
+          date >= now &&
+          item.status !==
+            'CANCELADO'
+        )
+      },
+    )
 
-  return new Date(date.getFullYear(), date.getMonth(), 1)
+  const target =
+    upcoming ||
+    dated[
+      dated.length - 1
+    ]
+
+  const date =
+    dateFromISO(
+      target.dateISO,
+    )
+
+  return new Date(
+    date.getFullYear(),
+    date.getMonth(),
+    1,
+  )
+}
+
+function dayHasContent(
+  matches,
+  events,
+) {
+  return (
+    matches.length > 0 ||
+    events.length > 0
+  )
 }
 
 export default function MatchesHub() {
-  const [matches, setMatches] = useState([])
-  const [viewDate, setViewDate] = useState(() => {
-    const now = new Date()
-    return new Date(now.getFullYear(), now.getMonth(), 1)
+  const [
+    matches,
+    setMatches,
+  ] = useState([])
+
+  const [
+    events,
+    setEvents,
+  ] = useState([])
+
+  const [
+    viewDate,
+    setViewDate,
+  ] = useState(() => {
+    const now =
+      new Date()
+
+    return new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      1,
+    )
   })
-  const [selectedMatchId, setSelectedMatchId] = useState(null)
-  const [loading, setLoading] = useState(true)
-  const [loadError, setLoadError] = useState('')
+
+  const [
+    selectedDateISO,
+    setSelectedDateISO,
+  ] = useState(null)
+
+  const [
+    loading,
+    setLoading,
+  ] = useState(true)
+
+  const [
+    loadError,
+    setLoadError,
+  ] = useState('')
 
   useEffect(() => {
     let alive = true
 
-    const load = async () => {
-      try {
-        const nextMatches = await getHomeMatches()
+    const load =
+      async () => {
+        try {
+          const data =
+            await getHomeCalendarData()
 
-        if (!alive) return
+          if (!alive) return
 
-        setMatches(nextMatches)
+          setMatches(
+            data.matches,
+          )
 
-        if (nextMatches.length > 0) {
-          const date = initialCalendarDate(nextMatches)
-          setViewDate(date)
+          setEvents(
+            data.events,
+          )
 
-          const monthMatch = nextMatches.find((match) => {
-            const matchDate = new Date(`${match.dateISO}T12:00:00`)
-
-            return (
-              matchDate.getFullYear() === date.getFullYear() &&
-              matchDate.getMonth() === date.getMonth()
+          const monthDate =
+            initialCalendarDate(
+              data.matches,
+              data.events,
             )
-          })
 
-          setSelectedMatchId(monthMatch?.id ?? null)
-        }
-      } catch (error) {
-        console.error('No se pudieron cargar los partidos:', error)
+          setViewDate(
+            monthDate,
+          )
 
-        if (alive) {
-          setLoadError('NO SE PUDIERON CARGAR LOS PARTIDOS.')
+          const firstDate =
+            [
+              ...data.matches.map(
+                (item) =>
+                  item.dateISO,
+              ),
+              ...data.events.map(
+                (item) =>
+                  item.dateISO,
+              ),
+            ]
+              .filter(Boolean)
+              .sort()
+              .find(
+                (dateISO) => {
+                  const date =
+                    dateFromISO(
+                      dateISO,
+                    )
+
+                  return (
+                    date.getFullYear() ===
+                      monthDate.getFullYear() &&
+                    date.getMonth() ===
+                      monthDate.getMonth()
+                  )
+                },
+              )
+
+          setSelectedDateISO(
+            firstDate ||
+              null,
+          )
+        } catch (error) {
+          console.error(
+            'No se pudo cargar el calendario:',
+            error,
+          )
+
+          if (alive) {
+            setLoadError(
+              'NO SE PUDO CARGAR EL CALENDARIO.',
+            )
+          }
+        } finally {
+          if (alive) {
+            setLoading(false)
+          }
         }
-      } finally {
-        if (alive) setLoading(false)
       }
-    }
 
     load()
 
@@ -111,91 +333,209 @@ export default function MatchesHub() {
     }
   }, [])
 
-  const year = viewDate.getFullYear()
-  const month = viewDate.getMonth()
+  const year =
+    viewDate.getFullYear()
 
-  const monthDays = useMemo(
-    () => buildMonth(year, month),
-    [year, month],
-  )
+  const month =
+    viewDate.getMonth()
 
-  const matchesByDay = useMemo(() => {
-    const map = new Map()
+  const monthDays =
+    useMemo(
+      () =>
+        buildMonth(
+          year,
+          month,
+        ),
+      [
+        year,
+        month,
+      ],
+    )
 
-    matches.forEach((match) => {
-      const date = new Date(`${match.dateISO}T12:00:00`)
+  const matchesByDay =
+    useMemo(() => {
+      const map =
+        new Map()
 
-      if (
-        date.getFullYear() !== year ||
-        date.getMonth() !== month
-      ) {
-        return
-      }
+      matches.forEach(
+        (match) => {
+          const date =
+            dateFromISO(
+              match.dateISO,
+            )
 
-      const day = date.getDate()
+          if (
+            !date ||
+            date.getFullYear() !==
+              year ||
+            date.getMonth() !==
+              month
+          ) {
+            return
+          }
 
-      if (!map.has(day)) {
-        map.set(day, [])
-      }
+          const day =
+            date.getDate()
 
-      map.get(day).push(match)
-    })
+          if (
+            !map.has(day)
+          ) {
+            map.set(
+              day,
+              [],
+            )
+          }
 
-    return map
-  }, [matches, year, month])
-
-  const firstMatchInMonth = useMemo(() => {
-    return matches.find((match) => {
-      const date = new Date(`${match.dateISO}T12:00:00`)
-
-      return (
-        date.getFullYear() === year &&
-        date.getMonth() === month
+          map.get(day)
+            .push(match)
+        },
       )
-    })
-  }, [matches, year, month])
 
-  const selectedMatch =
-    matches.find((match) => match.id === selectedMatchId) ||
-    firstMatchInMonth ||
-    null
+      return map
+    }, [
+      matches,
+      year,
+      month,
+    ])
 
-  const selectedDate = selectedMatch
-    ? new Date(`${selectedMatch.dateISO}T12:00:00`)
-    : null
+  const eventsByDay =
+    useMemo(() => {
+      const map =
+        new Map()
+
+      events.forEach(
+        (event) => {
+          const date =
+            dateFromISO(
+              event.dateISO,
+            )
+
+          if (
+            !date ||
+            date.getFullYear() !==
+              year ||
+            date.getMonth() !==
+              month
+          ) {
+            return
+          }
+
+          const day =
+            date.getDate()
+
+          if (
+            !map.has(day)
+          ) {
+            map.set(
+              day,
+              [],
+            )
+          }
+
+          map.get(day)
+            .push(event)
+        },
+      )
+
+      return map
+    }, [
+      events,
+      year,
+      month,
+    ])
+
+  const selectedDate =
+    dateFromISO(
+      selectedDateISO,
+    )
 
   const selectedDay =
     selectedDate &&
-    selectedDate.getFullYear() === year &&
-    selectedDate.getMonth() === month
+    selectedDate.getFullYear() ===
+      year &&
+    selectedDate.getMonth() ===
+      month
       ? selectedDate.getDate()
       : null
 
-  const changeMonth = (delta) => {
-    setSelectedMatchId(null)
-
-    setViewDate((current) =>
-      new Date(
-        current.getFullYear(),
-        current.getMonth() + delta,
-        1,
-      ),
+  const selectedMatches =
+    useMemo(
+      () =>
+        matches.filter(
+          (match) =>
+            match.dateISO ===
+            selectedDateISO,
+        ),
+      [
+        matches,
+        selectedDateISO,
+      ],
     )
-  }
 
-  const selectMatch = (match) => {
-    setSelectedMatchId(match.id)
-
-    const date = new Date(`${match.dateISO}T12:00:00`)
-
-    setViewDate(
-      new Date(
-        date.getFullYear(),
-        date.getMonth(),
-        1,
-      ),
+  const selectedEvents =
+    useMemo(
+      () =>
+        events.filter(
+          (event) =>
+            event.dateISO ===
+            selectedDateISO,
+        ),
+      [
+        events,
+        selectedDateISO,
+      ],
     )
-  }
+
+  const changeMonth =
+    (delta) => {
+      const next =
+        new Date(
+          year,
+          month + delta,
+          1,
+        )
+
+      setViewDate(
+        next,
+      )
+
+      setSelectedDateISO(
+        null,
+      )
+    }
+
+  const selectMatch =
+    (match) => {
+      const date =
+        dateFromISO(
+          match.dateISO,
+        )
+
+      if (!date) return
+
+      setViewDate(
+        new Date(
+          date.getFullYear(),
+          date.getMonth(),
+          1,
+        ),
+      )
+
+      setSelectedDateISO(
+        match.dateISO,
+      )
+    }
+
+  const selectDay =
+    (day) => {
+      setSelectedDateISO(
+        isoFromDay(
+          year,
+          month,
+          day,
+        ),
+      )
+    }
 
   return (
     <section
@@ -208,18 +548,28 @@ export default function MatchesHub() {
         </div>
 
         <p>
-          Próximos encuentros, resultados y VODs del equipo.
+          Fechas, resultados,
+          VODs y calendario
+          competitivo del equipo.
         </p>
       </div>
 
       <div className="section-shell matches-minimal-layout">
         <div className="match-list-panel">
           <div className="match-list-title">
-            <span>PARTIDOS</span>
+            <span>
+              PARTIDOS
+            </span>
+
             <span>
               {loading
                 ? '—'
-                : String(matches.length).padStart(2, '0')}
+                : String(
+                    matches.length,
+                  ).padStart(
+                    2,
+                    '0',
+                  )}
             </span>
           </div>
 
@@ -230,81 +580,127 @@ export default function MatchesHub() {
               </div>
             )}
 
-            {!loading && loadError && (
-              <div className="matches-data-state error">
-                {loadError}
-              </div>
-            )}
-
             {!loading &&
-              !loadError &&
-              matches.length === 0 && (
-                <div className="matches-data-state">
-                  TODAVÍA NO HAY PARTIDOS PUBLICADOS.
+              loadError && (
+                <div className="matches-data-state error">
+                  {loadError}
                 </div>
               )}
 
-            {matches.map((match) => {
-              const active =
-                selectedMatch?.id === match.id
-              const played = Boolean(match.score)
+            {!loading &&
+              !loadError &&
+              matches.length ===
+                0 && (
+                <div className="matches-data-state">
+                  TODAVÍA NO HAY
+                  PARTIDOS
+                  PUBLICADOS.
+                </div>
+              )}
 
-              return (
-                <button
-                  type="button"
-                  key={match.id}
-                  className={`match-list-row ${
-                    active ? 'active' : ''
-                  }`}
-                  onClick={() => selectMatch(match)}
-                >
-                  <div className="match-list-date">
-                    <strong>{match.date}</strong>
-                    <span>{match.time}</span>
-                  </div>
+            {matches.map(
+              (match) => {
+                const active =
+                  match.dateISO ===
+                  selectedDateISO
 
-                  <div className="match-list-opponent">
-                    <small>
-                      {match.type}
-                      {match.map
-                        ? ` · ${match.map}`
-                        : ''}
-                    </small>
+                const played =
+                  Boolean(
+                    match.score,
+                  )
 
-                    <strong>
-                      ASTERI <em>VS</em>{' '}
-                      {match.opponent}
-                    </strong>
-                  </div>
+                return (
+                  <button
+                    type="button"
+                    key={match.id}
+                    className={`match-list-row ${
+                      active
+                        ? 'active'
+                        : ''
+                    }`}
+                    onClick={() =>
+                      selectMatch(
+                        match,
+                      )
+                    }
+                  >
+                    <div className="match-list-date">
+                      <strong>
+                        {
+                          match.date
+                        }
+                      </strong>
+                      <span>
+                        {
+                          match.time
+                        }
+                      </span>
+                    </div>
 
-                  <div className="match-list-score">
-                    <small>
-                      {played
-                        ? 'FINAL'
-                        : match.status}
-                    </small>
+                    <div className="match-list-opponent">
+                      <small>
+                        {
+                          match.type
+                        }
+                        {match.map
+                          ? ` · ${match.map}`
+                          : ''}
+                      </small>
 
-                    <strong>
-                      {match.score || '—'}
-                    </strong>
-                  </div>
-                </button>
-              )
-            })}
+                      <strong>
+                        ASTERI{' '}
+                        <em>
+                          VS
+                        </em>{' '}
+                        {
+                          match.opponent
+                        }
+                      </strong>
+                    </div>
+
+                    <div className="match-list-score">
+                      <small>
+                        {played
+                          ? match.resultLabel
+                          : match.status}
+                      </small>
+
+                      <strong>
+                        {match.score ||
+                          '—'}
+                      </strong>
+                    </div>
+                  </button>
+                )
+              },
+            )}
           </div>
         </div>
 
         <div className="calendar-panel">
           <div className="calendar-head">
             <div>
-              <h3>{MONTHS[month]}</h3>
-              <span>{year}</span>
+              <h3>
+                {
+                  MONTHS[
+                    month
+                  ]
+                }
+              </h3>
+
+              <span>
+                {year}
+              </span>
             </div>
 
             <div className="calendar-nav">
               <button
                 type="button"
-                onClick={() => changeMonth(-1)}
+                onClick={() =>
+                  changeMonth(
+                    -1,
+                  )
+                }
                 aria-label="Mes anterior"
               >
                 ←
@@ -312,7 +708,11 @@ export default function MatchesHub() {
 
               <button
                 type="button"
-                onClick={() => changeMonth(1)}
+                onClick={() =>
+                  changeMonth(
+                    1,
+                  )
+                }
                 aria-label="Mes siguiente"
               >
                 →
@@ -321,127 +721,302 @@ export default function MatchesHub() {
           </div>
 
           <div className="calendar-weekdays">
-            {WEEKDAYS.map((day) => (
-              <span key={day}>{day}</span>
-            ))}
+            {WEEKDAYS.map(
+              (day) => (
+                <span
+                  key={day}
+                >
+                  {day}
+                </span>
+              ),
+            )}
           </div>
 
           <div className="calendar-grid">
-            {monthDays.map((day, index) => {
-              if (!day) {
+            {monthDays.map(
+              (
+                day,
+                index,
+              ) => {
+                if (!day) {
+                  return (
+                    <span
+                      className="calendar-day empty"
+                      key={`empty-${index}`}
+                    />
+                  )
+                }
+
+                const dayMatches =
+                  matchesByDay.get(
+                    day,
+                  ) || []
+
+                const dayEvents =
+                  eventsByDay.get(
+                    day,
+                  ) || []
+
+                const hasContent =
+                  dayHasContent(
+                    dayMatches,
+                    dayEvents,
+                  )
+
+                const active =
+                  selectedDay ===
+                  day
+
+                const primary =
+                  dayEvents[0]
+                    ?.title ||
+                  dayMatches[0]
+                    ?.opponent ||
+                  ''
+
+                const extraCount =
+                  dayMatches.length +
+                  dayEvents.length -
+                  1
+
                 return (
-                  <span
-                    className="calendar-day empty"
-                    key={`empty-${index}`}
-                  />
+                  <button
+                    type="button"
+                    key={day}
+                    disabled={
+                      !hasContent
+                    }
+                    onClick={() =>
+                      hasContent &&
+                      selectDay(
+                        day,
+                      )
+                    }
+                    className={`calendar-day ${
+                      hasContent
+                        ? 'has-match'
+                        : ''
+                    } ${
+                      active
+                        ? 'active'
+                        : ''
+                    }`}
+                  >
+                    <span className="calendar-day-number">
+                      {String(
+                        day,
+                      ).padStart(
+                        2,
+                        '0',
+                      )}
+                    </span>
+
+                    {hasContent && (
+                      <div className="calendar-day-match">
+                        <i
+                          aria-hidden="true"
+                        />
+
+                        <span>
+                          {opponentShort(
+                            primary,
+                          )}
+                          {extraCount >
+                          0
+                            ? ` +${extraCount}`
+                            : ''}
+                        </span>
+                      </div>
+                    )}
+                  </button>
                 )
-              }
-
-              const dayMatches =
-                matchesByDay.get(day) || []
-
-              const match = dayMatches[0]
-              const hasMatch = Boolean(match)
-              const active =
-                selectedDay === day
-
-              return (
-                <button
-                  type="button"
-                  key={day}
-                  disabled={!hasMatch}
-                  onClick={() =>
-                    hasMatch &&
-                    setSelectedMatchId(match.id)
-                  }
-                  className={`calendar-day ${
-                    hasMatch ? 'has-match' : ''
-                  } ${active ? 'active' : ''}`}
-                >
-                  <span className="calendar-day-number">
-                    {String(day).padStart(2, '0')}
-                  </span>
-
-                  {hasMatch && (
-                    <div className="calendar-day-match">
-                      <i aria-hidden="true" />
-                      <span>
-                        {dayMatches.length > 1
-                          ? `${opponentShort(
-                              match.opponent,
-                            )} +${
-                              dayMatches.length - 1
-                            }`
-                          : opponentShort(
-                              match.opponent,
-                            )}
-                      </span>
-                    </div>
-                  )}
-                </button>
-              )
-            })}
+              },
+            )}
           </div>
 
-          <div className="calendar-selected">
-            {selectedMatch ? (
+          <div className="calendar-day-detail">
+            {selectedDateISO ? (
               <>
-                <div className="calendar-selected-date">
-                  <strong>
-                    {String(
-                      selectedDay || '',
-                    ).padStart(2, '0')}
-                  </strong>
-                  <span>
-                    {MONTHS[month].slice(0, 3)}
-                  </span>
+                <div className="calendar-day-detail-head">
+                  <div>
+                    <strong>
+                      {String(
+                        selectedDay ||
+                          '',
+                      ).padStart(
+                        2,
+                        '0',
+                      )}
+                    </strong>
+
+                    <span>
+                      {MONTHS[
+                        month
+                      ].slice(
+                        0,
+                        3,
+                      )}
+                    </span>
+                  </div>
+
+                  <p>
+                    {selectedEvents.length >
+                      0 ||
+                    selectedMatches.length >
+                      0
+                      ? `${selectedEvents.length} EVENTO(S) · ${selectedMatches.length} PARTIDO(S)`
+                      : 'SIN CONTENIDO'}
+                  </p>
                 </div>
 
-                <div className="calendar-selected-match">
-                  <small>
-                    {selectedMatch.type} ·{' '}
-                    {selectedMatch.time}
-                    {selectedMatch.map
-                      ? ` · ${selectedMatch.map}`
-                      : ''}
-                  </small>
+                {selectedEvents.length >
+                  0 && (
+                  <div className="calendar-agenda-events">
+                    {selectedEvents.map(
+                      (event) => (
+                        <article
+                          key={
+                            event.id
+                          }
+                        >
+                          <div>
+                            <small>
+                              {EVENT_LABELS[
+                                event
+                                  .type
+                              ] ||
+                                'EVENTO'}
+                              {event.time !==
+                              '—'
+                                ? ` · ${event.time}`
+                                : ''}
+                            </small>
 
-                  <strong>
-                    ASTERI <em>VS</em>{' '}
-                    {selectedMatch.opponent}
-                  </strong>
-                </div>
+                            <strong>
+                              {
+                                event.title
+                              }
+                            </strong>
+                          </div>
 
-                <div className="calendar-selected-result">
-                  <small>
-                    {selectedMatch.score
-                      ? 'RESULTADO'
-                      : 'ESTADO'}
-                  </small>
+                          {event.description && (
+                            <p>
+                              {
+                                event.description
+                              }
+                            </p>
+                          )}
+                        </article>
+                      ),
+                    )}
+                  </div>
+                )}
 
-                  <strong>
-                    {selectedMatch.score ||
-                      selectedMatch.status}
-                  </strong>
-                </div>
+                {selectedMatches.length >
+                  0 && (
+                  <div className="calendar-day-matches">
+                    {selectedMatches.map(
+                      (match) => (
+                        <article
+                          key={
+                            match.id
+                          }
+                        >
+                          <div className="calendar-date-match-copy">
+                            <small>
+                              {
+                                match.type
+                              }
+                              {' · '}
+                              {
+                                match.time
+                              }
+                              {match.map
+                                ? ` · ${match.map}`
+                                : ''}
+                            </small>
 
-                <div className="calendar-selected-vod">
-                  {selectedMatch.vod ? (
-                    <Link
-                      to={selectedMatch.vod}
-                    >
-                      VOD ↗
-                    </Link>
-                  ) : (
-                    <span>—</span>
+                            <strong>
+                              ASTERI{' '}
+                              <em>
+                                VS
+                              </em>{' '}
+                              {
+                                match.opponent
+                              }
+                            </strong>
+                          </div>
+
+                          <div className="calendar-date-match-result">
+                            <small>
+                              {match.score
+                                ? match.resultLabel
+                                : 'ESTADO'}
+                            </small>
+
+                            <strong>
+                              {match.score ||
+                                match.status}
+                            </strong>
+                          </div>
+
+                          <div className="calendar-date-match-actions">
+                            {match.vod && (
+                              <Link
+                                to={
+                                  match.vod
+                                }
+                              >
+                                FICHA
+                              </Link>
+                            )}
+
+                            {match.youtube && (
+                              <a
+                                href={
+                                  match.youtube
+                                }
+                                target="_blank"
+                                rel="noreferrer"
+                              >
+                                VER VOD ↗
+                              </a>
+                            )}
+
+                            {match.downloadUrl && (
+                              <a
+                                href={
+                                  match.downloadUrl
+                                }
+                                target="_blank"
+                                rel="noreferrer"
+                              >
+                                DESCARGAR ↓
+                              </a>
+                            )}
+                          </div>
+                        </article>
+                      ),
+                    )}
+                  </div>
+                )}
+
+                {selectedEvents.length ===
+                  0 &&
+                  selectedMatches.length ===
+                    0 && (
+                    <span className="calendar-empty-copy">
+                      NO HAY NADA
+                      CARGADO PARA ESTA
+                      FECHA.
+                    </span>
                   )}
-                </div>
               </>
             ) : (
               <span className="calendar-empty-copy">
-                {loading
-                  ? 'CARGANDO…'
-                  : 'SIN PARTIDOS ESTE MES'}
+                SELECCIONÁ UNA
+                FECHA DEL
+                CALENDARIO.
               </span>
             )}
           </div>
@@ -483,42 +1058,15 @@ export default function MatchesHub() {
           grid-template-columns: minmax(300px, .68fr) minmax(520px, 1.32fr);
           gap: 8px;
           align-items: start;
-          max-height: 70vh;
         }
 
         .match-list-panel,
         .calendar-panel {
           background: #090c0a;
-          max-height: 70vh;
         }
 
         .match-list-panel {
           overflow: hidden;
-        }
-
-        .calendar-panel {
-          overflow-y: auto;
-          overflow-x: hidden;
-          overscroll-behavior: contain;
-          scrollbar-width: thin;
-          scrollbar-color: #263029 #090c0a;
-        }
-
-        .calendar-panel::-webkit-scrollbar {
-          width: 6px;
-        }
-
-        .calendar-panel::-webkit-scrollbar-track {
-          background: #090c0a;
-        }
-
-        .calendar-panel::-webkit-scrollbar-thumb {
-          background: #263029;
-          border-radius: 999px;
-        }
-
-        .calendar-panel::-webkit-scrollbar-thumb:hover {
-          background: #344039;
         }
 
         .match-list-title {
@@ -536,18 +1084,10 @@ export default function MatchesHub() {
         .match-list {
           display: flex;
           flex-direction: column;
-          max-height: calc(70vh - 44px);
+          max-height: 660px;
           overflow-y: auto;
           scrollbar-width: thin;
           scrollbar-color: #263029 #090c0a;
-        }
-
-        .match-list::-webkit-scrollbar {
-          width: 5px;
-        }
-
-        .match-list::-webkit-scrollbar-thumb {
-          background: #263029;
         }
 
         .matches-data-state {
@@ -567,7 +1107,7 @@ export default function MatchesHub() {
         .match-list-row {
           position: relative;
           width: 100%;
-          min-height: 68px;
+          min-height: 72px;
           display: grid;
           grid-template-columns: 68px minmax(0, 1fr) auto;
           gap: 8px;
@@ -580,10 +1120,6 @@ export default function MatchesHub() {
           text-align: left;
           cursor: pointer;
           transition: background .16s ease;
-        }
-
-        .match-list-row:last-child {
-          border-bottom: 0;
         }
 
         .match-list-row:hover,
@@ -616,7 +1152,6 @@ export default function MatchesHub() {
 
         .match-list-date strong {
           font-size: 16px;
-          letter-spacing: .02em;
         }
 
         .match-list-date span,
@@ -625,7 +1160,7 @@ export default function MatchesHub() {
           color: #707b74;
           font-size: 9px;
           font-weight: 700;
-          letter-spacing: .14em;
+          letter-spacing: .12em;
         }
 
         .match-list-opponent {
@@ -643,7 +1178,7 @@ export default function MatchesHub() {
         }
 
         .match-list-opponent em,
-        .calendar-selected-match em {
+        .calendar-date-match-copy em {
           color: #00d96e;
           font-style: normal;
         }
@@ -675,7 +1210,6 @@ export default function MatchesHub() {
         .calendar-head h3 {
           margin: 0;
           font: 400 clamp(28px, 2.25vw, 39px)/.85 var(--font-impact);
-          letter-spacing: -.02em;
         }
 
         .calendar-head span {
@@ -696,11 +1230,9 @@ export default function MatchesHub() {
           background: #111512;
           color: #b9c0bc;
           cursor: pointer;
-          transition: background .16s ease, color .16s ease;
         }
 
         .calendar-nav button:hover {
-          background: #181e1a;
           color: #00d96e;
         }
 
@@ -728,7 +1260,7 @@ export default function MatchesHub() {
 
         .calendar-day {
           position: relative;
-          min-height: 52px;
+          min-height: 66px;
           padding: 8px;
           display: flex;
           flex-direction: column;
@@ -779,7 +1311,6 @@ export default function MatchesHub() {
 
         .calendar-day-number {
           font: 700 clamp(13px, 1vw, 18px)/1 var(--font-tactical);
-          letter-spacing: .02em;
         }
 
         .calendar-day-match {
@@ -807,99 +1338,138 @@ export default function MatchesHub() {
           text-overflow: ellipsis;
         }
 
-        .calendar-selected {
-          min-height: 64px;
-          display: grid;
-          grid-template-columns: 62px minmax(0, 1fr) 116px 50px;
-          align-items: stretch;
+        .calendar-day-detail {
+          min-height: 86px;
           background: #070907;
           border-top: 1px solid #1b211d;
         }
 
-        .calendar-selected > div {
+        .calendar-day-detail-head {
+          min-height: 72px;
           display: flex;
-          flex-direction: column;
-          justify-content: center;
-          padding: 9px 11px;
-          border-right: 1px solid #1b211d;
-        }
-
-        .calendar-selected > div:last-child {
-          border-right: 0;
-        }
-
-        .calendar-selected-date {
-          align-items: flex-start;
-        }
-
-        .calendar-selected-date strong {
-          color: #00d96e;
-          font: 400 31px/.78 var(--font-impact);
-        }
-
-        .calendar-selected-date span,
-        .calendar-selected-match small,
-        .calendar-selected-result small {
-          margin-top: 5px;
-          color: #626d66;
-          font: 700 7px/1 var(--font-tactical);
-          letter-spacing: .15em;
-          text-transform: uppercase;
-        }
-
-        .calendar-selected-match strong {
-          margin-top: 5px;
-          color: #e7eae8;
-          font: 700 clamp(14px, 1.08vw, 18px)/1 var(--font-tactical);
-          text-transform: uppercase;
-        }
-
-        .calendar-selected-result strong {
-          margin-top: 5px;
-          color: #dce1de;
-          font: 700 14px/1 var(--font-tactical);
-          text-transform: uppercase;
-        }
-
-        .calendar-selected-vod {
           align-items: center;
+          justify-content: space-between;
+          gap: 18px;
+          padding: 12px 14px;
+          border-bottom: 1px solid #1b211d;
         }
 
-        .calendar-selected-vod a,
-        .calendar-selected-vod span {
+        .calendar-day-detail-head > div {
+          display: flex;
+          align-items: baseline;
+          gap: 8px;
+        }
+
+        .calendar-day-detail-head strong {
           color: #00d96e;
-          font: 700 9px/1 var(--font-tactical);
-          letter-spacing: .1em;
+          font: 400 34px/.78 var(--font-impact);
+        }
+
+        .calendar-day-detail-head span,
+        .calendar-day-detail-head p {
+          margin: 0;
+          color: #626d66;
+          font: 700 8px/1 var(--font-tactical);
+          letter-spacing: .13em;
+        }
+
+        .calendar-agenda-events article {
+          display: grid;
+          grid-template-columns: minmax(180px, .7fr) 1fr;
+          gap: 24px;
+          padding: 14px;
+          border-bottom: 1px solid #171c19;
+          background: #0a0d0b;
+        }
+
+        .calendar-agenda-events small,
+        .calendar-day-matches small {
+          display: block;
+          color: #68736c;
+          font: 700 7px/1.3 var(--font-tactical);
+          letter-spacing: .12em;
+          text-transform: uppercase;
+        }
+
+        .calendar-agenda-events strong {
+          display: block;
+          margin-top: 5px;
+          font: 700 18px/1 var(--font-tactical);
+          text-transform: uppercase;
+        }
+
+        .calendar-agenda-events p {
+          margin: 0;
+          color: #919a94;
+          font: 500 12px/1.55 Inter, sans-serif;
+        }
+
+        .calendar-day-matches article {
+          display: grid;
+          grid-template-columns: minmax(0, 1fr) 120px auto;
+          gap: 14px;
+          align-items: center;
+          padding: 14px;
+          border-bottom: 1px solid #171c19;
+        }
+
+        .calendar-date-match-copy strong {
+          display: block;
+          margin-top: 5px;
+          font: 700 clamp(15px, 1.2vw, 19px)/1 var(--font-tactical);
+          text-transform: uppercase;
+        }
+
+        .calendar-date-match-result {
+          text-align: right;
+        }
+
+        .calendar-date-match-result strong {
+          display: block;
+          margin-top: 6px;
+          font: 700 15px/1 var(--font-tactical);
+          text-transform: uppercase;
+        }
+
+        .calendar-date-match-actions {
+          display: flex;
+          flex-wrap: wrap;
+          justify-content: flex-end;
+          gap: 6px;
+        }
+
+        .calendar-date-match-actions a {
+          min-height: 34px;
+          display: inline-flex;
+          align-items: center;
+          padding: 0 9px;
+          border: 1px solid #29312c;
+          color: #aab4ae;
           text-decoration: none;
+          font: 700 7px/1 Inter, sans-serif;
+          letter-spacing: .08em;
+        }
+
+        .calendar-date-match-actions a:hover {
+          border-color: #00d96e;
+          color: #00d96e;
         }
 
         .calendar-empty-copy {
-          grid-column: 1 / -1;
-          align-self: center;
-          padding: 20px;
+          display: block;
+          padding: 22px 14px;
           color: #626c66;
-          font: 700 9px/1 var(--font-tactical);
+          font: 700 9px/1.4 var(--font-tactical);
           letter-spacing: .15em;
         }
 
         @media (max-width: 1120px) {
           .matches-minimal-layout {
             grid-template-columns: 1fr;
-            max-height: none;
-          }
-
-          .match-list-panel,
-          .calendar-panel {
-            max-height: none;
-          }
-
-          .calendar-panel {
-            overflow: visible;
           }
 
           .match-list {
-            max-height: none;
-            overflow: visible;
+            max-height: 360px;
           }
         }
 
@@ -921,7 +1491,7 @@ export default function MatchesHub() {
           }
 
           .calendar-panel {
-            padding-inline: 12px;
+            padding-inline: 8px;
           }
 
           .calendar-day {
@@ -933,12 +1503,18 @@ export default function MatchesHub() {
             display: none;
           }
 
-          .calendar-selected {
-            grid-template-columns: 58px minmax(0, 1fr) 78px;
+          .calendar-agenda-events article,
+          .calendar-day-matches article {
+            grid-template-columns: 1fr;
+            gap: 10px;
           }
 
-          .calendar-selected-vod {
-            display: none !important;
+          .calendar-date-match-result {
+            text-align: left;
+          }
+
+          .calendar-date-match-actions {
+            justify-content: flex-start;
           }
         }
 
@@ -961,10 +1537,6 @@ export default function MatchesHub() {
             display: none;
           }
 
-          .calendar-panel {
-            padding-inline: 8px;
-          }
-
           .calendar-weekdays span {
             font-size: 6px;
             letter-spacing: .03em;
@@ -975,16 +1547,10 @@ export default function MatchesHub() {
             padding: 4px 2px;
           }
 
-          .calendar-day > strong {
-            font-size: 10px;
-          }
-
-          .calendar-selected {
-            grid-template-columns: 52px minmax(0, 1fr);
-          }
-
-          .calendar-selected-result {
-            display: none !important;
+          .calendar-day-detail-head {
+            align-items: flex-start;
+            flex-direction: column;
+            gap: 8px;
           }
         }
       `}</style>
