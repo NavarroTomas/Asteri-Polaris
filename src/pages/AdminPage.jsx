@@ -9,18 +9,10 @@ import {
   setUserStatus,
   unlinkPlayerByUserId,
 } from '../lib/admin'
-import './AdminPage.css'
 import RosterManager from '../components/RosterManager'
 import AuditLogManager from '../components/AuditLogManager'
-import SiteStatsManager from '../components/SiteStatsManager'
-
-const TABS = [
-  { id: 'overview', label: 'OVERVIEW' },
-  { id: 'users', label: 'USUARIOS' },
-  { id: 'roster', label: 'PLANTEL' },
-  { id: 'vods', label: 'VODS' },
-  { id: 'activity', label: 'ACTIVIDAD' },
-]
+import HomeSettingsManager from '../components/HomeSettingsManager'
+import './AdminPage.css'
 
 function formatDate(value) {
   if (!value) return '—'
@@ -35,27 +27,51 @@ function actionCopy(log) {
   const names = {
     PROFILES_INSERT: 'Cuenta creada',
     PROFILES_UPDATE: 'Cuenta actualizada',
+    PLAYERS_INSERT: 'Jugador creado',
     PLAYERS_UPDATE: 'Jugador actualizado',
-    PLAYER_STATS_UPDATE: 'Stats actualizadas',
-    PLAYER_CONFIGS_UPDATE: 'Config actualizada',
-    VODS_INSERT: 'VOD creado',
-    VODS_UPDATE: 'VOD actualizado',
-    VODS_DELETE: 'VOD eliminado',
+    PLAYER_STATS_UPDATE: 'Estadísticas actualizadas',
+    PLAYER_CONFIGS_UPDATE: 'Configuración actualizada',
+    VODS_INSERT: 'VOD creada',
+    VODS_UPDATE: 'VOD actualizada',
+    VODS_DELETE: 'VOD eliminada',
+    VOD_MAPS_INSERT: 'Mapa añadido a una serie',
+    VOD_MAPS_UPDATE: 'Resultado de mapa actualizado',
+    VOD_MAPS_DELETE: 'Mapa eliminado de una serie',
     CLIPS_INSERT: 'Clip creado',
     CLIPS_UPDATE: 'Clip actualizado',
     CLIPS_DELETE: 'Clip eliminado',
-    VOD_PLAYERS_INSERT: 'Jugador añadido a VOD',
-    VOD_PLAYERS_DELETE: 'Jugador eliminado de VOD',
+    VOD_PLAYERS_INSERT: 'Jugador añadido a una VOD',
+    VOD_PLAYERS_DELETE: 'Jugador eliminado de una VOD',
+    CALENDAR_EVENTS_INSERT: 'Fecha añadida al calendario',
+    CALENDAR_EVENTS_UPDATE: 'Fecha del calendario actualizada',
+    CALENDAR_EVENTS_DELETE: 'Fecha eliminada del calendario',
+    SITE_STATS_UPDATE: 'Números públicos actualizados',
+    SITE_SETTINGS_UPDATE: 'Configuración de inicio actualizada',
   }
 
-  return names[log.action] || log.action.replaceAll('_', ' ')
+  return names[log.action] || String(log.action || '').replaceAll('_', ' ')
+}
+
+function AdminSectionHeader({ title, description, onBack }) {
+  return (
+    <div className="admin-section-heading">
+      <div>
+        <h1>{title}</h1>
+        {description && <p>{description}</p>}
+      </div>
+
+      <button type="button" onClick={onBack}>
+        Volver al panel
+      </button>
+    </div>
+  )
 }
 
 export default function AdminPage() {
   const { profile, signOut, isOwner } = useAuth()
   const navigate = useNavigate()
 
-  const [tab, setTab] = useState('overview')
+  const [view, setView] = useState('overview')
   const [snapshot, setSnapshot] = useState({
     profiles: [],
     players: [],
@@ -90,11 +106,6 @@ export default function AdminPage() {
     [snapshot.profiles],
   )
 
-  const activeUsers = useMemo(
-    () => snapshot.profiles.filter(user => user.status === 'active'),
-    [snapshot.profiles],
-  )
-
   const freePlayers = useMemo(
     () => snapshot.players.filter(player => !player.user_id),
     [snapshot.players],
@@ -107,6 +118,11 @@ export default function AdminPage() {
         .map(player => [player.user_id, player]),
     )
   }, [snapshot.players])
+
+  const activePlayers = useMemo(
+    () => snapshot.players.filter(player => player.is_active),
+    [snapshot.players],
+  )
 
   const runAction = async (key, action) => {
     setWorkingId(key)
@@ -139,15 +155,11 @@ export default function AdminPage() {
   }
 
   const suspend = user => {
-    runAction(user.id, async () => {
-      await setUserStatus(user.id, 'suspended')
-    })
+    runAction(user.id, () => setUserStatus(user.id, 'suspended'))
   }
 
   const reactivate = user => {
-    runAction(user.id, async () => {
-      await setUserStatus(user.id, 'active')
-    })
+    runAction(user.id, () => setUserStatus(user.id, 'active'))
   }
 
   const unlink = user => {
@@ -158,9 +170,7 @@ export default function AdminPage() {
   }
 
   const changeRole = (user, role) => {
-    runAction(`role-${user.id}`, () =>
-      setUserRole(user.id, role),
-    )
+    runAction(`role-${user.id}`, () => setUserRole(user.id, role))
   }
 
   const logout = async () => {
@@ -168,129 +178,166 @@ export default function AdminPage() {
     navigate('/', { replace: true })
   }
 
+  const goToPending = () => {
+    requestAnimationFrame(() => {
+      document
+        .getElementById('pending-users')
+        ?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    })
+  }
+
   if (loading) {
     return (
       <main className="auth-loading">
-        <span>ASTERI / CARGANDO CONTROL PANEL</span>
+        <span>Cargando panel de administración…</span>
       </main>
     )
   }
 
+  const modules = [
+    {
+      id: 'users',
+      title: 'Usuarios',
+      description: 'Accesos, roles, estados y cuentas vinculadas.',
+      value: snapshot.profiles.length,
+      action: () => setView('users'),
+    },
+    {
+      id: 'pending',
+      title: 'Pendientes',
+      description: 'Solicitudes que necesitan aprobación o rechazo.',
+      value: pendingUsers.length,
+      action: goToPending,
+      warning: pendingUsers.length > 0,
+    },
+    {
+      id: 'roster',
+      title: 'Plantel',
+      description: 'Jugadores, perfiles, estadísticas y configuración.',
+      value: activePlayers.length,
+      action: () => setView('roster'),
+    },
+    {
+      id: 'vods',
+      title: 'Partidos y VODs',
+      description: 'Calendario, series, resultados, VODs y clips.',
+      value: snapshot.vods.length,
+      action: () => setView('vods'),
+    },
+    ...(isOwner
+      ? [
+          {
+            id: 'home',
+            title: 'Inicio',
+            description: 'Video principal y números públicos de la Home.',
+            value: 'WEB',
+            action: () => setView('home'),
+          },
+        ]
+      : []),
+    {
+      id: 'activity',
+      title: 'Actividad',
+      description: 'Historial completo de cambios administrativos.',
+      value: snapshot.logs.length,
+      action: () => setView('activity'),
+    },
+  ]
+
   return (
     <main className="asteri-admin">
-      <aside className="asteri-admin-sidebar">
-        <div>
-          <Link className="asteri-admin-brand" to="/">
-            ASTERI
-            <span>POLARIS</span>
+      <header className="admin-topbar">
+        <Link className="admin-brand" to="/">
+          <span>ASTERI</span>
+          <strong>POLARIS</strong>
+        </Link>
+
+        <div className="admin-topbar-center">
+          <strong>Panel de administración</strong>
+          <span>{profile?.display_name || profile?.email}</span>
+        </div>
+
+        <div className="admin-topbar-actions">
+          <Link to="/" target="_blank">
+            Ver sitio
           </Link>
 
-          <nav className="asteri-admin-nav">
-            {TABS.map(item => (
-              <button
-                key={item.id}
-                type="button"
-                className={tab === item.id ? 'active' : ''}
-                onClick={() => setTab(item.id)}
-              >
-                <span>{item.label}</span>
-                <i>→</i>
-              </button>
-            ))}
-          </nav>
-        </div>
-
-        <div className="asteri-admin-user">
-          <small>{isOwner ? 'OWNER' : 'ADMIN'}</small>
-          <strong>{profile?.display_name || profile?.email}</strong>
-          <button type="button" onClick={logout}>
-            CERRAR SESIÓN
-          </button>
-        </div>
-      </aside>
-
-      <section className="asteri-admin-main">
-        <header className="asteri-admin-top">
-          <span>ASTERI / CONTROL PANEL</span>
           <button type="button" onClick={load}>
-            ACTUALIZAR
+            Actualizar
           </button>
-        </header>
 
-        {error && (
-          <div className="asteri-admin-error">
-            {error}
-          </div>
-        )}
+          <button type="button" onClick={logout}>
+            Cerrar sesión
+          </button>
+        </div>
+      </header>
 
-        {tab === 'overview' && (
-          <div className="asteri-admin-view">
-            <div className="asteri-admin-heading">
-              <span>CONTROL / 01</span>
-              <h1>OVERVIEW.</h1>
+      {error && <div className="admin-global-error">{error}</div>}
+
+      {view === 'overview' && (
+        <div className="admin-dashboard">
+          <section className="admin-dashboard-intro">
+            <div>
+              <h1>Panel de administración</h1>
               <p>
-                Estado general de usuarios y contenido privado de ASTERI.
+                Gestioná usuarios, contenido y configuración pública del sitio
+                desde un solo lugar.
               </p>
             </div>
 
-            <div className="asteri-admin-metrics">
-              <article>
-                <small>USUARIOS</small>
-                <strong>{snapshot.profiles.length.toString().padStart(2, '0')}</strong>
-              </article>
+            <span className="admin-role-badge">
+              {isOwner ? 'Owner' : 'Admin'}
+            </span>
+          </section>
 
-              <article>
-                <small>PENDIENTES</small>
-                <strong>{pendingUsers.length.toString().padStart(2, '0')}</strong>
-              </article>
+          <section className="admin-module-grid" aria-label="Secciones administrativas">
+            {modules.map(module => (
+              <button
+                type="button"
+                className={`admin-module-card ${
+                  module.warning ? 'has-warning' : ''
+                }`}
+                key={module.id}
+                onClick={module.action}
+              >
+                <div className="admin-module-card-top">
+                  <span>{module.title}</span>
+                  <strong>{module.value}</strong>
+                </div>
 
-              <article>
-                <small>VODS</small>
-                <strong>{snapshot.vods.length.toString().padStart(2, '0')}</strong>
-              </article>
+                <p>{module.description}</p>
+              </button>
+            ))}
+          </section>
 
-              <article>
-                <small>CLIPS</small>
-                <strong>{snapshot.clips.length.toString().padStart(2, '0')}</strong>
-              </article>
+          <section className="admin-dashboard-section" id="pending-users">
+            <div className="admin-dashboard-section-head">
+              <div>
+                <h2>Usuarios pendientes</h2>
+                <p>
+                  Aprobá una cuenta vinculándola con el jugador correspondiente.
+                </p>
+              </div>
+
+              <span>{pendingUsers.length}</span>
             </div>
 
-            {isOwner && (
-              <div className="asteri-admin-block">
-                <div className="asteri-admin-block-head">
-                  <div>
-                    <small>HOME / NUMBERS</small>
-                    <h2>NÚMEROS PÚBLICOS</h2>
-                  </div>
-                  <span>OWNER</span>
-                </div>
-
-                <SiteStatsManager />
+            {pendingUsers.length === 0 ? (
+              <div className="admin-empty-state">
+                No hay usuarios pendientes.
               </div>
-            )}
+            ) : (
+              <div className="admin-pending-list">
+                {pendingUsers.map(user => (
+                  <article key={user.id} className="admin-pending-row">
+                    <div className="admin-person">
+                      <strong>{user.display_name || 'Sin nombre'}</strong>
+                      <span>{user.email}</span>
+                      <small>Registrado: {formatDate(user.created_at)}</small>
+                    </div>
 
-            <div className="asteri-admin-block">
-              <div className="asteri-admin-block-head">
-                <div>
-                  <small>REQUESTS</small>
-                  <h2>CUENTAS PENDIENTES</h2>
-                </div>
-                <span>{pendingUsers.length}</span>
-              </div>
-
-              {pendingUsers.length === 0 ? (
-                <div className="asteri-admin-empty">
-                  NO HAY SOLICITUDES PENDIENTES
-                </div>
-              ) : (
-                <div className="asteri-admin-requests">
-                  {pendingUsers.map(user => (
-                    <article key={user.id} className="asteri-request-row">
-                      <div className="asteri-request-person">
-                        <span>{user.display_name || 'PLAYER'}</span>
-                        <small>{user.email}</small>
-                      </div>
-
+                    <label>
+                      <span>Jugador</span>
                       <select
                         value={linkSelections[user.id] || ''}
                         onChange={event =>
@@ -300,161 +347,196 @@ export default function AdminPage() {
                           }))
                         }
                       >
-                        <option value="">VINCULAR JUGADOR</option>
+                        <option value="">Seleccionar jugador</option>
                         {freePlayers.map(player => (
                           <option key={player.id} value={player.id}>
                             {player.nickname}
                           </option>
                         ))}
                       </select>
+                    </label>
 
-                      <div className="asteri-request-actions">
-                        <button
-                          type="button"
-                          className="approve"
-                          disabled={workingId === user.id}
-                          onClick={() => approve(user)}
-                        >
-                          APROBAR
-                        </button>
+                    <div className="admin-row-actions">
+                      <button
+                        type="button"
+                        className="primary"
+                        disabled={workingId === user.id}
+                        onClick={() => approve(user)}
+                      >
+                        Aprobar
+                      </button>
 
-                        <button
-                          type="button"
-                          disabled={workingId === user.id}
-                          onClick={() =>
-                            runAction(user.id, () =>
-                              rejectPendingUser(user.id),
-                            )
-                          }
-                        >
-                          RECHAZAR
-                        </button>
-                      </div>
-                    </article>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            <div className="asteri-admin-block">
-              <div className="asteri-admin-block-head">
-                <div>
-                  <small>RECENT</small>
-                  <h2>ÚLTIMA ACTIVIDAD</h2>
-                </div>
-              </div>
-
-              <div className="asteri-activity-list">
-                {snapshot.logs.slice(0, 8).map(log => (
-                  <article key={log.id}>
-                    <time>{formatDate(log.created_at)}</time>
-                    <strong>{actionCopy(log)}</strong>
-                    <span>{log.entity_type}</span>
+                      <button
+                        type="button"
+                        disabled={workingId === user.id}
+                        onClick={() =>
+                          runAction(user.id, () =>
+                            rejectPendingUser(user.id),
+                          )
+                        }
+                      >
+                        Rechazar
+                      </button>
+                    </div>
                   </article>
                 ))}
               </div>
-            </div>
-          </div>
-        )}
+            )}
+          </section>
 
-        {tab === 'users' && (
-          <div className="asteri-admin-view">
-            <div className="asteri-admin-heading">
-              <span>CONTROL / 02</span>
-              <h1>USUARIOS.</h1>
-              <p>
-                Administrá acceso, rol y vínculo entre cuentas y jugadores.
-              </p>
-            </div>
-
-            <div className="asteri-users-table">
-              <div className="asteri-users-table-head">
-                <span>USUARIO</span>
-                <span>JUGADOR</span>
-                <span>ROL</span>
-                <span>ESTADO</span>
-                <span>ACCIONES</span>
+          <section className="admin-dashboard-section">
+            <div className="admin-dashboard-section-head">
+              <div>
+                <h2>Últimos movimientos administrativos</h2>
+                <p>
+                  Cambios recientes realizados sobre usuarios y contenido.
+                </p>
               </div>
 
-              {snapshot.profiles.map(user => {
-                const linkedPlayer = playerByUserId.get(user.id)
-                const isSelf = user.id === profile?.id
-
-                return (
-                  <article key={user.id} className="asteri-users-row">
-                    <div>
-                      <strong>{user.display_name || 'SIN NOMBRE'}</strong>
-                      <small>{user.email}</small>
-                    </div>
-
-                    <div>
-                      <strong>{linkedPlayer?.nickname || '—'}</strong>
-                    </div>
-
-                    <div>
-                      <select
-                        value={user.role}
-                        disabled={
-                          isSelf ||
-                          workingId === `role-${user.id}` ||
-                          (!isOwner && user.role === 'owner')
-                        }
-                        onChange={event =>
-                          changeRole(user, event.target.value)
-                        }
-                      >
-                        <option value="player">PLAYER</option>
-                        <option value="admin">ADMIN</option>
-                        {isOwner && <option value="owner">OWNER</option>}
-                      </select>
-                    </div>
-
-                    <div>
-                      <span className={`user-status ${user.status}`}>
-                        {user.status.toUpperCase()}
-                      </span>
-                    </div>
-
-                    <div className="asteri-user-actions">
-                      {user.status === 'active' && !isSelf && (
-                        <button type="button" onClick={() => suspend(user)}>
-                          SUSPENDER
-                        </button>
-                      )}
-
-                      {user.status === 'suspended' && (
-                        <button type="button" onClick={() => reactivate(user)}>
-                          REACTIVAR
-                        </button>
-                      )}
-
-                      {linkedPlayer && !isSelf && (
-                        <button type="button" onClick={() => unlink(user)}>
-                          DESVINCULAR
-                        </button>
-                      )}
-                    </div>
-                  </article>
-                )
-              })}
+              <button type="button" onClick={() => setView('activity')}>
+                Ver historial completo
+              </button>
             </div>
-          </div>
-        )}
 
-        {tab === 'roster' && (
-          <div className="asteri-admin-view">
-            <RosterManager />
-          </div>
-        )}
+            <div className="admin-recent-activity">
+              {snapshot.logs.length === 0 ? (
+                <div className="admin-empty-state">
+                  Todavía no hay actividad registrada.
+                </div>
+              ) : (
+                snapshot.logs.slice(0, 10).map(log => (
+                  <article key={log.id}>
+                    <div>
+                      <strong>{actionCopy(log)}</strong>
+                      <span>{log.entity_type}</span>
+                    </div>
 
-        {tab === 'vods' && <Navigate to="/admin/vods" replace />}
+                    <time>{formatDate(log.created_at)}</time>
+                  </article>
+                ))
+              )}
+            </div>
+          </section>
+        </div>
+      )}
 
-        {tab === 'activity' && (
-          <div className="asteri-admin-view">
-            <AuditLogManager />
+      {view === 'users' && (
+        <div className="admin-content-view">
+          <AdminSectionHeader
+            title="Usuarios"
+            description="Administrá acceso, rol, estado y vínculo entre cuentas y jugadores."
+            onBack={() => setView('overview')}
+          />
+
+          <div className="admin-users-table">
+            <div className="admin-users-head">
+              <span>Usuario</span>
+              <span>Jugador</span>
+              <span>Rol</span>
+              <span>Estado</span>
+              <span>Acciones</span>
+            </div>
+
+            {snapshot.profiles.map(user => {
+              const linkedPlayer = playerByUserId.get(user.id)
+              const isSelf = user.id === profile?.id
+
+              return (
+                <article key={user.id} className="admin-user-row">
+                  <div className="admin-person">
+                    <strong>{user.display_name || 'Sin nombre'}</strong>
+                    <span>{user.email}</span>
+                  </div>
+
+                  <div>{linkedPlayer?.nickname || '—'}</div>
+
+                  <div>
+                    <select
+                      value={user.role}
+                      disabled={
+                        isSelf ||
+                        workingId === `role-${user.id}` ||
+                        (!isOwner && user.role === 'owner')
+                      }
+                      onChange={event =>
+                        changeRole(user, event.target.value)
+                      }
+                    >
+                      <option value="player">Player</option>
+                      <option value="admin">Admin</option>
+                      {isOwner && <option value="owner">Owner</option>}
+                    </select>
+                  </div>
+
+                  <div>
+                    <span className={`admin-status ${user.status}`}>
+                      {user.status}
+                    </span>
+                  </div>
+
+                  <div className="admin-row-actions">
+                    {user.status === 'active' && !isSelf && (
+                      <button type="button" onClick={() => suspend(user)}>
+                        Suspender
+                      </button>
+                    )}
+
+                    {user.status === 'suspended' && (
+                      <button type="button" onClick={() => reactivate(user)}>
+                        Reactivar
+                      </button>
+                    )}
+
+                    {linkedPlayer && !isSelf && (
+                      <button type="button" onClick={() => unlink(user)}>
+                        Desvincular
+                      </button>
+                    )}
+                  </div>
+                </article>
+              )
+            })}
           </div>
-        )}
-      </section>
+        </div>
+      )}
+
+      {view === 'roster' && (
+        <div className="admin-content-view">
+          <AdminSectionHeader
+            title="Plantel"
+            description="Jugadores, perfiles públicos, estadísticas y configuración."
+            onBack={() => setView('overview')}
+          />
+
+          <RosterManager />
+        </div>
+      )}
+
+      {view === 'home' && isOwner && (
+        <div className="admin-content-view">
+          <AdminSectionHeader
+            title="Inicio"
+            description="Configuración de los elementos principales de la página pública."
+            onBack={() => setView('overview')}
+          />
+
+          <HomeSettingsManager />
+        </div>
+      )}
+
+      {view === 'vods' && <Navigate to="/admin/vods" replace />}
+
+      {view === 'activity' && (
+        <div className="admin-content-view">
+          <AdminSectionHeader
+            title="Actividad"
+            description="Registro detallado de los cambios realizados en la plataforma."
+            onBack={() => setView('overview')}
+          />
+
+          <AuditLogManager />
+        </div>
+      )}
     </main>
   )
 }

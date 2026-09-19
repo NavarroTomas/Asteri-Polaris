@@ -1,13 +1,43 @@
+import { useEffect, useState } from 'react'
+import {
+  DEFAULT_SITE_SETTINGS,
+  getSiteSettings,
+} from '../lib/siteSettings'
+
 export default function HeroVideo() {
-  const videoUrl =
+  const fallbackVideoUrl =
     import.meta.env.VITE_HERO_VIDEO_URL ||
-    '/media/hero.mp4'
+    DEFAULT_SITE_SETTINGS.hero_video_url
+
+  const [videoUrl, setVideoUrl] = useState(fallbackVideoUrl)
+
+  useEffect(() => {
+    let alive = true
+
+    const load = async () => {
+      try {
+        const settings = await getSiteSettings()
+
+        if (alive && settings.hero_video_url) {
+          setVideoUrl(settings.hero_video_url)
+        }
+      } catch (error) {
+        console.error(
+          'No se pudo cargar el video configurado del Hero:',
+          error,
+        )
+      }
+    }
+
+    load()
+
+    return () => {
+      alive = false
+    }
+  }, [])
 
   return (
-    <section
-      className="hero-video-section"
-      id="inicio"
-    >
+    <section className="hero-video-section" id="inicio">
       <video
         className="hero-background-video"
         src={videoUrl}
