@@ -1,6 +1,10 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { getHomeCalendarData } from '../lib/homeMatches'
+import {
+  CALENDAR_MARKERS,
+  CALENDAR_MARKER_ORDER,
+} from '../config/calendarMarkers'
 import './AsteriTypography.css'
 
 const MONTHS = [
@@ -28,13 +32,12 @@ const WEEKDAYS = [
   'DOM',
 ]
 
-const EVENT_LABELS = {
-  event: 'EVENTO',
-  matchday: 'FECHA',
-  tournament: 'TORNEO',
-  scrim: 'SCRIM',
-  other: 'OTRO',
-}
+const EVENT_LABELS = Object.fromEntries(
+  Object.entries(CALENDAR_MARKERS).map(([key, marker]) => [
+    key,
+    marker.label,
+  ]),
+)
 
 function buildMonth(year, month) {
   const daysInMonth =
@@ -245,6 +248,22 @@ export default function MatchesHub() {
     loadError,
     setLoadError,
   ] = useState('')
+
+  const [
+    markerFilters,
+    setMarkerFilters,
+  ] = useState(() => [...CALENDAR_MARKER_ORDER])
+
+  const markerEnabled = (type) =>
+    markerFilters.includes(type)
+
+  const toggleMarker = (type) => {
+    setMarkerFilters((current) =>
+      current.includes(type)
+        ? current.filter((item) => item !== type)
+        : [...current, type],
+    )
+  }
 
   useEffect(() => {
     let alive = true
@@ -537,6 +556,28 @@ export default function MatchesHub() {
       )
     }
 
+  const getMarkerTypes = (dayMatches, dayEvents) => {
+    const types = []
+
+    if (dayMatches.length > 0) {
+      types.push('match')
+    }
+
+    dayEvents.forEach((event) => {
+      const type = CALENDAR_MARKERS[event.type]
+        ? event.type
+        : 'other'
+
+      if (!types.includes(type)) {
+        types.push(type)
+      }
+    })
+
+    return CALENDAR_MARKER_ORDER.filter((type) =>
+      types.includes(type),
+    )
+  }
+
   return (
     <section
       className="matches matches-minimal"
@@ -675,6 +716,36 @@ export default function MatchesHub() {
               },
             )}
           </div>
+
+          <div className="calendar-marker-legend">
+            <div className="calendar-marker-legend-head">
+              <span>ÍNDICE / FILTRO</span>
+              <small>TOCÁ PARA OCULTAR</small>
+            </div>
+
+            <div className="calendar-marker-legend-items">
+              {CALENDAR_MARKER_ORDER.map((type) => {
+                const marker = CALENDAR_MARKERS[type]
+                const enabled = markerEnabled(type)
+
+                return (
+                  <button
+                    type="button"
+                    key={type}
+                    className={enabled ? 'active' : ''}
+                    aria-pressed={enabled}
+                    onClick={() => toggleMarker(type)}
+                    style={{ '--marker-color': marker.color }}
+                  >
+                    <span aria-hidden="true">
+                      {marker.symbol}
+                    </span>
+                    {marker.label}
+                  </button>
+                )
+              })}
+            </div>
+          </div>
         </div>
 
         <div className="calendar-panel">
@@ -763,6 +834,15 @@ export default function MatchesHub() {
                     dayEvents,
                   )
 
+                const markerTypes =
+                  getMarkerTypes(
+                    dayMatches,
+                    dayEvents,
+                  )
+
+                const visibleMarkerTypes =
+                  markerTypes.filter(markerEnabled)
+
                 const active =
                   selectedDay ===
                   day
@@ -810,6 +890,30 @@ export default function MatchesHub() {
                         '0',
                       )}
                     </span>
+
+                    {visibleMarkerTypes.length > 0 && (
+                      <div
+                        className="calendar-day-markers"
+                        aria-label={visibleMarkerTypes
+                          .map((type) => CALENDAR_MARKERS[type].label)
+                          .join(', ')}
+                      >
+                        {visibleMarkerTypes.map((type) => {
+                          const marker = CALENDAR_MARKERS[type]
+
+                          return (
+                            <span
+                              key={type}
+                              title={marker.label}
+                              style={{ color: marker.color }}
+                              aria-hidden="true"
+                            >
+                              {marker.symbol}
+                            </span>
+                          )
+                        })}
+                      </div>
+                    )}
 
                     {hasContent && (
                       <div className="calendar-day-match">
@@ -1067,6 +1171,8 @@ export default function MatchesHub() {
 
         .match-list-panel {
           overflow: hidden;
+          display: flex;
+          flex-direction: column;
         }
 
         .match-list-title {
@@ -1079,6 +1185,67 @@ export default function MatchesHub() {
           color: #7c8780;
           font: 700 9px/1 var(--font-tactical);
           letter-spacing: .18em;
+        }
+
+        .calendar-marker-legend {
+          margin-top: auto;
+          border-top: 1px solid #1b211d;
+          background: #070907;
+          padding: 18px 16px 20px;
+        }
+
+        .calendar-marker-legend-head {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 12px;
+          margin-bottom: 14px;
+          color: #727d76;
+          font: 700 9px/1 var(--font-tactical);
+          letter-spacing: .16em;
+        }
+
+        .calendar-marker-legend-head small {
+          color: #59635d;
+          font-size: 7px;
+          letter-spacing: .12em;
+        }
+
+        .calendar-marker-legend-items {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 8px;
+        }
+
+        .calendar-marker-legend-items button {
+          min-height: 40px;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          gap: 8px;
+          padding: 0 14px;
+          border: 1px solid #202722;
+          background: #0a0d0b;
+          color: #7a847e;
+          cursor: pointer;
+          font: 700 9px/1 var(--font-tactical);
+          letter-spacing: .1em;
+          transition: color .16s ease, background .16s ease, opacity .16s ease, border-color .16s ease;
+        }
+
+        .calendar-marker-legend-items button span {
+          color: var(--marker-color);
+          font-size: 14px;
+        }
+
+        .calendar-marker-legend-items button.active {
+          background: #111512;
+          color: #eef2ef;
+          border-color: #2a332d;
+        }
+
+        .calendar-marker-legend-items button:not(.active) {
+          opacity: .52;
         }
 
         .match-list {
@@ -1260,7 +1427,7 @@ export default function MatchesHub() {
 
         .calendar-day {
           position: relative;
-          min-height: 66px;
+          min-height: 74px;
           padding: 8px;
           display: flex;
           flex-direction: column;
@@ -1272,6 +1439,7 @@ export default function MatchesHub() {
           background: #090c0a;
           color: #4e5852;
           text-align: left;
+          overflow: hidden;
         }
 
         .calendar-day:nth-child(7n) {
@@ -1310,10 +1478,36 @@ export default function MatchesHub() {
         }
 
         .calendar-day-number {
+          position: relative;
+          z-index: 3;
           font: 700 clamp(13px, 1vw, 18px)/1 var(--font-tactical);
         }
 
+        .calendar-day-markers {
+          position: absolute;
+          inset: 0;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 8px;
+          pointer-events: none;
+          z-index: 1;
+        }
+
+        .calendar-day-markers span {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          width: 24px;
+          height: 24px;
+          font: 700 18px/1 var(--font-tactical);
+          text-shadow: 0 0 10px rgba(0, 0, 0, .6);
+          opacity: .95;
+        }
+
         .calendar-day-match {
+          position: relative;
+          z-index: 3;
           width: 100%;
           display: flex;
           align-items: center;
@@ -1326,10 +1520,7 @@ export default function MatchesHub() {
         }
 
         .calendar-day-match i {
-          width: 5px;
-          height: 5px;
-          flex: 0 0 auto;
-          background: #00d96e;
+          display: none;
         }
 
         .calendar-day-match span {
@@ -1499,6 +1690,22 @@ export default function MatchesHub() {
             padding: 5px;
           }
 
+          .calendar-marker-legend-items button {
+            min-height: 36px;
+            padding: 0 12px;
+            font-size: 8px;
+          }
+
+          .calendar-marker-legend-items button span {
+            font-size: 12px;
+          }
+
+          .calendar-day-markers span {
+            width: 18px;
+            height: 18px;
+            font-size: 14px;
+          }
+
           .calendar-day-match span {
             display: none;
           }
@@ -1545,6 +1752,22 @@ export default function MatchesHub() {
           .calendar-day {
             min-height: clamp(40px, 10.5vw, 48px);
             padding: 4px 2px;
+          }
+
+          .calendar-marker-legend-items {
+            gap: 6px;
+          }
+
+          .calendar-marker-legend-items button {
+            min-height: 34px;
+            padding: 0 10px;
+            font-size: 7px;
+          }
+
+          .calendar-day-markers span {
+            width: 16px;
+            height: 16px;
+            font-size: 12px;
           }
 
           .calendar-day-detail-head {

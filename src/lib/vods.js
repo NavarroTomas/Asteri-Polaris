@@ -73,7 +73,7 @@ export async function listCalendarEvents() {
 }
 
 export async function getVodDetail(id) {
-  const [vod, lineup, clips] = await Promise.all([
+  const [vod, lineup, clips, maps] = await Promise.all([
     supabase
       .from('vods')
       .select('*')
@@ -91,16 +91,24 @@ export async function getVodDetail(id) {
       .select('*')
       .eq('vod_id', id)
       .order('created_at', { ascending: false }),
+
+    supabase
+      .from('vod_maps')
+      .select('*')
+      .eq('vod_id', id)
+      .order('map_order'),
   ])
 
   if (vod.error) throw vod.error
   if (lineup.error) throw lineup.error
   if (clips.error) throw clips.error
+  if (maps.error) throw maps.error
 
   return {
     vod: vod.data,
     lineup: lineup.data || [],
     clips: clips.data || [],
+    maps: maps.data || [],
   }
 }
 
@@ -138,7 +146,9 @@ export async function saveVod(id, form, userId) {
       form.match_time || null,
 
     map_name:
-      cleanText(form.map_name),
+      resultType === 'series'
+        ? null
+        : cleanText(form.map_name),
 
     score_asteri:
       numberOrNull(form.score_asteri),
@@ -193,6 +203,33 @@ export async function saveVod(id, form, userId) {
   if (error) throw error
 
   return data
+}
+
+export async function saveVodMaps(vodId, maps) {
+  const remove = await supabase
+    .from('vod_maps')
+    .delete()
+    .eq('vod_id', vodId)
+
+  if (remove.error) throw remove.error
+
+  if (!maps.length) return []
+
+  const rows = maps.map((map, index) => ({
+    vod_id: vodId,
+    map_order: index + 1,
+    map_name: map.map_name,
+    score_asteri: numberOrNull(map.score_asteri),
+    score_opponent: numberOrNull(map.score_opponent),
+  }))
+
+  const { data, error } = await supabase
+    .from('vod_maps')
+    .insert(rows)
+    .select()
+
+  if (error) throw error
+  return data || []
 }
 
 export async function saveCalendarEvent(
@@ -483,7 +520,7 @@ export async function getPublicVod(slug) {
     return null
   }
 
-  const [lineup, clips] =
+  const [lineup, clips, maps] =
     await Promise.all([
       supabase
         .from('vod_players')
@@ -506,6 +543,15 @@ export async function getPublicVod(slug) {
           true,
         )
         .order('created_at'),
+
+      supabase
+        .from('vod_maps')
+        .select('*')
+        .eq(
+          'vod_id',
+          vod.data.id,
+        )
+        .order('map_order'),
     ])
 
   if (lineup.error) {
@@ -514,6 +560,10 @@ export async function getPublicVod(slug) {
 
   if (clips.error) {
     throw clips.error
+  }
+
+  if (maps.error) {
+    throw maps.error
   }
 
   const ids = [
@@ -564,6 +614,7 @@ export async function getPublicVod(slug) {
 
   return {
     vod: vod.data,
+    maps: maps.data || [],
 
     lineup:
       (lineup.data || []).map(

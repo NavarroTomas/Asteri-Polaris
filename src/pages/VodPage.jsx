@@ -4,6 +4,7 @@ import Header from '../components/Header'
 import Footer from '../components/Footer'
 import { getPublicVod } from '../lib/vods'
 import { getVodDownloadHref } from '../lib/vodLinks'
+import { getCompetitiveMap } from '../config/competitiveMaps'
 import './VodPage.css'
 
 const fmtDate = (value) =>
@@ -181,6 +182,7 @@ export default function VodPage() {
     vod,
     lineup,
     clips,
+    maps = [],
   } = data
 
   const result =
@@ -189,6 +191,12 @@ export default function VodPage() {
   const played =
     vod.status ===
     'played'
+
+  const hasSeriesMaps =
+    vod.result_type === 'series' && maps.length > 0
+
+  const watchIndex = hasSeriesMaps ? '04' : '03'
+  const clipsIndex = hasSeriesMaps ? '05' : '04'
 
   return (
     <div className="vod-page">
@@ -218,8 +226,11 @@ export default function VodPage() {
 
             <div className="vod-meta">
               <b>
-                {vod.map_name ||
-                  '—'}
+                {vod.result_type === 'series'
+                  ? maps.length
+                    ? `${maps.length} MAPA${maps.length === 1 ? '' : 'S'}`
+                    : String(vod.series_format || 'SERIE').toUpperCase()
+                  : vod.map_name || '—'}
               </b>
 
               <b>
@@ -340,9 +351,63 @@ export default function VodPage() {
           </div>
         </section>
 
+        {hasSeriesMaps && (
+          <section className="vod-section">
+            <div className="vod-index">
+              <span>03</span>
+              <small>MAPAS</small>
+            </div>
+
+            <div>
+              <h2>SERIE.</h2>
+
+              <div className="vod-series-maps">
+                {maps.map((item, index) => {
+                  const map = getCompetitiveMap(item.map_name)
+                  const hasMapScore =
+                    item.score_asteri != null &&
+                    item.score_opponent != null
+
+                  return (
+                    <article key={item.id || `${item.map_name}-${index}`}>
+                      <div className="vod-series-map-image">
+                        {map.image ? (
+                          <img
+                            src={map.image}
+                            alt={`Mapa ${map.name}`}
+                            loading="lazy"
+                          />
+                        ) : null}
+
+                        <span>
+                          {String(index + 1).padStart(2, '0')}
+                        </span>
+                      </div>
+
+                      <div className="vod-series-map-copy">
+                        <small>MAPA {index + 1}</small>
+                        <strong>{map.name}</strong>
+                      </div>
+
+                      <div className="vod-series-map-score">
+                        <small>RESULTADO</small>
+                        <strong>
+                          {hasMapScore
+                            ? `${item.score_asteri} — ${item.score_opponent}`
+                            : '—'}
+                        </strong>
+                      </div>
+                    </article>
+                  )
+                })}
+              </div>
+            </div>
+          </section>
+        )}
+
         <section className="vod-section">
           <div className="vod-index">
-            <span>03</span>
+            <span>{watchIndex}</span>
             <small>
               WATCH
             </small>
@@ -390,7 +455,7 @@ export default function VodPage() {
 
         <section className="vod-section">
           <div className="vod-index">
-            <span>04</span>
+            <span>{clipsIndex}</span>
             <small>
               CLIPS
             </small>

@@ -14,9 +14,19 @@ import {
   saveCalendarEvent,
   saveLineup,
   saveVod,
+  saveVodMaps,
   slugifyVod,
   toggleClip,
 } from '../lib/vods'
+import {
+  ACTIVE_DUTY_MAPS,
+  SERIES_MAP_LIMITS,
+  getCompetitiveMap,
+} from '../config/competitiveMaps'
+import {
+  CALENDAR_EVENT_OPTIONS,
+  CALENDAR_MARKERS,
+} from '../config/calendarMarkers'
 import './VodAdminPage.css'
 
 const emptyClip = {
@@ -29,14 +39,6 @@ const emptyClip = {
   is_published: true,
 }
 
-const EVENT_TYPES = [
-  ['event', 'EVENTO'],
-  ['matchday', 'FECHA'],
-  ['tournament', 'TORNEO'],
-  ['scrim', 'SCRIM'],
-  ['other', 'OTRO'],
-]
-
 export default function VodAdminPage() {
   const { user } = useAuth()
 
@@ -48,6 +50,7 @@ export default function VodAdminPage() {
   const [form, setForm] = useState(emptyVod)
   const [lineup, setLineup] = useState([])
   const [clips, setClips] = useState([])
+  const [mapRows, setMapRows] = useState([])
   const [clipFile, setClipFile] = useState(null)
   const [clip, setClip] = useState(emptyClip)
 
@@ -93,6 +96,7 @@ export default function VodAdminPage() {
       setForm(emptyVod)
       setLineup([])
       setClips([])
+      setMapRows([])
       return
     }
 
@@ -110,6 +114,15 @@ export default function VodAdminPage() {
         )
 
         setClips(data.clips)
+        setMapRows(
+          (data.maps || []).map((item) => ({
+            map_name: item.map_name,
+            score_asteri:
+              item.score_asteri ?? '',
+            score_opponent:
+              item.score_opponent ?? '',
+          })),
+        )
       })
       .catch((error) => setErr(error.message))
   }, [selected])
@@ -156,11 +169,78 @@ export default function VodAdminPage() {
     )
   }
 
+  const seriesLimit =
+    SERIES_MAP_LIMITS[form.series_format || 'bo1'] || 1
+
+  const toggleSeriesMap = (mapId) => {
+    setErr('')
+
+    setMapRows((currentRows) => {
+      const existingIndex = currentRows.findIndex(
+        (row) => row.map_name === mapId,
+      )
+
+      if (existingIndex >= 0) {
+        return currentRows.filter(
+          (_, index) => index !== existingIndex,
+        )
+      }
+
+      if (currentRows.length >= seriesLimit) {
+        setErr(
+          `${String(form.series_format || 'bo1').toUpperCase()} permite hasta ${seriesLimit} mapa${seriesLimit === 1 ? '' : 's'}.`,
+        )
+        return currentRows
+      }
+
+      return [
+        ...currentRows,
+        {
+          map_name: mapId,
+          score_asteri: '',
+          score_opponent: '',
+        },
+      ]
+    })
+  }
+
+  const updateSeriesMap = (index, key, value) => {
+    setMapRows((currentRows) =>
+      currentRows.map((row, rowIndex) =>
+        rowIndex === index
+          ? { ...row, [key]: value }
+          : row,
+      ),
+    )
+  }
+
+  const moveSeriesMap = (index, delta) => {
+    setMapRows((currentRows) => {
+      const target = index + delta
+
+      if (target < 0 || target >= currentRows.length) {
+        return currentRows
+      }
+
+      const next = [...currentRows]
+      const [item] = next.splice(index, 1)
+      next.splice(target, 0, item)
+      return next
+    })
+  }
+
+  const removeSeriesMap = (index) => {
+    setMapRows((currentRows) =>
+      currentRows.filter((_, rowIndex) => rowIndex !== index),
+    )
+  }
+
   const newVod = () => {
     setSelected(null)
     setForm(emptyVod)
     setLineup([])
     setClips([])
+    setMapRows([])
     setMsg('')
     setErr('')
   }
@@ -197,8 +277,63 @@ export default function VodAdminPage() {
         throw new Error('Completá el resultado textual')
       }
 
+      let seriesScoreA = form.score_asteri
+      let seriesScoreB = form.score_opponent
+
+      if (form.result_type === 'series') {
+        const limit =
+          SERIES_MAP_LIMITS[form.series_format || 'bo1'] || 1
+
+        if (mapRows.length > limit) {
+          throw new Error(
+            `${String(form.series_format || 'bo1').toUpperCase()} permite hasta ${limit} mapa${limit === 1 ? '' : 's'}.`,
+          )
+        }
+
+        if (form.status === 'played' && mapRows.length === 0) {
+          throw new Error('Seleccioná al menos un mapa jugado')
+        }
+
+        if (form.status === 'played') {
+          const incomplete = mapRows.some(
+            (row) =>
+              row.score_asteri === '' ||
+              row.score_asteri == null ||
+              row.score_opponent === '' ||
+              row.score_opponent == null,
+          )
+
+          if (incomplete) {
+            throw new Error('Completá el resultado de cada mapa jugado')
+          }
+        }
+
+        const completedMaps = mapRows.filter(
+          (row) =>
+            row.score_asteri !== '' &&
+            row.score_asteri != null &&
+            row.score_opponent !== '' &&
+            row.score_opponent != null,
+        )
+
+        if (completedMaps.length > 0) {
+          seriesScoreA = completedMaps.filter(
+            (row) => Number(row.score_asteri) > Number(row.score_opponent),
+          ).length
+
+          seriesScoreB = completedMaps.filter(
+            (row) => Number(row.score_opponent) > Number(row.score_asteri),
+          ).length
+        } else {
+          seriesScoreA = ''
+          seriesScoreB = ''
+        }
+      }
+
       const payload = {
         ...form,
+        score_asteri: seriesScoreA,
+        score_opponent: seriesScoreB,
         slug:
           form.slug ||
           slugifyVod(
@@ -210,6 +345,11 @@ export default function VodAdminPage() {
         selected,
         payload,
         user.id,
+      )
+
+      await saveVodMaps(
+        saved.id,
+        form.result_type === 'series' ? mapRows : [],
       )
 
       await saveLineup(
@@ -434,13 +574,32 @@ export default function VodAdminPage() {
                       setEvent('event_type', event.target.value)
                     }
                   >
-                    {EVENT_TYPES.map(([value, label]) => (
-                      <option key={value} value={value}>
-                        {label}
+                    {CALENDAR_EVENT_OPTIONS.map((option) => (
+                      <option key={option.key} value={option.key}>
+                        {option.symbol} {option.label}
                       </option>
                     ))}
                   </select>
                 </label>
+
+                <div
+                  className="calendar-event-marker-preview wide"
+                  style={{
+                    '--event-marker-color':
+                      CALENDAR_MARKERS[eventForm.event_type]?.color ||
+                      CALENDAR_MARKERS.other.color,
+                  }}
+                >
+                  <span aria-hidden="true">★</span>
+                  <div>
+                    <strong>
+                      {CALENDAR_MARKERS[eventForm.event_type]?.label || 'OTRO'}
+                    </strong>
+                    <small>
+                      ESTE MARCADOR APARECE EN EL CALENDARIO. LOS PARTIDOS CREADOS COMO VOD SE MARCAN AUTOMÁTICAMENTE EN AZUL.
+                    </small>
+                  </div>
+                </div>
 
                 <label className="wide">
                   <span>DESCRIPCIÓN / ACLARACIÓN</span>
@@ -605,15 +764,17 @@ export default function VodAdminPage() {
                   />
                 </label>
 
-                <label>
-                  <span>MAPA</span>
-                  <input
-                    value={form.map_name || ''}
-                    onChange={(event) =>
-                      set('map_name', event.target.value)
-                    }
-                  />
-                </label>
+                {form.result_type !== 'series' && (
+                  <label>
+                    <span>MAPA</span>
+                    <input
+                      value={form.map_name || ''}
+                      onChange={(event) =>
+                        set('map_name', event.target.value)
+                      }
+                    />
+                  </label>
+                )}
 
                 <label>
                   <span>ESTADO</span>
@@ -654,20 +815,17 @@ export default function VodAdminPage() {
                       }
                     >
                       <option value="bo1">BO1</option>
+                      <option value="bo2">BO2</option>
                       <option value="bo3">BO3</option>
                       <option value="bo5">BO5</option>
                     </select>
                   </label>
                 )}
 
-                {!['elimination', 'custom'].includes(form.result_type) && (
+                {form.result_type === 'rounds' && (
                   <>
                     <label>
-                      <span>
-                        {form.result_type === 'series'
-                          ? 'MAPAS ASTERI'
-                          : 'RONDAS ASTERI'}
-                      </span>
+                      <span>RONDAS ASTERI</span>
                       <input
                         type="number"
                         min="0"
@@ -679,11 +837,7 @@ export default function VodAdminPage() {
                     </label>
 
                     <label>
-                      <span>
-                        {form.result_type === 'series'
-                          ? 'MAPAS RIVAL'
-                          : 'RONDAS RIVAL'}
-                      </span>
+                      <span>RONDAS RIVAL</span>
                       <input
                         type="number"
                         min="0"
@@ -694,6 +848,122 @@ export default function VodAdminPage() {
                       />
                     </label>
                   </>
+                )}
+
+                {form.result_type === 'series' && (
+                  <div className="vod-map-picker wide">
+                    <div className="vod-map-picker-head">
+                      <div>
+                        <span>MAPAS DE LA SERIE</span>
+                        <small>
+                          POOL ACTIVO · MÁXIMO {seriesLimit} · EL ORDEN DE SELECCIÓN ES EL ORDEN DE JUEGO
+                        </small>
+                      </div>
+
+                      <strong>
+                        {mapRows.length}/{seriesLimit}
+                      </strong>
+                    </div>
+
+                    <div className="vod-map-grid">
+                      {ACTIVE_DUTY_MAPS.map((map) => {
+                        const selectedIndex = mapRows.findIndex(
+                          (row) => row.map_name === map.id,
+                        )
+
+                        return (
+                          <button
+                            type="button"
+                            key={map.id}
+                            className={selectedIndex >= 0 ? 'selected' : ''}
+                            onClick={() => toggleSeriesMap(map.id)}
+                          >
+                            <img
+                              src={map.image}
+                              alt={`Mapa ${map.name}`}
+                              loading="lazy"
+                            />
+                            <span>{map.name}</span>
+                            {selectedIndex >= 0 && (
+                              <b>{String(selectedIndex + 1).padStart(2, '0')}</b>
+                            )}
+                          </button>
+                        )
+                      })}
+                    </div>
+
+                    {mapRows.length > 0 && (
+                      <div className="vod-map-results">
+                        {mapRows.map((row, index) => {
+                          const map = getCompetitiveMap(row.map_name)
+
+                          return (
+                            <div className="vod-map-result-row" key={`${row.map_name}-${index}`}>
+                              <div className="vod-map-result-name">
+                                <img src={map.image} alt="" />
+                                <span>{String(index + 1).padStart(2, '0')}</span>
+                                <strong>{map.name}</strong>
+                              </div>
+
+                              <label>
+                                <span>ASTERI</span>
+                                <input
+                                  type="number"
+                                  min="0"
+                                  value={row.score_asteri}
+                                  onChange={(event) =>
+                                    updateSeriesMap(index, 'score_asteri', event.target.value)
+                                  }
+                                />
+                              </label>
+
+                              <label>
+                                <span>RIVAL</span>
+                                <input
+                                  type="number"
+                                  min="0"
+                                  value={row.score_opponent}
+                                  onChange={(event) =>
+                                    updateSeriesMap(index, 'score_opponent', event.target.value)
+                                  }
+                                />
+                              </label>
+
+                              <div className="vod-map-result-actions">
+                                <button
+                                  type="button"
+                                  onClick={() => moveSeriesMap(index, -1)}
+                                  disabled={index === 0}
+                                  aria-label={`Mover ${map.name} arriba`}
+                                >
+                                  ↑
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => moveSeriesMap(index, 1)}
+                                  disabled={index === mapRows.length - 1}
+                                  aria-label={`Mover ${map.name} abajo`}
+                                >
+                                  ↓
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => removeSeriesMap(index)}
+                                  aria-label={`Quitar ${map.name}`}
+                                >
+                                  ×
+                                </button>
+                              </div>
+                            </div>
+                          )
+                        })}
+                      </div>
+                    )}
+
+                    <p className="vod-map-picker-note">
+                      El resultado general de la serie se calcula automáticamente según los mapas cargados.
+                    </p>
+                  </div>
                 )}
 
                 <label className="wide">
