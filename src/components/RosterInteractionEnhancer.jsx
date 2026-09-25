@@ -3,15 +3,15 @@ import './RosterInteractionEnhancer.css'
 
 export default function RosterInteractionEnhancer() {
   useEffect(() => {
-    const reducedMotion =
-      window.matchMedia(
-        '(prefers-reduced-motion: reduce)',
-      ).matches
+    const reducedMotion = window.matchMedia(
+      '(prefers-reduced-motion: reduce)',
+    ).matches
 
     if (reducedMotion) {
       return undefined
     }
 
+    let activeCard = null
     let timer = 0
 
     const onClick = event => {
@@ -19,31 +19,27 @@ export default function RosterInteractionEnhancer() {
 
       if (!card) return
 
-      const shell =
-        document.querySelector(
-          '.selected-player-shell',
-        )
-
-      if (!shell) return
+      const media = card.querySelector('.player-card-media')
+      if (!media) return
 
       window.clearTimeout(timer)
 
-      shell.classList.remove(
-        'is-player-light-flash',
-      )
+      if (activeCard && activeCard !== card) {
+        activeCard.classList.remove('is-image-light-flash')
+      }
 
-      // Fuerza reflow para reiniciar la animación
-      // incluso al cambiar de jugador muy rápido.
-      void shell.offsetWidth
+      activeCard = card
 
-      shell.classList.add(
-        'is-player-light-flash',
-      )
+      card.classList.remove('is-image-light-flash')
+      void card.offsetWidth
+      card.classList.add('is-image-light-flash')
 
       timer = window.setTimeout(() => {
-        shell.classList.remove(
-          'is-player-light-flash',
-        )
+        card.classList.remove('is-image-light-flash')
+
+        if (activeCard === card) {
+          activeCard = null
+        }
       }, 520)
     }
 
@@ -51,6 +47,11 @@ export default function RosterInteractionEnhancer() {
 
     return () => {
       window.clearTimeout(timer)
+
+      if (activeCard) {
+        activeCard.classList.remove('is-image-light-flash')
+      }
+
       document.removeEventListener('click', onClick)
     }
   }, [])

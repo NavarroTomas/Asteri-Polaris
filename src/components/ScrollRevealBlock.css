@@ -1,0 +1,52 @@
+.asteri-scroll-reveal {
+  position: relative;
+  width: 100%;
+}
+
+.asteri-scroll-reveal.is-reveal-enabled {
+  opacity: 0;
+  transform:
+    translate3d(
+      0,
+      var(--asteri-reveal-distance, 72px),
+      0
+    );
+
+  transition:
+    opacity .62s ease,
+    transform .78s cubic-bezier(.16, 1, .3, 1);
+
+  will-change:
+    opacity,
+    transform;
+}
+
+.asteri-scroll-reveal.is-reveal-enabled.is-visible {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+}
+
+@media (max-width: 680px) {
+  .asteri-scroll-reveal.is-reveal-enabled {
+    transform:
+      translate3d(
+        0,
+        min(var(--asteri-reveal-distance, 72px), 54px),
+        0
+      );
+
+    transition-duration:
+      .52s,
+      .66s;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .asteri-scroll-reveal,
+  .asteri-scroll-reveal.is-reveal-enabled,
+  .asteri-scroll-reveal.is-reveal-enabled.is-visible {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+}

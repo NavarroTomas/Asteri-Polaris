@@ -21,18 +21,31 @@ import NextObjective from '../components/NextObjective'
 import MatchesHub from '../components/MatchesHub'
 import CommunitySection from '../components/CommunitySection'
 import Footer from '../components/Footer'
+import ScrollRevealBlock from '../components/ScrollRevealBlock'
+import SiteIntroLoader from '../components/SiteIntroLoader'
 
 function useElementWidth(ref) {
   const [width, setWidth] = useState(0)
 
   useLayoutEffect(() => {
     const updateWidth = () => {
-      if (ref.current) setWidth(ref.current.offsetWidth)
+      if (ref.current) {
+        setWidth(ref.current.offsetWidth)
+      }
     }
 
     updateWidth()
-    window.addEventListener('resize', updateWidth)
-    return () => window.removeEventListener('resize', updateWidth)
+
+    window.addEventListener(
+      'resize',
+      updateWidth,
+    )
+
+    return () =>
+      window.removeEventListener(
+        'resize',
+        updateWidth,
+      )
   }, [ref])
 
   return width
@@ -40,7 +53,10 @@ function useElementWidth(ref) {
 
 function wrap(min, max, value) {
   const range = max - min
-  const mod = (((value - min) % range) + range) % range
+  const mod =
+    (((value - min) % range) + range) %
+    range
+
   return mod + min
 }
 
@@ -50,56 +66,128 @@ function VelocityText({
   damping = 50,
   stiffness = 350,
   numCopies = 14,
-  velocityMapping = { input: [0, 1000], output: [0, 4] },
+  velocityMapping = {
+    input: [0, 1000],
+    output: [0, 4],
+  },
   className = '',
 }) {
-  const baseX = useMotionValue(0)
-  const { scrollY } = useScroll()
-  const scrollVelocity = useVelocity(scrollY)
+  const baseX =
+    useMotionValue(0)
 
-  const smoothVelocity = useSpring(scrollVelocity, {
-    damping,
-    stiffness,
-  })
+  const { scrollY } =
+    useScroll()
 
-  const velocityFactor = useTransform(
-    smoothVelocity,
-    velocityMapping.input,
-    velocityMapping.output,
-    { clamp: false },
+  const scrollVelocity =
+    useVelocity(scrollY)
+
+  const smoothVelocity =
+    useSpring(
+      scrollVelocity,
+      {
+        damping,
+        stiffness,
+      },
+    )
+
+  const velocityFactor =
+    useTransform(
+      smoothVelocity,
+      velocityMapping.input,
+      velocityMapping.output,
+      { clamp: false },
+    )
+
+  const copyRef =
+    useRef(null)
+
+  const copyWidth =
+    useElementWidth(copyRef)
+
+  const directionFactor =
+    useRef(1)
+
+  const x =
+    useTransform(
+      baseX,
+      value => {
+        if (
+          copyWidth === 0
+        ) {
+          return '0px'
+        }
+
+        return `${
+          wrap(
+            -copyWidth,
+            0,
+            value,
+          )
+        }px`
+      },
+    )
+
+  useAnimationFrame(
+    (_, delta) => {
+      let moveBy =
+        directionFactor.current *
+        baseVelocity *
+        (delta / 1000)
+
+      if (
+        velocityFactor.get() <
+        0
+      ) {
+        directionFactor.current =
+          -1
+      } else if (
+        velocityFactor.get() >
+        0
+      ) {
+        directionFactor.current =
+          1
+      }
+
+      moveBy +=
+        directionFactor.current *
+        moveBy *
+        velocityFactor.get()
+
+      baseX.set(
+        baseX.get() +
+          moveBy,
+      )
+    },
   )
-
-  const copyRef = useRef(null)
-  const copyWidth = useElementWidth(copyRef)
-  const directionFactor = useRef(1)
-
-  const x = useTransform(baseX, value => {
-    if (copyWidth === 0) return '0px'
-    return `${wrap(-copyWidth, 0, value)}px`
-  })
-
-  useAnimationFrame((_, delta) => {
-    let moveBy = directionFactor.current * baseVelocity * (delta / 1000)
-
-    if (velocityFactor.get() < 0) directionFactor.current = -1
-    else if (velocityFactor.get() > 0) directionFactor.current = 1
-
-    moveBy += directionFactor.current * moveBy * velocityFactor.get()
-    baseX.set(baseX.get() + moveBy)
-  })
 
   return (
     <div className="asteri-velocity-parallax">
-      <motion.div className="asteri-velocity-scroller" style={{ x }}>
-        {Array.from({ length: numCopies }, (_, index) => (
-          <span
-            className={className}
-            key={index}
-            ref={index === 0 ? copyRef : null}
-          >
-            {children}&nbsp;
-          </span>
-        ))}
+      <motion.div
+        className="asteri-velocity-scroller"
+        style={{ x }}
+      >
+        {Array.from(
+          {
+            length:
+              numCopies,
+          },
+          (_, index) => (
+            <span
+              className={
+                className
+              }
+              key={index}
+              ref={
+                index === 0
+                  ? copyRef
+                  : null
+              }
+            >
+              {children}
+              &nbsp;
+            </span>
+          ),
+        )}
       </motion.div>
     </div>
   )
@@ -107,7 +195,10 @@ function VelocityText({
 
 function AsteriVelocityStrip() {
   return (
-    <section className="asteri-velocity-strip" aria-label="Identidad ASTERI">
+    <section
+      className="asteri-velocity-strip"
+      aria-label="Identidad ASTERI"
+    >
       <style>{`
         .asteri-velocity-strip {
           width: 100%;
@@ -150,8 +241,13 @@ function AsteriVelocityStrip() {
           text-transform: uppercase;
         }
 
-        .asteri-velocity-text--primary { color: #031109; }
-        .asteri-velocity-text--secondary { color: rgba(3, 17, 9, .62); }
+        .asteri-velocity-text--primary {
+          color: #031109;
+        }
+
+        .asteri-velocity-text--secondary {
+          color: rgba(3, 17, 9, .62);
+        }
 
         .asteri-velocity-dot {
           display: inline-block;
@@ -161,12 +257,19 @@ function AsteriVelocityStrip() {
         }
 
         @media (max-width: 768px) {
-          .asteri-velocity-strip { padding: .52rem 0; }
-          .asteri-velocity-text { font-size: .76rem; }
+          .asteri-velocity-strip {
+            padding: .52rem 0;
+          }
+
+          .asteri-velocity-text {
+            font-size: .76rem;
+          }
         }
 
         @media (prefers-reduced-motion: reduce) {
-          .asteri-velocity-scroller { transform: none !important; }
+          .asteri-velocity-scroller {
+            transform: none !important;
+          }
         }
       `}</style>
 
@@ -177,9 +280,18 @@ function AsteriVelocityStrip() {
         numCopies={14}
         className="asteri-velocity-text asteri-velocity-text--primary"
       >
-        ASTERI POLARIS <span className="asteri-velocity-dot">•</span>
-        COUNTER-STRIKE 2 <span className="asteri-velocity-dot">•</span>
-        ARGENTINA <span className="asteri-velocity-dot">•</span>
+        ASTERI POLARIS{' '}
+        <span className="asteri-velocity-dot">
+          •
+        </span>
+        COUNTER-STRIKE 2{' '}
+        <span className="asteri-velocity-dot">
+          •
+        </span>
+        ARGENTINA{' '}
+        <span className="asteri-velocity-dot">
+          •
+        </span>
       </VelocityText>
 
       <VelocityText
@@ -189,9 +301,18 @@ function AsteriVelocityStrip() {
         numCopies={16}
         className="asteri-velocity-text asteri-velocity-text--secondary"
       >
-        DREAM <span className="asteri-velocity-dot">•</span>
-        COMPETE <span className="asteri-velocity-dot">•</span>
-        EVOLVE <span className="asteri-velocity-dot">•</span>
+        DREAM{' '}
+        <span className="asteri-velocity-dot">
+          •
+        </span>
+        COMPETE{' '}
+        <span className="asteri-velocity-dot">
+          •
+        </span>
+        EVOLVE{' '}
+        <span className="asteri-velocity-dot">
+          •
+        </span>
       </VelocityText>
     </section>
   )
@@ -200,43 +321,78 @@ function AsteriVelocityStrip() {
 export default function HomePage() {
   return (
     <div>
+      <SiteIntroLoader />
       <Header />
       <SideTimeline />
 
       <main>
         <HeroVideo />
-        <AsteriVelocityStrip />
 
-        {/* 01 — TEAM */}
-        <div className="asteri-chapter asteri-chapter--team" data-chapter="team">
-          <RosterShowcase />
-          <PlayersNumbersTransition />
-          <AsteriNumbers />
+        <ScrollRevealBlock distance={42}>
+          <AsteriVelocityStrip />
+        </ScrollRevealBlock>
+
+        <div
+          className="asteri-chapter asteri-chapter--team"
+          data-chapter="team"
+        >
+          <ScrollRevealBlock>
+            <RosterShowcase />
+          </ScrollRevealBlock>
+
+          <ScrollRevealBlock distance={58}>
+            <PlayersNumbersTransition />
+          </ScrollRevealBlock>
+
+          <ScrollRevealBlock>
+            <AsteriNumbers />
+          </ScrollRevealBlock>
         </div>
 
-        {/* 02 — COMPETE */}
-        <div className="asteri-chapter asteri-chapter--compete" data-chapter="compete">
-          <MatchesHub />
+        <div
+          className="asteri-chapter asteri-chapter--compete"
+          data-chapter="compete"
+        >
+          <ScrollRevealBlock>
+            <MatchesHub />
+          </ScrollRevealBlock>
         </div>
 
-        {/* 03 — STORY */}
-        <div className="asteri-chapter asteri-chapter--story" data-chapter="story">
-          <HistoryTimeline />
-          <FounderSection />
+        <div
+          className="asteri-chapter asteri-chapter--story"
+          data-chapter="story"
+        >
+          <ScrollRevealBlock>
+            <HistoryTimeline />
+          </ScrollRevealBlock>
+
+          <ScrollRevealBlock>
+            <FounderSection />
+          </ScrollRevealBlock>
         </div>
 
-        {/* 04 — FUTURE */}
-        <div className="asteri-chapter asteri-chapter--future" data-chapter="future">
-          <NextObjective />
+        <div
+          className="asteri-chapter asteri-chapter--future"
+          data-chapter="future"
+        >
+          <ScrollRevealBlock>
+            <NextObjective />
+          </ScrollRevealBlock>
         </div>
 
-        {/* 05 — COMMUNITY */}
-        <div className="asteri-chapter asteri-chapter--community" data-chapter="community">
-          <CommunitySection />
+        <div
+          className="asteri-chapter asteri-chapter--community"
+          data-chapter="community"
+        >
+          <ScrollRevealBlock>
+            <CommunitySection />
+          </ScrollRevealBlock>
         </div>
       </main>
 
-      <Footer />
+      <ScrollRevealBlock distance={52}>
+        <Footer />
+      </ScrollRevealBlock>
     </div>
   )
 }

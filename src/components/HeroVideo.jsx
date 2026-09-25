@@ -4,12 +4,19 @@ import {
   getSiteSettings,
 } from '../lib/siteSettings'
 
+const FULL_BRAND = 'ASTERI POLARIS'
+const ASTERI_LENGTH = 'ASTERI'.length
+const POLARIS_START = 'ASTERI '.length
+const INTRO_DELAY = 2200
+
 export default function HeroVideo() {
   const fallbackVideoUrl =
     import.meta.env.VITE_HERO_VIDEO_URL ||
     DEFAULT_SITE_SETTINGS.hero_video_url
 
   const [videoUrl, setVideoUrl] = useState(fallbackVideoUrl)
+  const [typedLength, setTypedLength] = useState(0)
+  const [deleting, setDeleting] = useState(false)
 
   useEffect(() => {
     let alive = true
@@ -36,8 +43,73 @@ export default function HeroVideo() {
     }
   }, [])
 
+  useEffect(() => {
+    const reducedMotion = window.matchMedia(
+      '(prefers-reduced-motion: reduce)',
+    ).matches
+
+    if (reducedMotion) {
+      setTypedLength(FULL_BRAND.length)
+      setDeleting(false)
+      return undefined
+    }
+
+    let timer = 0
+
+    if (!deleting && typedLength === 0) {
+      timer = window.setTimeout(() => {
+        setTypedLength(1)
+      }, INTRO_DELAY)
+
+      return () => window.clearTimeout(timer)
+    }
+
+    if (!deleting && typedLength >= FULL_BRAND.length) {
+      timer = window.setTimeout(() => {
+        setDeleting(true)
+      }, 1450)
+
+      return () => window.clearTimeout(timer)
+    }
+
+    if (deleting && typedLength <= 0) {
+      timer = window.setTimeout(() => {
+        setDeleting(false)
+        setTypedLength(1)
+      }, 520)
+
+      return () => window.clearTimeout(timer)
+    }
+
+    timer = window.setTimeout(
+      () => {
+        setTypedLength(current =>
+          deleting
+            ? Math.max(0, current - 1)
+            : Math.min(FULL_BRAND.length, current + 1),
+        )
+      },
+      deleting ? 58 : 92,
+    )
+
+    return () => window.clearTimeout(timer)
+  }, [typedLength, deleting])
+
+  const typed = FULL_BRAND.slice(0, typedLength)
+  const asteriText = typed.slice(0, ASTERI_LENGTH)
+  const polarisText =
+    typedLength > POLARIS_START
+      ? FULL_BRAND.slice(
+          POLARIS_START,
+          typedLength,
+        )
+      : ''
+
   return (
-    <section className="hero-video-section" id="inicio">
+    <section
+      className="hero-video-section"
+      id="inicio"
+    >
       <video
         className="hero-background-video"
         src={videoUrl}
@@ -50,12 +122,25 @@ export default function HeroVideo() {
 
       <div className="hero-video-overlay" />
 
-      <div className="hero-brand-entry">
+      <div
+        className="hero-brand-entry"
+        aria-label="ASTERI POLARIS"
+      >
         <span className="hero-brand-line" />
 
-        <div className="hero-brand-text">
-          <strong>ASTERI</strong>
-          <span>POLARIS</span>
+        <div
+          className="hero-brand-text"
+          aria-hidden="true"
+        >
+          <strong>
+            {asteriText || '\u00A0'}
+          </strong>
+
+          {polarisText && (
+            <span>{polarisText}</span>
+          )}
+
+          <i className="hero-brand-cursor" />
         </div>
       </div>
 
@@ -102,12 +187,6 @@ export default function HeroVideo() {
           align-items: center;
           gap: 18px;
           pointer-events: none;
-          animation:
-            heroBrandIn
-            1.05s
-            cubic-bezier(.16, 1, .3, 1)
-            .45s
-            both;
         }
 
         .hero-brand-line {
@@ -115,19 +194,15 @@ export default function HeroVideo() {
           height: 2px;
           flex-shrink: 0;
           background: #00e875;
-          transform-origin: left center;
-          animation:
-            heroLineIn
-            .8s
-            cubic-bezier(.16, 1, .3, 1)
-            .75s
-            both;
         }
 
         .hero-brand-text {
-          display: flex;
-          align-items: baseline;
-          gap: 11px;
+          position: relative;
+          min-width: clamp(235px, 23vw, 415px);
+          min-height: clamp(28px, 3vw, 52px);
+
+          display: block;
+
           white-space: nowrap;
         }
 
@@ -138,6 +213,7 @@ export default function HeroVideo() {
             clamp(28px, 3vw, 52px)/1
             'Bricolage Grotesque',
             sans-serif;
+
           letter-spacing: -.035em;
         }
 
@@ -148,29 +224,39 @@ export default function HeroVideo() {
             clamp(8px, .72vw, 11px)/1
             'Inter',
             sans-serif;
+
           letter-spacing: .24em;
           text-transform: uppercase;
+          margin-left: 11px;
         }
 
-        @keyframes heroBrandIn {
-          from {
-            opacity: 0;
-            transform: translateX(-70px);
-          }
+        .hero-brand-cursor {
+          width: 2px;
+          height: clamp(22px, 2.6vw, 42px);
 
-          to {
+          display: inline-block;
+          vertical-align: -.12em;
+
+          margin-left: 3px;
+
+          background: #00e875;
+
+          animation:
+            heroCursorBlink
+            .72s
+            steps(1, end)
+            infinite;
+        }
+
+        @keyframes heroCursorBlink {
+          0%,
+          46% {
             opacity: 1;
-            transform: translateX(0);
-          }
-        }
-
-        @keyframes heroLineIn {
-          from {
-            transform: scaleX(0);
           }
 
-          to {
-            transform: scaleX(1);
+          47%,
+          100% {
+            opacity: .08;
           }
         }
 
@@ -224,16 +310,27 @@ export default function HeroVideo() {
           }
 
           .hero-brand-text {
-            gap: 7px;
+            min-width: 220px;
+            min-height: 26px;
           }
 
           .hero-brand-text strong {
-            font-size: clamp(21px, 6.4vw, 26px);
+            font-size:
+              clamp(
+                21px,
+                6.4vw,
+                26px
+              );
           }
 
           .hero-brand-text span {
             font-size: 7px;
             letter-spacing: .18em;
+            margin-left: 7px;
+          }
+
+          .hero-brand-cursor {
+            height: 21px;
           }
         }
 
@@ -271,9 +368,8 @@ export default function HeroVideo() {
         }
 
         @media (prefers-reduced-motion: reduce) {
-          .hero-brand-entry,
-          .hero-brand-line {
-            animation: none;
+          .hero-brand-cursor {
+            display: none;
           }
         }
       `}</style>

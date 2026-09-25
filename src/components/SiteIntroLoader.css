@@ -1,0 +1,247 @@
+.asteri-intro {
+  position: fixed;
+  z-index: 99999;
+  inset: 0;
+
+  display: grid;
+  place-items: center;
+
+  background: #020302;
+
+  animation:
+    asteriIntroExit
+    2.35s
+    cubic-bezier(.7, 0, .3, 1)
+    both;
+}
+
+.asteri-intro-logo-stage {
+  position: relative;
+
+  width: clamp(108px, 10vw, 154px);
+  aspect-ratio: 1;
+
+  display: grid;
+  place-items: center;
+}
+
+.asteri-intro-logo {
+  position: relative;
+  z-index: 2;
+
+  width: 100%;
+  height: 100%;
+
+  object-fit: contain;
+
+  opacity: .05;
+
+  filter:
+    brightness(.22)
+    saturate(.5);
+
+  transform: scale(.985);
+
+  animation:
+    asteriLogoPowerOn
+    1.72s
+    steps(1, end)
+    .18s
+    forwards;
+}
+
+.asteri-intro-light {
+  position: absolute;
+  z-index: 1;
+
+  width: 185%;
+  aspect-ratio: 1;
+
+  border-radius: 50%;
+
+  background:
+    radial-gradient(
+      circle,
+      rgba(0, 232, 117, .16) 0%,
+      rgba(0, 232, 117, .06) 34%,
+      rgba(0, 232, 117, 0) 70%
+    );
+
+  opacity: 0;
+  transform: scale(.72);
+
+  animation:
+    asteriIntroLightPowerOn
+    1.72s
+    steps(1, end)
+    .18s
+    forwards;
+}
+
+.asteri-intro-status {
+  position: absolute;
+
+  left: 50%;
+  bottom: clamp(28px, 5vh, 52px);
+
+  transform: translateX(-50%);
+
+  color: rgba(242, 244, 240, .3);
+
+  font:
+    700
+    8px/1
+    'Inter',
+    sans-serif;
+
+  letter-spacing: .22em;
+
+  white-space: nowrap;
+
+  opacity: 0;
+
+  animation:
+    asteriIntroStatus
+    .4s
+    ease
+    1.52s
+    forwards;
+}
+
+@keyframes asteriLogoPowerOn {
+  0% {
+    opacity: .04;
+    filter: brightness(.18) saturate(.4);
+    transform: scale(.985);
+  }
+
+  9% {
+    opacity: .06;
+  }
+
+  12% {
+    opacity: .86;
+    filter: brightness(1.18) saturate(.94);
+  }
+
+  15% {
+    opacity: .08;
+    filter: brightness(.25) saturate(.5);
+  }
+
+  22% {
+    opacity: .46;
+    filter: brightness(.68) saturate(.76);
+  }
+
+  26% {
+    opacity: .05;
+    filter: brightness(.2) saturate(.4);
+  }
+
+  34% {
+    opacity: 1;
+    filter: brightness(1.16) saturate(1);
+    transform: scale(1);
+  }
+
+  39% {
+    opacity: .18;
+    filter: brightness(.4) saturate(.62);
+  }
+
+  46% {
+    opacity: .72;
+    filter: brightness(.88) saturate(.9);
+  }
+
+  52% {
+    opacity: .1;
+    filter: brightness(.28) saturate(.52);
+  }
+
+  60%,
+  100% {
+    opacity: 1;
+    filter: brightness(1.08) saturate(1);
+    transform: scale(1);
+  }
+}
+
+@keyframes asteriIntroLightPowerOn {
+  0%,
+  11% {
+    opacity: 0;
+    transform: scale(.72);
+  }
+
+  12% {
+    opacity: .72;
+  }
+
+  15% {
+    opacity: 0;
+  }
+
+  22% {
+    opacity: .24;
+  }
+
+  26% {
+    opacity: 0;
+  }
+
+  34% {
+    opacity: .7;
+    transform: scale(.92);
+  }
+
+  39% {
+    opacity: .08;
+  }
+
+  46% {
+    opacity: .42;
+  }
+
+  52% {
+    opacity: .04;
+  }
+
+  60%,
+  100% {
+    opacity: .5;
+    transform: scale(1);
+  }
+}
+
+@keyframes asteriIntroStatus {
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes asteriIntroExit {
+  0%,
+  80% {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  100% {
+    opacity: 0;
+    visibility: hidden;
+  }
+}
+
+@media (max-width: 580px) {
+  .asteri-intro-logo-stage {
+    width: 104px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .asteri-intro {
+    display: none;
+  }
+}

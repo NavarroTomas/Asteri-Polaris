@@ -115,7 +115,7 @@ export default function Footer() {
 
           <a
             className="footer-contact"
-            href="mailto:contacto@asteri.gg"
+            href="mailto:nachoalvarezcs2@gmail.com"
           >
             contacto@asteri.gg ↗
           </a>
