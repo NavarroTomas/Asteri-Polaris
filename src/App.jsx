@@ -15,20 +15,33 @@ import ProtectedRoute from './components/ProtectedRoute'
 import StaffRoute from './components/StaffRoute'
 import RouteScrollManager from './components/RouteScrollManager'
 import SeoManager from './components/SeoManager'
+import AnalyticsTracker from './components/AnalyticsTracker'
+import RosterInteractionEnhancer from './components/RosterInteractionEnhancer'
+import MatchTerminologySync from './components/MatchTerminologySync'
 
 export default function App() {
   return (
     <>
       <SeoManager />
+      <AnalyticsTracker />
       <RouteScrollManager />
+
+      <RosterInteractionEnhancer />
+      <MatchTerminologySync />
 
       <Routes>
         <Route path="/" element={<HomePage />} />
 
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
-        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-        <Route path="/update-password" element={<UpdatePasswordPage />} />
+        <Route
+          path="/forgot-password"
+          element={<ForgotPasswordPage />}
+        />
+        <Route
+          path="/update-password"
+          element={<UpdatePasswordPage />}
+        />
 
         <Route
           path="/suspended"
@@ -57,8 +70,15 @@ export default function App() {
           }
         />
 
-        <Route path="/players/:slug" element={<PlayerPage />} />
-        <Route path="/vods/:slug" element={<VodPage />} />
+        <Route
+          path="/players/:slug"
+          element={<PlayerPage />}
+        />
+
+        <Route
+          path="/vods/:slug"
+          element={<VodPage />}
+        />
 
         <Route
           path="/admin/vods"

@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react'
 import SiteStatsManager from './SiteStatsManager'
+import AnimationDiagnostics from './AnimationDiagnostics'
 import {
   DEFAULT_SITE_SETTINGS,
   getSiteSettings,
+  updateAnalyticsMeasurementId,
   updateHeroVideoUrl,
 } from '../lib/siteSettings'
 
@@ -13,8 +15,12 @@ export default function HomeSettingsManager() {
   const [savedVideoUrl, setSavedVideoUrl] = useState(
     DEFAULT_SITE_SETTINGS.hero_video_url,
   )
+  const [analyticsId, setAnalyticsId] = useState('')
+
   const [loading, setLoading] = useState(true)
-  const [saving, setSaving] = useState(false)
+  const [savingVideo, setSavingVideo] = useState(false)
+  const [savingAnalytics, setSavingAnalytics] = useState(false)
+
   const [message, setMessage] = useState('')
   const [error, setError] = useState('')
 
@@ -29,11 +35,14 @@ export default function HomeSettingsManager() {
 
         setVideoUrl(settings.hero_video_url)
         setSavedVideoUrl(settings.hero_video_url)
+        setAnalyticsId(
+          settings.ga_measurement_id || '',
+        )
       } catch (err) {
         if (alive) {
           setError(
             err.message ||
-              'No se pudo cargar la configuración del inicio.',
+              'No se pudo cargar la configuración del sitio.',
           )
         }
       } finally {
@@ -50,7 +59,7 @@ export default function HomeSettingsManager() {
 
   const saveVideo = async event => {
     event.preventDefault()
-    setSaving(true)
+    setSavingVideo(true)
     setMessage('')
     setError('')
 
@@ -62,17 +71,42 @@ export default function HomeSettingsManager() {
     } catch (err) {
       setError(
         err.message ||
-          'No se pudo guardar el video del inicio.',
+          'No se pudo guardar el video.',
       )
     } finally {
-      setSaving(false)
+      setSavingVideo(false)
     }
   }
 
-  const restoreDefault = () => {
-    setVideoUrl('/media/hero.mp4')
+  const saveAnalytics = async event => {
+    event.preventDefault()
+    setSavingAnalytics(true)
     setMessage('')
     setError('')
+
+    try {
+      const next =
+        await updateAnalyticsMeasurementId(
+          analyticsId,
+        )
+
+      setAnalyticsId(
+        next.ga_measurement_id || '',
+      )
+
+      setMessage(
+        next.ga_measurement_id
+          ? 'Google Analytics vinculado.'
+          : 'Google Analytics desactivado.',
+      )
+    } catch (err) {
+      setError(
+        err.message ||
+          'No se pudo guardar Google Analytics.',
+      )
+    } finally {
+      setSavingAnalytics(false)
+    }
   }
 
   return (
@@ -82,12 +116,9 @@ export default function HomeSettingsManager() {
           <div>
             <h2>Video principal</h2>
             <p>
-              Este es el video que aparece al abrir la página, detrás del
-              nombre ASTERI POLARIS.
+              Video del Hero que aparece al abrir la Home.
             </p>
           </div>
-
-          <span>Hero</span>
         </div>
 
         <div className="admin-hero-editor">
@@ -105,10 +136,12 @@ export default function HomeSettingsManager() {
             )}
           </div>
 
-          <form className="admin-hero-form" onSubmit={saveVideo}>
+          <form
+            className="admin-hero-form"
+            onSubmit={saveVideo}
+          >
             <label>
-              <span>Ruta o URL del video</span>
-
+              <span>Ruta o URL</span>
               <input
                 value={videoUrl}
                 onChange={event => {
@@ -121,37 +154,31 @@ export default function HomeSettingsManager() {
             </label>
 
             <small>
-              Podés usar una ruta del proyecto, por ejemplo
-              {' '}
-              <strong>/media/hero.mp4</strong>,
-              {' '}
-              o una URL directa a un archivo de video reproducible por el navegador.
+              Ejemplo: /media/hero.mp4 o una URL
+              directa a un archivo de video.
             </small>
 
             <div className="admin-hero-form-actions">
-              <button type="submit" disabled={saving || loading}>
-                {saving ? 'Guardando…' : 'Guardar video'}
+              <button
+                type="submit"
+                disabled={
+                  savingVideo || loading
+                }
+              >
+                {savingVideo
+                  ? 'Guardando…'
+                  : 'Guardar video'}
               </button>
 
               <button
                 type="button"
                 className="secondary"
-                onClick={restoreDefault}
+                onClick={() =>
+                  setVideoUrl('/media/hero.mp4')
+                }
               >
                 Usar hero.mp4
               </button>
-
-              {message && (
-                <span className="admin-settings-message">
-                  {message}
-                </span>
-              )}
-
-              {error && (
-                <span className="admin-settings-message error">
-                  {error}
-                </span>
-              )}
             </div>
           </form>
         </div>
@@ -162,12 +189,10 @@ export default function HomeSettingsManager() {
           <div>
             <h2>Números públicos</h2>
             <p>
-              Modifica los cuatro contadores de la sección de números de la
-              página principal.
+              Players, matches, wins y team de la
+              sección de cuadrados de la Home.
             </p>
           </div>
-
-          <span>Home</span>
         </div>
 
         <div className="admin-numbers-layout">
@@ -177,13 +202,11 @@ export default function HomeSettingsManager() {
 
           <div className="admin-numbers-reference">
             <span>
-              Referencia: estos son los cuadrados que se modifican en la Home.
+              Referencia visual de la sección que
+              se está modificando.
             </span>
 
-            <div
-              className="admin-numbers-reference-preview"
-              aria-label="Vista de referencia de la sección de números públicos"
-            >
+            <div className="admin-numbers-reference-preview">
               <article>
                 <strong>06</strong>
                 <small>PLAYERS</small>
@@ -207,6 +230,86 @@ export default function HomeSettingsManager() {
           </div>
         </div>
       </section>
+
+      <section className="admin-settings-card">
+        <div className="admin-settings-card-head">
+          <div>
+            <h2>Google Analytics</h2>
+            <p>
+              Conectá GA4 usando el Measurement ID
+              del flujo web. Ejemplo: G-XXXXXXXXXX.
+            </p>
+          </div>
+        </div>
+
+        <form
+          className="admin-analytics-form"
+          onSubmit={saveAnalytics}
+        >
+          <label>
+            <span>Measurement ID</span>
+
+            <input
+              value={analyticsId}
+              onChange={event => {
+                setAnalyticsId(
+                  event.target.value
+                    .toUpperCase(),
+                )
+                setMessage('')
+                setError('')
+              }}
+              placeholder="G-XXXXXXXXXX"
+            />
+          </label>
+
+          <button
+            type="submit"
+            disabled={
+              savingAnalytics || loading
+            }
+          >
+            {savingAnalytics
+              ? 'Guardando…'
+              : 'Guardar Analytics'}
+          </button>
+
+          <small>
+            Para evitar page_view duplicados, dejá
+            desactivado en GA4 el seguimiento
+            automático de cambios de historial si
+            vas a usar el tracking manual de esta
+            SPA.
+          </small>
+        </form>
+      </section>
+
+      <section className="admin-settings-card">
+        <div className="admin-settings-card-head">
+          <div>
+            <h2>Animaciones</h2>
+            <p>
+              Diagnóstico rápido para comprobar por
+              qué un navegador puede estar
+              desactivándolas.
+            </p>
+          </div>
+        </div>
+
+        <div className="admin-diagnostics-wrap">
+          <AnimationDiagnostics />
+        </div>
+      </section>
+
+      {(message || error) && (
+        <div
+          className={`admin-settings-message ${
+            error ? 'error' : ''
+          }`}
+        >
+          {error || message}
+        </div>
+      )}
     </div>
   )
 }

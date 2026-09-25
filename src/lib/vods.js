@@ -11,6 +11,8 @@ export const emptyVod = {
   score_asteri: '',
   score_opponent: '',
   status: 'upcoming',
+  match_outcome: 'auto',
+  calendar_filter_id: '',
   result_type: 'rounds',
   series_format: 'bo1',
   result_label: '',
@@ -20,14 +22,6 @@ export const emptyVod = {
   is_published: false,
 }
 
-export const emptyCalendarEvent = {
-  event_date: '',
-  event_time: '',
-  title: '',
-  event_type: 'event',
-  description: '',
-  is_published: true,
-}
 
 export const slugifyVod = (value) =>
   String(value || '')
@@ -61,15 +55,73 @@ export async function listVodsAndPlayers() {
   }
 }
 
-export async function listCalendarEvents() {
-  const { data, error } = await supabase
-    .from('calendar_events')
+
+
+export async function listCalendarFilters({
+  includeInactive = true,
+} = {}) {
+  let query = supabase
+    .from('calendar_filters')
     .select('*')
-    .order('event_date', { ascending: false })
-    .order('event_time', { ascending: false })
+    .order('sort_order')
+    .order('name')
+
+  if (!includeInactive) {
+    query = query.eq('is_active', true)
+  }
+
+  const { data, error } = await query
 
   if (error) throw error
   return data || []
+}
+
+export async function saveCalendarFilter(
+  id,
+  values,
+  userId,
+) {
+  const payload = {
+    name: String(values.name || '').trim(),
+    color:
+      /^#[0-9a-f]{6}$/i.test(String(values.color || ''))
+        ? String(values.color)
+        : '#7f8a83',
+    is_active: values.is_active !== false,
+    sort_order: Number(values.sort_order) || 0,
+  }
+
+  if (!payload.name) {
+    throw new Error('El filtro necesita un nombre.')
+  }
+
+  const query = id
+    ? supabase
+        .from('calendar_filters')
+        .update(payload)
+        .eq('id', id)
+    : supabase
+        .from('calendar_filters')
+        .insert({
+          ...payload,
+          created_by: userId,
+        })
+
+  const { data, error } = await query
+    .select()
+    .single()
+
+  if (error) throw error
+  return data
+}
+
+export async function deleteCalendarFilter(id) {
+  const { error } = await supabase
+    .from('calendar_filters')
+    .delete()
+    .eq('id', id)
+
+  if (error) throw error
 }
 
 export async function getVodDetail(id) {
@@ -159,6 +211,12 @@ export async function saveVod(id, form, userId) {
     status:
       form.status,
 
+    match_outcome:
+      form.match_outcome || 'auto',
+
+    calendar_filter_id:
+      form.calendar_filter_id || null,
+
     result_type:
       resultType,
 
@@ -232,62 +290,6 @@ export async function saveVodMaps(vodId, maps) {
   return data || []
 }
 
-export async function saveCalendarEvent(
-  id,
-  form,
-  userId,
-) {
-  const payload = {
-    event_date:
-      form.event_date,
-
-    event_time:
-      form.event_time || null,
-
-    title:
-      form.title.trim(),
-
-    event_type:
-      form.event_type || 'event',
-
-    description:
-      cleanText(form.description),
-
-    is_published:
-      Boolean(form.is_published),
-  }
-
-  const query = id
-    ? supabase
-        .from('calendar_events')
-        .update(payload)
-        .eq('id', id)
-    : supabase
-        .from('calendar_events')
-        .insert({
-          ...payload,
-          created_by: userId,
-        })
-
-  const { data, error } =
-    await query
-      .select()
-      .single()
-
-  if (error) throw error
-
-  return data
-}
-
-export async function deleteCalendarEvent(id) {
-  const { error } =
-    await supabase
-      .from('calendar_events')
-      .delete()
-      .eq('id', id)
-
-  if (error) throw error
-}
 
 export async function saveLineup(
   vodId,

@@ -3,15 +3,14 @@ import { Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import {
   addClip,
-  deleteCalendarEvent,
+  deleteCalendarFilter,
   deleteClip,
   deleteVod,
-  emptyCalendarEvent,
   emptyVod,
   getVodDetail,
-  listCalendarEvents,
+  listCalendarFilters,
   listVodsAndPlayers,
-  saveCalendarEvent,
+  saveCalendarFilter,
   saveLineup,
   saveVod,
   saveVodMaps,
@@ -23,10 +22,6 @@ import {
   SERIES_MAP_LIMITS,
   getCompetitiveMap,
 } from '../config/competitiveMaps'
-import {
-  CALENDAR_EVENT_OPTIONS,
-  CALENDAR_MARKERS,
-} from '../config/calendarMarkers'
 import './VodAdminPage.css'
 
 const emptyClip = {
@@ -39,49 +34,59 @@ const emptyClip = {
   is_published: true,
 }
 
+const emptyFilter = {
+  name: '',
+  color: '#7f8a83',
+  is_active: true,
+  sort_order: 0,
+}
+
 export default function VodAdminPage() {
   const { user } = useAuth()
 
-  const [mode, setMode] = useState('vods')
-
   const [vods, setVods] = useState([])
   const [players, setPlayers] = useState([])
+  const [filters, setFilters] = useState([])
+
   const [selected, setSelected] = useState(null)
   const [form, setForm] = useState(emptyVod)
   const [lineup, setLineup] = useState([])
   const [clips, setClips] = useState([])
   const [mapRows, setMapRows] = useState([])
+
   const [clipFile, setClipFile] = useState(null)
   const [clip, setClip] = useState(emptyClip)
 
-  const [events, setEvents] = useState([])
-  const [selectedEvent, setSelectedEvent] = useState(null)
-  const [eventForm, setEventForm] = useState(emptyCalendarEvent)
+  const [showFilters, setShowFilters] = useState(false)
+  const [selectedFilterId, setSelectedFilterId] = useState(null)
+  const [filterForm, setFilterForm] = useState(emptyFilter)
 
   const [busy, setBusy] = useState(false)
   const [msg, setMsg] = useState('')
   const [err, setErr] = useState('')
 
   const current = useMemo(
-    () => vods.find((vod) => vod.id === selected) || null,
+    () => vods.find(vod => vod.id === selected) || null,
     [vods, selected],
   )
 
-  const currentEvent = useMemo(
-    () => events.find((event) => event.id === selectedEvent) || null,
-    [events, selectedEvent],
+  const selectedFilter = useMemo(
+    () =>
+      filters.find(item => item.id === selectedFilterId) ||
+      null,
+    [filters, selectedFilterId],
   )
 
   async function refresh() {
     try {
-      const [vodData, calendarData] = await Promise.all([
+      const [vodData, filterData] = await Promise.all([
         listVodsAndPlayers(),
-        listCalendarEvents(),
+        listCalendarFilters(),
       ])
 
       setVods(vodData.vods)
       setPlayers(vodData.players)
-      setEvents(calendarData)
+      setFilters(filterData)
     } catch (error) {
       setErr(error.message)
     }
@@ -101,70 +106,59 @@ export default function VodAdminPage() {
     }
 
     getVodDetail(selected)
-      .then((data) => {
+      .then(data => {
         setForm({
           ...emptyVod,
           ...data.vod,
+          calendar_filter_id:
+            data.vod.calendar_filter_id || '',
+          match_outcome:
+            data.vod.match_outcome || 'auto',
         })
 
         setLineup(
-          data.lineup.map(
-            (item) => item.player_id,
-          ),
+          data.lineup.map(item => item.player_id),
         )
 
-        setClips(data.clips)
+        setClips(data.clips || [])
         setMapRows(
-          (data.maps || []).map((item) => ({
+          (data.maps || []).map(item => ({
             map_name: item.map_name,
-            score_asteri:
-              item.score_asteri ?? '',
-            score_opponent:
-              item.score_opponent ?? '',
+            score_asteri: item.score_asteri ?? '',
+            score_opponent: item.score_opponent ?? '',
           })),
         )
       })
-      .catch((error) => setErr(error.message))
+      .catch(error => setErr(error.message))
   }, [selected])
 
   useEffect(() => {
-    if (!selectedEvent) {
-      setEventForm(emptyCalendarEvent)
+    if (!selectedFilter) {
+      setFilterForm(emptyFilter)
       return
     }
 
-    if (currentEvent) {
-      setEventForm({
-        ...emptyCalendarEvent,
-        ...currentEvent,
-      })
-    }
-  }, [selectedEvent, currentEvent])
+    setFilterForm({
+      name: selectedFilter.name || '',
+      color: selectedFilter.color || '#7f8a83',
+      is_active: selectedFilter.is_active !== false,
+      sort_order: selectedFilter.sort_order || 0,
+    })
+  }, [selectedFilter])
 
   const set = (key, value) => {
-    setForm((currentForm) => ({
+    setForm(currentForm => ({
       ...currentForm,
       [key]: value,
     }))
-
     setMsg('')
     setErr('')
   }
 
-  const setEvent = (key, value) => {
-    setEventForm((currentForm) => ({
-      ...currentForm,
-      [key]: value,
-    }))
-
-    setMsg('')
-    setErr('')
-  }
-
-  const togglePlayer = (id) => {
-    setLineup((currentLineup) =>
+  const togglePlayer = id => {
+    setLineup(currentLineup =>
       currentLineup.includes(id)
-        ? currentLineup.filter((value) => value !== id)
+        ? currentLineup.filter(value => value !== id)
         : [...currentLineup, id],
     )
   }
@@ -172,12 +166,12 @@ export default function VodAdminPage() {
   const seriesLimit =
     SERIES_MAP_LIMITS[form.series_format || 'bo1'] || 1
 
-  const toggleSeriesMap = (mapId) => {
+  const toggleSeriesMap = mapId => {
     setErr('')
 
-    setMapRows((currentRows) => {
+    setMapRows(currentRows => {
       const existingIndex = currentRows.findIndex(
-        (row) => row.map_name === mapId,
+        row => row.map_name === mapId,
       )
 
       if (existingIndex >= 0) {
@@ -188,7 +182,11 @@ export default function VodAdminPage() {
 
       if (currentRows.length >= seriesLimit) {
         setErr(
-          `${String(form.series_format || 'bo1').toUpperCase()} permite hasta ${seriesLimit} mapa${seriesLimit === 1 ? '' : 's'}.`,
+          `${String(
+            form.series_format || 'bo1',
+          ).toUpperCase()} permite hasta ${seriesLimit} mapa${
+            seriesLimit === 1 ? '' : 's'
+          }.`,
         )
         return currentRows
       }
@@ -205,7 +203,7 @@ export default function VodAdminPage() {
   }
 
   const updateSeriesMap = (index, key, value) => {
-    setMapRows((currentRows) =>
+    setMapRows(currentRows =>
       currentRows.map((row, rowIndex) =>
         rowIndex === index
           ? { ...row, [key]: value }
@@ -215,7 +213,7 @@ export default function VodAdminPage() {
   }
 
   const moveSeriesMap = (index, delta) => {
-    setMapRows((currentRows) => {
+    setMapRows(currentRows => {
       const target = index + delta
 
       if (target < 0 || target >= currentRows.length) {
@@ -229,12 +227,6 @@ export default function VodAdminPage() {
     })
   }
 
-  const removeSeriesMap = (index) => {
-    setMapRows((currentRows) =>
-      currentRows.filter((_, rowIndex) => rowIndex !== index),
-    )
-  }
-
   const newVod = () => {
     setSelected(null)
     setForm(emptyVod)
@@ -245,20 +237,11 @@ export default function VodAdminPage() {
     setErr('')
   }
 
-  const newEvent = () => {
-    setSelectedEvent(null)
-    setEventForm(emptyCalendarEvent)
-    setMsg('')
-    setErr('')
-  }
-
   async function submit(event) {
     event.preventDefault()
     setBusy(true)
     setErr('')
     setMsg('')
-
-    const wasEditing = Boolean(selected)
 
     try {
       if (
@@ -266,37 +249,40 @@ export default function VodAdminPage() {
         !form.opponent.trim() ||
         !form.match_date
       ) {
-        throw new Error('Completá título, rival y fecha')
+        throw new Error(
+          'Completá título, rival y fecha.',
+        )
       }
 
-      if (
-        ['elimination', 'custom'].includes(form.result_type) &&
-        form.status === 'played' &&
-        !String(form.result_label || '').trim()
-      ) {
-        throw new Error('Completá el resultado textual')
-      }
-
-      let seriesScoreA = form.score_asteri
-      let seriesScoreB = form.score_opponent
+      let scoreA = form.score_asteri
+      let scoreB = form.score_opponent
 
       if (form.result_type === 'series') {
         const limit =
-          SERIES_MAP_LIMITS[form.series_format || 'bo1'] || 1
+          SERIES_MAP_LIMITS[
+            form.series_format || 'bo1'
+          ] || 1
 
         if (mapRows.length > limit) {
           throw new Error(
-            `${String(form.series_format || 'bo1').toUpperCase()} permite hasta ${limit} mapa${limit === 1 ? '' : 's'}.`,
+            `${String(
+              form.series_format || 'bo1',
+            ).toUpperCase()} permite hasta ${limit} mapas.`,
           )
         }
 
-        if (form.status === 'played' && mapRows.length === 0) {
-          throw new Error('Seleccioná al menos un mapa jugado')
+        if (
+          form.status === 'played' &&
+          mapRows.length === 0
+        ) {
+          throw new Error(
+            'Seleccioná al menos un mapa jugado.',
+          )
         }
 
         if (form.status === 'played') {
           const incomplete = mapRows.some(
-            (row) =>
+            row =>
               row.score_asteri === '' ||
               row.score_asteri == null ||
               row.score_opponent === '' ||
@@ -304,64 +290,61 @@ export default function VodAdminPage() {
           )
 
           if (incomplete) {
-            throw new Error('Completá el resultado de cada mapa jugado')
+            throw new Error(
+              'Completá el resultado de cada mapa jugado.',
+            )
           }
         }
 
-        const completedMaps = mapRows.filter(
-          (row) =>
+        const completed = mapRows.filter(
+          row =>
             row.score_asteri !== '' &&
-            row.score_asteri != null &&
-            row.score_opponent !== '' &&
-            row.score_opponent != null,
+            row.score_opponent !== '',
         )
 
-        if (completedMaps.length > 0) {
-          seriesScoreA = completedMaps.filter(
-            (row) => Number(row.score_asteri) > Number(row.score_opponent),
-          ).length
+        scoreA = completed.filter(
+          row =>
+            Number(row.score_asteri) >
+            Number(row.score_opponent),
+        ).length
 
-          seriesScoreB = completedMaps.filter(
-            (row) => Number(row.score_opponent) > Number(row.score_asteri),
-          ).length
-        } else {
-          seriesScoreA = ''
-          seriesScoreB = ''
-        }
-      }
-
-      const payload = {
-        ...form,
-        score_asteri: seriesScoreA,
-        score_opponent: seriesScoreB,
-        slug:
-          form.slug ||
-          slugifyVod(
-            `${form.opponent}-${form.match_date}`,
-          ),
+        scoreB = completed.filter(
+          row =>
+            Number(row.score_opponent) >
+            Number(row.score_asteri),
+        ).length
       }
 
       const saved = await saveVod(
         selected,
-        payload,
+        {
+          ...form,
+          score_asteri: scoreA,
+          score_opponent: scoreB,
+          slug:
+            form.slug ||
+            slugifyVod(
+              `${form.opponent}-${form.match_date}`,
+            ),
+        },
         user.id,
       )
 
       await saveVodMaps(
         saved.id,
-        form.result_type === 'series' ? mapRows : [],
+        form.result_type === 'series'
+          ? mapRows
+          : [],
       )
 
-      await saveLineup(
-        saved.id,
-        lineup,
-      )
+      // La base de datos recalcula MATCHES de cada jugador
+      // automáticamente al guardar este lineup.
+      await saveLineup(saved.id, lineup)
 
       await refresh()
       setSelected(saved.id)
-
       setMsg(
-        wasEditing
+        selected
           ? 'VOD actualizada.'
           : 'VOD creada.',
       )
@@ -372,34 +355,22 @@ export default function VodAdminPage() {
     }
   }
 
-  async function submitEvent(event) {
+  async function submitFilter(event) {
     event.preventDefault()
     setBusy(true)
     setErr('')
     setMsg('')
 
     try {
-      if (
-        !eventForm.title.trim() ||
-        !eventForm.event_date
-      ) {
-        throw new Error('Completá título y fecha')
-      }
-
-      const saved = await saveCalendarEvent(
-        selectedEvent,
-        eventForm,
+      const saved = await saveCalendarFilter(
+        selectedFilterId,
+        filterForm,
         user.id,
       )
 
       await refresh()
-      setSelectedEvent(saved.id)
-
-      setMsg(
-        selectedEvent
-          ? 'Fecha actualizada.'
-          : 'Fecha creada.',
-      )
+      setSelectedFilterId(saved.id)
+      setMsg('Filtro guardado.')
     } catch (error) {
       setErr(error.message)
     } finally {
@@ -411,7 +382,8 @@ export default function VodAdminPage() {
     event.preventDefault()
 
     if (!selected) {
-      return setErr('Guardá el VOD primero')
+      setErr('Guardá la VOD primero.')
+      return
     }
 
     setBusy(true)
@@ -427,7 +399,7 @@ export default function VodAdminPage() {
         file: clipFile,
       })
 
-      setClips((currentClips) => [
+      setClips(currentClips => [
         created,
         ...currentClips,
       ])
@@ -445,888 +417,1045 @@ export default function VodAdminPage() {
   return (
     <main className="vod-admin-page">
       <header className="vod-admin-top">
-        <Link to="/admin">← CONTROL</Link>
+        <Link to="/admin">Volver al panel</Link>
 
         <div className="vod-admin-top-actions">
           <button
             type="button"
-            className={mode === 'vods' ? 'active' : ''}
-            onClick={() => setMode('vods')}
+            onClick={() =>
+              setShowFilters(current => !current)
+            }
           >
-            VODS
+            {showFilters
+              ? 'Cerrar filtros'
+              : 'Personalizar filtros'}
           </button>
 
           <button
             type="button"
-            className={mode === 'calendar' ? 'active' : ''}
-            onClick={() => setMode('calendar')}
+            onClick={newVod}
           >
-            CALENDARIO
-          </button>
-
-          <button
-            type="button"
-            onClick={mode === 'vods' ? newVod : newEvent}
-          >
-            {mode === 'vods' ? '+ NUEVO VOD' : '+ NUEVA FECHA'}
+            Nuevo VOD
           </button>
         </div>
       </header>
 
       <section className="vod-admin-heading">
-        <span>ASTERI / MATCH CENTER</span>
-
-        <h1>
-          {mode === 'vods' ? 'VODS.' : 'CALENDARIO.'}
-        </h1>
-
+        <h1>Partidos y VODs</h1>
         <p>
-          {mode === 'vods'
-            ? 'Partidos, resultados, VODs, descargas, lineup y clips.'
-            : 'Fechas, torneos, scrims y notas visibles en el calendario.'}
+          Esta es la única fuente del calendario público.
+          Cada VOD define fecha, resultado, categoría,
+          lineup y —si corresponde— serie/mapas.
         </p>
       </section>
 
       {(msg || err) && (
-        <div className={`vod-admin-message ${err ? 'error' : ''}`}>
+        <div
+          className={`vod-admin-message ${
+            err ? 'error' : ''
+          }`}
+        >
           {err || msg}
         </div>
       )}
 
-      {mode === 'calendar' ? (
-        <div className="vod-admin-layout">
-          <aside className="vod-admin-list">
-            {events.length === 0 ? (
-              <p className="vod-admin-empty-list">
-                SIN FECHAS
-              </p>
-            ) : (
-              events.map((item) => (
-                <button
-                  type="button"
-                  key={item.id}
-                  className={selectedEvent === item.id ? 'active' : ''}
-                  onClick={() => setSelectedEvent(item.id)}
-                >
-                  <small>
-                    {item.event_date}
-                    {item.event_time ? ` · ${String(item.event_time).slice(0, 5)}` : ''}
-                    {' · '}
-                    {item.is_published ? 'PUBLICADO' : 'BORRADOR'}
-                  </small>
+      {showFilters && (
+        <section className="vod-filter-manager">
+          <aside>
+            <button
+              type="button"
+              className={
+                selectedFilterId === null
+                  ? 'active'
+                  : ''
+              }
+              onClick={() => {
+                setSelectedFilterId(null)
+                setFilterForm(emptyFilter)
+              }}
+            >
+              + Nuevo filtro
+            </button>
 
-                  <strong>{item.title}</strong>
-                  <span>{item.event_type?.toUpperCase()}</span>
-                </button>
-              ))
-            )}
+            {filters.map(filter => (
+              <button
+                type="button"
+                key={filter.id}
+                className={
+                  selectedFilterId === filter.id
+                    ? 'active'
+                    : ''
+                }
+                onClick={() =>
+                  setSelectedFilterId(filter.id)
+                }
+              >
+                <i
+                  style={{
+                    background: filter.color,
+                  }}
+                />
+                {filter.name}
+              </button>
+            ))}
           </aside>
 
-          <section className="vod-admin-editor">
-            <form onSubmit={submitEvent}>
-              <div className="vod-admin-editorbar">
-                <strong>
-                  {selectedEvent ? 'EDITAR FECHA' : 'NUEVA FECHA'}
-                </strong>
-              </div>
+          <form onSubmit={submitFilter}>
+            <h2>
+              {selectedFilterId
+                ? 'Editar filtro'
+                : 'Nuevo filtro'}
+            </h2>
 
-              <div className="vod-admin-grid">
-                <label className="wide">
-                  <span>TÍTULO / NOTA DE LA FECHA</span>
-                  <input
-                    value={eventForm.title}
-                    onChange={(event) =>
-                      setEvent('title', event.target.value)
+            <div className="vod-filter-form-grid">
+              <label>
+                <span>Nombre</span>
+                <input
+                  value={filterForm.name}
+                  onChange={event =>
+                    setFilterForm(current => ({
+                      ...current,
+                      name: event.target.value,
+                    }))
+                  }
+                  placeholder="Ej. Liga, Scrim, Qualifier"
+                  required
+                />
+              </label>
+
+              <label>
+                <span>Color identificador</span>
+                <input
+                  type="color"
+                  value={filterForm.color}
+                  onChange={event =>
+                    setFilterForm(current => ({
+                      ...current,
+                      color: event.target.value,
+                    }))
+                  }
+                />
+              </label>
+
+              <label>
+                <span>Orden</span>
+                <input
+                  type="number"
+                  value={filterForm.sort_order}
+                  onChange={event =>
+                    setFilterForm(current => ({
+                      ...current,
+                      sort_order: event.target.value,
+                    }))
+                  }
+                />
+              </label>
+
+              <label className="check">
+                <input
+                  type="checkbox"
+                  checked={filterForm.is_active}
+                  onChange={event =>
+                    setFilterForm(current => ({
+                      ...current,
+                      is_active: event.target.checked,
+                    }))
+                  }
+                />
+                <span>Activo</span>
+              </label>
+            </div>
+
+            <div className="vod-admin-actions">
+              <button
+                className="save"
+                disabled={busy}
+              >
+                Guardar filtro
+              </button>
+
+              {selectedFilterId && (
+                <button
+                  type="button"
+                  className="delete"
+                  disabled={busy}
+                  onClick={async () => {
+                    if (
+                      !confirm(
+                        `¿Eliminar el filtro "${selectedFilter?.name}"?`,
+                      )
+                    ) {
+                      return
                     }
-                    placeholder="Clasificatorio — Día 2"
-                    required
-                  />
-                </label>
 
-                <label>
-                  <span>FECHA</span>
-                  <input
-                    type="date"
-                    value={eventForm.event_date}
-                    onChange={(event) =>
-                      setEvent('event_date', event.target.value)
+                    setBusy(true)
+
+                    try {
+                      await deleteCalendarFilter(
+                        selectedFilterId,
+                      )
+                      setSelectedFilterId(null)
+                      setFilterForm(emptyFilter)
+                      await refresh()
+                      setMsg('Filtro eliminado.')
+                    } catch (error) {
+                      setErr(error.message)
+                    } finally {
+                      setBusy(false)
                     }
-                    required
-                  />
-                </label>
-
-                <label>
-                  <span>HORA</span>
-                  <input
-                    type="time"
-                    value={eventForm.event_time || ''}
-                    onChange={(event) =>
-                      setEvent('event_time', event.target.value)
-                    }
-                  />
-                </label>
-
-                <label>
-                  <span>TIPO</span>
-                  <select
-                    value={eventForm.event_type}
-                    onChange={(event) =>
-                      setEvent('event_type', event.target.value)
-                    }
-                  >
-                    {CALENDAR_EVENT_OPTIONS.map((option) => (
-                      <option key={option.key} value={option.key}>
-                        {option.symbol} {option.label}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-
-                <div
-                  className="calendar-event-marker-preview wide"
-                  style={{
-                    '--event-marker-color':
-                      CALENDAR_MARKERS[eventForm.event_type]?.color ||
-                      CALENDAR_MARKERS.other.color,
                   }}
                 >
-                  <span aria-hidden="true">★</span>
-                  <div>
-                    <strong>
-                      {CALENDAR_MARKERS[eventForm.event_type]?.label || 'OTRO'}
-                    </strong>
-                    <small>
-                      ESTE MARCADOR APARECE EN EL CALENDARIO. LOS PARTIDOS CREADOS COMO VOD SE MARCAN AUTOMÁTICAMENTE EN AZUL.
-                    </small>
-                  </div>
-                </div>
-
-                <label className="wide">
-                  <span>DESCRIPCIÓN / ACLARACIÓN</span>
-                  <textarea
-                    rows="4"
-                    value={eventForm.description || ''}
-                    onChange={(event) =>
-                      setEvent('description', event.target.value)
-                    }
-                    placeholder="Información que aparecerá al entrar a esta fecha."
-                  />
-                </label>
-
-                <label className="check wide">
-                  <input
-                    type="checkbox"
-                    checked={Boolean(eventForm.is_published)}
-                    onChange={(event) =>
-                      setEvent('is_published', event.target.checked)
-                    }
-                  />
-                  <span>MOSTRAR EN EL CALENDARIO PÚBLICO</span>
-                </label>
-              </div>
-
-              <div className="vod-admin-actions">
-                <button className="save" disabled={busy}>
-                  {busy
-                    ? 'GUARDANDO…'
-                    : selectedEvent
-                      ? 'GUARDAR FECHA'
-                      : 'CREAR FECHA'}
+                  Eliminar filtro
                 </button>
+              )}
+            </div>
+          </form>
+        </section>
+      )}
 
-                {selectedEvent && (
-                  <button
-                    type="button"
-                    className="delete"
-                    disabled={busy}
-                    onClick={async () => {
-                      if (!confirm(`¿Eliminar ${currentEvent?.title}?`)) {
-                        return
-                      }
+      <div className="vod-admin-layout">
+        <aside className="vod-admin-list">
+          {vods.length === 0 ? (
+            <p className="vod-admin-empty-list">
+              SIN VODS
+            </p>
+          ) : (
+            vods.map(vod => (
+              <button
+                type="button"
+                key={vod.id}
+                className={
+                  selected === vod.id
+                    ? 'active'
+                    : ''
+                }
+                onClick={() => setSelected(vod.id)}
+              >
+                <small>
+                  {vod.match_date || 'SIN FECHA'} ·{' '}
+                  {vod.is_published
+                    ? 'PUBLICADO'
+                    : 'BORRADOR'}
+                </small>
 
-                      setBusy(true)
+                <strong>{vod.title}</strong>
+                <span>vs {vod.opponent}</span>
+              </button>
+            ))
+          )}
+        </aside>
 
-                      try {
-                        await deleteCalendarEvent(selectedEvent)
-                        newEvent()
-                        await refresh()
-                        setMsg('Fecha eliminada.')
-                      } catch (error) {
-                        setErr(error.message)
-                      } finally {
-                        setBusy(false)
-                      }
-                    }}
-                  >
-                    ELIMINAR FECHA
-                  </button>
-                )}
-              </div>
-            </form>
-          </section>
-        </div>
-      ) : (
-        <div className="vod-admin-layout">
-          <aside className="vod-admin-list">
-            {vods.length === 0 ? (
-              <p className="vod-admin-empty-list">
-                SIN VODS
-              </p>
-            ) : (
-              vods.map((vod) => (
-                <button
-                  type="button"
-                  key={vod.id}
-                  className={selected === vod.id ? 'active' : ''}
-                  onClick={() => setSelected(vod.id)}
-                >
-                  <small>
-                    {vod.match_date} · {vod.is_published ? 'PUBLICADO' : 'BORRADOR'}
-                  </small>
+        <section className="vod-admin-editor">
+          <form onSubmit={submit}>
+            <div className="vod-admin-editorbar">
+              <strong>
+                {selected
+                  ? 'EDITAR VOD'
+                  : 'NUEVO VOD'}
+              </strong>
 
-                  <strong>{vod.title}</strong>
-                  <span>vs {vod.opponent}</span>
-                </button>
-              ))
-            )}
-          </aside>
-
-          <section className="vod-admin-editor">
-            <form onSubmit={submit}>
-              <div className="vod-admin-editorbar">
-                <strong>
-                  {selected ? 'EDITAR VOD' : 'NUEVO VOD'}
-                </strong>
-
-                {selected && form.is_published && (
+              {selected &&
+                form.is_published && (
                   <Link
                     to={`/vods/${form.slug}`}
                     target="_blank"
                   >
-                    VER PÚBLICO ↗
+                    Ver público
                   </Link>
                 )}
-              </div>
+            </div>
 
-              <div className="vod-admin-grid">
-                <label className="wide">
-                  <span>TÍTULO</span>
-                  <input
-                    value={form.title}
-                    onChange={(event) =>
-                      set('title', event.target.value)
-                    }
-                    required
-                  />
-                </label>
+            <div className="vod-admin-grid">
+              <label className="wide">
+                <span>Título</span>
+                <input
+                  value={form.title}
+                  onChange={event =>
+                    set('title', event.target.value)
+                  }
+                  required
+                />
+              </label>
 
+              <label>
+                <span>Rival</span>
+                <input
+                  value={form.opponent}
+                  onChange={event =>
+                    set(
+                      'opponent',
+                      event.target.value,
+                    )
+                  }
+                  required
+                />
+              </label>
+
+              <label>
+                <span>Competición</span>
+                <input
+                  value={form.competition || ''}
+                  onChange={event =>
+                    set(
+                      'competition',
+                      event.target.value,
+                    )
+                  }
+                />
+              </label>
+
+              <label>
+                <span>Fecha</span>
+                <input
+                  type="date"
+                  value={form.match_date}
+                  onChange={event =>
+                    set(
+                      'match_date',
+                      event.target.value,
+                    )
+                  }
+                  required
+                />
+              </label>
+
+              <label>
+                <span>Hora</span>
+                <input
+                  type="time"
+                  value={form.match_time || ''}
+                  onChange={event =>
+                    set(
+                      'match_time',
+                      event.target.value,
+                    )
+                  }
+                />
+              </label>
+
+              <label>
+                <span>Filtro del calendario</span>
+                <select
+                  value={
+                    form.calendar_filter_id || ''
+                  }
+                  onChange={event =>
+                    set(
+                      'calendar_filter_id',
+                      event.target.value,
+                    )
+                  }
+                >
+                  <option value="">
+                    SIN CATEGORÍA
+                  </option>
+
+                  {filters
+                    .filter(item => item.is_active)
+                    .map(filter => (
+                      <option
+                        key={filter.id}
+                        value={filter.id}
+                      >
+                        {filter.name}
+                      </option>
+                    ))}
+                </select>
+              </label>
+
+              <label>
+                <span>Estado</span>
+                <select
+                  value={form.status}
+                  onChange={event =>
+                    set(
+                      'status',
+                      event.target.value,
+                    )
+                  }
+                >
+                  <option value="upcoming">
+                    PRÓXIMO
+                  </option>
+                  <option value="played">
+                    JUGADO
+                  </option>
+                  <option value="cancelled">
+                    CANCELADO
+                  </option>
+                </select>
+              </label>
+
+              <label>
+                <span>
+                  Resultado en calendario
+                </span>
+                <select
+                  value={
+                    form.match_outcome || 'auto'
+                  }
+                  onChange={event =>
+                    set(
+                      'match_outcome',
+                      event.target.value,
+                    )
+                  }
+                >
+                  <option value="auto">
+                    AUTOMÁTICO
+                  </option>
+                  <option value="win">
+                    GANADO
+                  </option>
+                  <option value="loss">
+                    PERDIDO
+                  </option>
+                  <option value="draw">
+                    EMPATE
+                  </option>
+                </select>
+              </label>
+
+              <label>
+                <span>Tipo de resultado</span>
+                <select
+                  value={
+                    form.result_type || 'rounds'
+                  }
+                  onChange={event =>
+                    set(
+                      'result_type',
+                      event.target.value,
+                    )
+                  }
+                >
+                  <option value="rounds">
+                    MATCH
+                  </option>
+                  <option value="series">
+                    SERIE / MAPAS
+                  </option>
+                  <option value="elimination">
+                    ELIMINACIÓN
+                  </option>
+                  <option value="custom">
+                    PERSONALIZADO
+                  </option>
+                </select>
+              </label>
+
+              {form.result_type === 'series' && (
                 <label>
-                  <span>RIVAL</span>
-                  <input
-                    value={form.opponent}
-                    onChange={(event) =>
-                      set('opponent', event.target.value)
+                  <span>Formato de serie</span>
+                  <select
+                    value={
+                      form.series_format || 'bo1'
                     }
-                    required
-                  />
+                    onChange={event => {
+                      set(
+                        'series_format',
+                        event.target.value,
+                      )
+                      setMapRows([])
+                    }}
+                  >
+                    <option value="bo1">BO1</option>
+                    <option value="bo2">BO2</option>
+                    <option value="bo3">BO3</option>
+                    <option value="bo5">BO5</option>
+                  </select>
                 </label>
+              )}
 
-                <label>
-                  <span>COMPETICIÓN</span>
-                  <input
-                    value={form.competition}
-                    onChange={(event) =>
-                      set('competition', event.target.value)
-                    }
-                  />
-                </label>
-
-                <label>
-                  <span>FECHA</span>
-                  <input
-                    type="date"
-                    value={form.match_date}
-                    onChange={(event) =>
-                      set('match_date', event.target.value)
-                    }
-                    required
-                  />
-                </label>
-
-                <label>
-                  <span>HORA</span>
-                  <input
-                    type="time"
-                    value={form.match_time || ''}
-                    onChange={(event) =>
-                      set('match_time', event.target.value)
-                    }
-                  />
-                </label>
-
-                {form.result_type !== 'series' && (
+              {form.result_type === 'rounds' && (
+                <>
                   <label>
-                    <span>MAPA</span>
+                    <span>Score ASTERI</span>
                     <input
-                      value={form.map_name || ''}
-                      onChange={(event) =>
-                        set('map_name', event.target.value)
+                      type="number"
+                      min="0"
+                      value={
+                        form.score_asteri ?? ''
+                      }
+                      onChange={event =>
+                        set(
+                          'score_asteri',
+                          event.target.value,
+                        )
                       }
                     />
                   </label>
-                )}
 
-                <label>
-                  <span>ESTADO</span>
-                  <select
-                    value={form.status}
-                    onChange={(event) =>
-                      set('status', event.target.value)
-                    }
-                  >
-                    <option value="upcoming">PRÓXIMO</option>
-                    <option value="played">JUGADO</option>
-                    <option value="cancelled">CANCELADO</option>
-                  </select>
-                </label>
-
-                <label>
-                  <span>TIPO DE RESULTADO</span>
-                  <select
-                    value={form.result_type || 'rounds'}
-                    onChange={(event) =>
-                      set('result_type', event.target.value)
-                    }
-                  >
-                    <option value="rounds">RONDAS</option>
-                    <option value="series">SERIE / MAPAS</option>
-                    <option value="elimination">ELIMINACIÓN</option>
-                    <option value="custom">PERSONALIZADO</option>
-                  </select>
-                </label>
-
-                {form.result_type === 'series' && (
                   <label>
-                    <span>FORMATO DE SERIE</span>
-                    <select
-                      value={form.series_format || 'bo1'}
-                      onChange={(event) =>
-                        set('series_format', event.target.value)
+                    <span>Score rival</span>
+                    <input
+                      type="number"
+                      min="0"
+                      value={
+                        form.score_opponent ?? ''
                       }
-                    >
-                      <option value="bo1">BO1</option>
-                      <option value="bo2">BO2</option>
-                      <option value="bo3">BO3</option>
-                      <option value="bo5">BO5</option>
-                    </select>
+                      onChange={event =>
+                        set(
+                          'score_opponent',
+                          event.target.value,
+                        )
+                      }
+                    />
                   </label>
-                )}
+                </>
+              )}
 
-                {form.result_type === 'rounds' && (
-                  <>
-                    <label>
-                      <span>RONDAS ASTERI</span>
-                      <input
-                        type="number"
-                        min="0"
-                        value={form.score_asteri ?? ''}
-                        onChange={(event) =>
-                          set('score_asteri', event.target.value)
-                        }
-                      />
-                    </label>
+              {form.result_type === 'series' && (
+                <div className="vod-map-picker wide">
+                  <div className="vod-map-picker-head">
+                    <div>
+                      <span>
+                        Mapas de la serie
+                      </span>
 
-                    <label>
-                      <span>RONDAS RIVAL</span>
-                      <input
-                        type="number"
-                        min="0"
-                        value={form.score_opponent ?? ''}
-                        onChange={(event) =>
-                          set('score_opponent', event.target.value)
-                        }
-                      />
-                    </label>
-                  </>
-                )}
-
-                {form.result_type === 'series' && (
-                  <div className="vod-map-picker wide">
-                    <div className="vod-map-picker-head">
-                      <div>
-                        <span>MAPAS DE LA SERIE</span>
-                        <small>
-                          POOL ACTIVO · MÁXIMO {seriesLimit} · EL ORDEN DE SELECCIÓN ES EL ORDEN DE JUEGO
-                        </small>
-                      </div>
-
-                      <strong>
-                        {mapRows.length}/{seriesLimit}
-                      </strong>
+                      <small>
+                        Solo se muestran dentro de
+                        la VOD, nunca en el
+                        calendario.
+                      </small>
                     </div>
 
-                    <div className="vod-map-grid">
-                      {ACTIVE_DUTY_MAPS.map((map) => {
-                        const selectedIndex = mapRows.findIndex(
-                          (row) => row.map_name === map.id,
-                        )
-
-                        return (
-                          <button
-                            type="button"
-                            key={map.id}
-                            className={selectedIndex >= 0 ? 'selected' : ''}
-                            onClick={() => toggleSeriesMap(map.id)}
-                          >
-                            <img
-                              src={map.image}
-                              alt={`Mapa ${map.name}`}
-                              loading="lazy"
-                            />
-                            <span>{map.name}</span>
-                            {selectedIndex >= 0 && (
-                              <b>{String(selectedIndex + 1).padStart(2, '0')}</b>
-                            )}
-                          </button>
-                        )
-                      })}
-                    </div>
-
-                    {mapRows.length > 0 && (
-                      <div className="vod-map-results">
-                        {mapRows.map((row, index) => {
-                          const map = getCompetitiveMap(row.map_name)
-
-                          return (
-                            <div className="vod-map-result-row" key={`${row.map_name}-${index}`}>
-                              <div className="vod-map-result-name">
-                                <img src={map.image} alt="" />
-                                <span>{String(index + 1).padStart(2, '0')}</span>
-                                <strong>{map.name}</strong>
-                              </div>
-
-                              <label>
-                                <span>ASTERI</span>
-                                <input
-                                  type="number"
-                                  min="0"
-                                  value={row.score_asteri}
-                                  onChange={(event) =>
-                                    updateSeriesMap(index, 'score_asteri', event.target.value)
-                                  }
-                                />
-                              </label>
-
-                              <label>
-                                <span>RIVAL</span>
-                                <input
-                                  type="number"
-                                  min="0"
-                                  value={row.score_opponent}
-                                  onChange={(event) =>
-                                    updateSeriesMap(index, 'score_opponent', event.target.value)
-                                  }
-                                />
-                              </label>
-
-                              <div className="vod-map-result-actions">
-                                <button
-                                  type="button"
-                                  onClick={() => moveSeriesMap(index, -1)}
-                                  disabled={index === 0}
-                                  aria-label={`Mover ${map.name} arriba`}
-                                >
-                                  ↑
-                                </button>
-                                <button
-                                  type="button"
-                                  onClick={() => moveSeriesMap(index, 1)}
-                                  disabled={index === mapRows.length - 1}
-                                  aria-label={`Mover ${map.name} abajo`}
-                                >
-                                  ↓
-                                </button>
-                                <button
-                                  type="button"
-                                  onClick={() => removeSeriesMap(index)}
-                                  aria-label={`Quitar ${map.name}`}
-                                >
-                                  ×
-                                </button>
-                              </div>
-                            </div>
-                          )
-                        })}
-                      </div>
-                    )}
-
-                    <p className="vod-map-picker-note">
-                      El resultado general de la serie se calcula automáticamente según los mapas cargados.
-                    </p>
+                    <strong>
+                      {mapRows.length}/{seriesLimit}
+                    </strong>
                   </div>
-                )}
 
-                <label className="wide">
-                  <span>
-                    RESULTADO TEXTUAL
-                    {['elimination', 'custom'].includes(form.result_type)
-                      ? ' · OBLIGATORIO SI ESTÁ JUGADO'
-                      : ' · OPCIONAL'}
-                  </span>
-                  <input
-                    value={form.result_label || ''}
-                    onChange={(event) =>
-                      set('result_label', event.target.value)
-                    }
-                    placeholder="CLASIFICADO / ELIMINADO / 1° PUESTO / 16-12..."
-                  />
-                </label>
-
-                <label className="wide">
-                  <span>VOD / YOUTUBE / DRIVE</span>
-                  <input
-                    type="url"
-                    value={form.youtube_url || ''}
-                    onChange={(event) =>
-                      set('youtube_url', event.target.value)
-                    }
-                    placeholder="https://youtube.com/... o https://drive.google.com/..."
-                  />
-                </label>
-
-                <label className="wide">
-                  <span>LINK DE DESCARGA DE LA VOD</span>
-                  <input
-                    type="url"
-                    value={form.vod_download_url || ''}
-                    onChange={(event) =>
-                      set('vod_download_url', event.target.value)
-                    }
-                    placeholder="https://drive.google.com/... o enlace directo"
-                  />
-                </label>
-
-                <label className="wide">
-                  <span>SLUG</span>
-                  <input
-                    value={form.slug || ''}
-                    onChange={(event) =>
-                      set('slug', slugifyVod(event.target.value))
-                    }
-                    placeholder="se genera automático"
-                  />
-                </label>
-
-                <label className="wide">
-                  <span>DESCRIPCIÓN</span>
-                  <textarea
-                    rows="4"
-                    value={form.description || ''}
-                    onChange={(event) =>
-                      set('description', event.target.value)
-                    }
-                  />
-                </label>
-
-                <label className="check wide">
-                  <input
-                    type="checkbox"
-                    checked={Boolean(form.is_published)}
-                    onChange={(event) =>
-                      set('is_published', event.target.checked)
-                    }
-                  />
-                  <span>PUBLICAR VOD</span>
-                </label>
-              </div>
-
-              <div className="vod-admin-section">
-                <div className="vod-admin-section-head">
-                  <span>LINEUP</span>
-                  <strong>{lineup.length}</strong>
-                </div>
-
-                <div className="vod-admin-lineup">
-                  {players.map((player) => (
-                    <button
-                      type="button"
-                      key={player.id}
-                      className={lineup.includes(player.id) ? 'selected' : ''}
-                      onClick={() => togglePlayer(player.id)}
-                    >
-                      <strong>{player.nickname}</strong>
-                      <small>{player.player_role || 'PLAYER'}</small>
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <div className="vod-admin-actions">
-                <button className="save" disabled={busy}>
-                  {busy
-                    ? 'GUARDANDO…'
-                    : selected
-                      ? 'GUARDAR CAMBIOS'
-                      : 'CREAR VOD'}
-                </button>
-
-                {selected && (
-                  <button
-                    type="button"
-                    className="delete"
-                    disabled={busy}
-                    onClick={async () => {
-                      if (!confirm(`¿Eliminar ${current?.title}?`)) {
-                        return
-                      }
-
-                      setBusy(true)
-
-                      try {
-                        await deleteVod(current)
-                        newVod()
-                        await refresh()
-                        setMsg('VOD eliminado.')
-                      } catch (error) {
-                        setErr(error.message)
-                      } finally {
-                        setBusy(false)
-                      }
-                    }}
-                  >
-                    ELIMINAR VOD
-                  </button>
-                )}
-              </div>
-            </form>
-
-            <div className="vod-admin-section">
-              <div className="vod-admin-section-head">
-                <span>CLIPS DEL VOD</span>
-                <strong>{clips.length}</strong>
-              </div>
-
-              {!selected ? (
-                <p className="vod-admin-empty">
-                  GUARDÁ EL VOD PARA AGREGAR CLIPS.
-                </p>
-              ) : (
-                <>
-                  <form
-                    className="vod-admin-clipform"
-                    onSubmit={addNewClip}
-                  >
-                    <div className="vod-admin-grid">
-                      <label>
-                        <span>TÍTULO</span>
-                        <input
-                          value={clip.title}
-                          onChange={(event) =>
-                            setClip((currentClip) => ({
-                              ...currentClip,
-                              title: event.target.value,
-                            }))
-                          }
-                          required
-                        />
-                      </label>
-
-                      <label>
-                        <span>JUGADOR</span>
-                        <select
-                          value={clip.player_id}
-                          onChange={(event) =>
-                            setClip((currentClip) => ({
-                              ...currentClip,
-                              player_id: event.target.value,
-                            }))
-                          }
-                        >
-                          <option value="">SIN JUGADOR</option>
-                          {players.map((player) => (
-                            <option key={player.id} value={player.id}>
-                              {player.nickname}
-                            </option>
-                          ))}
-                        </select>
-                      </label>
-
-                      <label>
-                        <span>ROUND</span>
-                        <input
-                          type="number"
-                          min="0"
-                          value={clip.round_number}
-                          onChange={(event) =>
-                            setClip((currentClip) => ({
-                              ...currentClip,
-                              round_number: event.target.value,
-                            }))
-                          }
-                        />
-                      </label>
-
-                      <label>
-                        <span>TIMESTAMP SEG.</span>
-                        <input
-                          type="number"
-                          min="0"
-                          value={clip.timestamp_seconds}
-                          onChange={(event) =>
-                            setClip((currentClip) => ({
-                              ...currentClip,
-                              timestamp_seconds: event.target.value,
-                            }))
-                          }
-                        />
-                      </label>
-
-                      <label className="wide">
-                        <span>URL (opcional si subís archivo)</span>
-                        <input
-                          type="url"
-                          value={clip.video_url}
-                          onChange={(event) =>
-                            setClip((currentClip) => ({
-                              ...currentClip,
-                              video_url: event.target.value,
-                            }))
-                          }
-                        />
-                      </label>
-
-                      <label className="wide file">
-                        <input
-                          type="file"
-                          accept="video/*"
-                          onChange={(event) =>
-                            setClipFile(event.target.files?.[0] || null)
-                          }
-                        />
-                        <span>{clipFile?.name || 'O SUBIR VIDEO'}</span>
-                      </label>
-
-                      <label className="wide">
-                        <span>DESCRIPCIÓN</span>
-                        <textarea
-                          rows="3"
-                          value={clip.description}
-                          onChange={(event) =>
-                            setClip((currentClip) => ({
-                              ...currentClip,
-                              description: event.target.value,
-                            }))
-                          }
-                        />
-                      </label>
-
-                      <label className="check wide">
-                        <input
-                          type="checkbox"
-                          checked={clip.is_published}
-                          onChange={(event) =>
-                            setClip((currentClip) => ({
-                              ...currentClip,
-                              is_published: event.target.checked,
-                            }))
-                          }
-                        />
-                        <span>PUBLICAR CLIP</span>
-                      </label>
-                    </div>
-
-                    <button className="vod-admin-addclip" disabled={busy}>
-                      + AGREGAR CLIP
-                    </button>
-                  </form>
-
-                  <div className="vod-admin-clips">
-                    {clips.map((currentClip) => {
-                      const player =
-                        players.find(
-                          (item) => item.id === currentClip.player_id,
+                  <div className="vod-map-grid">
+                    {ACTIVE_DUTY_MAPS.map(map => {
+                      const selectedMap =
+                        mapRows.some(
+                          row =>
+                            row.map_name === map.id,
                         )
 
                       return (
-                        <article key={currentClip.id}>
-                          <div>
-                            <small>
-                              {player?.nickname || 'ASTERI'}
-                              {currentClip.round_number != null
-                                ? ` · R${currentClip.round_number}`
-                                : ''}
-                            </small>
-
-                            <strong>{currentClip.title}</strong>
-                          </div>
-
-                          <span className={currentClip.is_published ? 'on' : ''}>
-                            {currentClip.is_published ? 'PUBLICADO' : 'PRIVADO'}
-                          </span>
-
-                          <div>
-                            {currentClip.video_url && (
-                              <a
-                                href={currentClip.video_url}
-                                target="_blank"
-                                rel="noreferrer"
-                              >
-                                VER ↗
-                              </a>
-                            )}
-
-                            <button
-                              type="button"
-                              onClick={async () => {
-                                try {
-                                  const updated = await toggleClip(currentClip)
-
-                                  setClips((currentClips) =>
-                                    currentClips.map((item) =>
-                                      item.id === updated.id ? updated : item,
-                                    ),
-                                  )
-                                } catch (error) {
-                                  setErr(error.message)
-                                }
-                              }}
-                            >
-                              {currentClip.is_published ? 'OCULTAR' : 'PUBLICAR'}
-                            </button>
-
-                            <button
-                              type="button"
-                              onClick={async () => {
-                                if (!confirm('¿Eliminar clip?')) {
-                                  return
-                                }
-
-                                try {
-                                  await deleteClip(currentClip)
-
-                                  setClips((currentClips) =>
-                                    currentClips.filter(
-                                      (item) => item.id !== currentClip.id,
-                                    ),
-                                  )
-                                } catch (error) {
-                                  setErr(error.message)
-                                }
-                              }}
-                            >
-                              ELIMINAR
-                            </button>
-                          </div>
-                        </article>
+                        <button
+                          type="button"
+                          key={map.id}
+                          className={
+                            selectedMap
+                              ? 'selected'
+                              : ''
+                          }
+                          onClick={() =>
+                            toggleSeriesMap(map.id)
+                          }
+                        >
+                          <img
+                            src={map.image}
+                            alt=""
+                          />
+                          <span>{map.name}</span>
+                        </button>
                       )
                     })}
                   </div>
-                </>
+
+                  <div className="vod-map-results">
+                    {mapRows.map((row, index) => {
+                      const map =
+                        getCompetitiveMap(
+                          row.map_name,
+                        )
+
+                      return (
+                        <div
+                          className="vod-map-result-row"
+                          key={`${row.map_name}-${index}`}
+                        >
+                          <div className="vod-map-result-name">
+                            <img
+                              src={map.image}
+                              alt=""
+                            />
+                            <span>
+                              {String(
+                                index + 1,
+                              ).padStart(2, '0')}
+                            </span>
+                            <strong>
+                              {map.name}
+                            </strong>
+                          </div>
+
+                          <label>
+                            <span>ASTERI</span>
+                            <input
+                              type="number"
+                              min="0"
+                              value={
+                                row.score_asteri
+                              }
+                              onChange={event =>
+                                updateSeriesMap(
+                                  index,
+                                  'score_asteri',
+                                  event.target.value,
+                                )
+                              }
+                            />
+                          </label>
+
+                          <label>
+                            <span>RIVAL</span>
+                            <input
+                              type="number"
+                              min="0"
+                              value={
+                                row.score_opponent
+                              }
+                              onChange={event =>
+                                updateSeriesMap(
+                                  index,
+                                  'score_opponent',
+                                  event.target.value,
+                                )
+                              }
+                            />
+                          </label>
+
+                          <div className="vod-map-result-actions">
+                            <button
+                              type="button"
+                              disabled={index === 0}
+                              onClick={() =>
+                                moveSeriesMap(
+                                  index,
+                                  -1,
+                                )
+                              }
+                            >
+                              ↑
+                            </button>
+
+                            <button
+                              type="button"
+                              disabled={
+                                index ===
+                                mapRows.length - 1
+                              }
+                              onClick={() =>
+                                moveSeriesMap(
+                                  index,
+                                  1,
+                                )
+                              }
+                            >
+                              ↓
+                            </button>
+                          </div>
+                        </div>
+                      )
+                    })}
+                  </div>
+                </div>
+              )}
+
+              <label className="wide">
+                <span>
+                  Resultado textual
+                </span>
+                <input
+                  value={
+                    form.result_label || ''
+                  }
+                  onChange={event =>
+                    set(
+                      'result_label',
+                      event.target.value,
+                    )
+                  }
+                  placeholder="Opcional"
+                />
+              </label>
+
+              <label className="wide">
+                <span>VOD / YouTube / Drive</span>
+                <input
+                  type="url"
+                  value={
+                    form.youtube_url || ''
+                  }
+                  onChange={event =>
+                    set(
+                      'youtube_url',
+                      event.target.value,
+                    )
+                  }
+                />
+              </label>
+
+              <label className="wide">
+                <span>Link de descarga</span>
+                <input
+                  type="url"
+                  value={
+                    form.vod_download_url || ''
+                  }
+                  onChange={event =>
+                    set(
+                      'vod_download_url',
+                      event.target.value,
+                    )
+                  }
+                />
+              </label>
+
+              <label className="wide">
+                <span>Slug</span>
+                <input
+                  value={form.slug || ''}
+                  onChange={event =>
+                    set(
+                      'slug',
+                      slugifyVod(
+                        event.target.value,
+                      ),
+                    )
+                  }
+                />
+              </label>
+
+              <label className="wide">
+                <span>Descripción</span>
+                <textarea
+                  rows="4"
+                  value={
+                    form.description || ''
+                  }
+                  onChange={event =>
+                    set(
+                      'description',
+                      event.target.value,
+                    )
+                  }
+                />
+              </label>
+
+              <label className="check wide">
+                <input
+                  type="checkbox"
+                  checked={Boolean(
+                    form.is_published,
+                  )}
+                  onChange={event =>
+                    set(
+                      'is_published',
+                      event.target.checked,
+                    )
+                  }
+                />
+                <span>Publicar VOD</span>
+              </label>
+            </div>
+
+            <div className="vod-admin-section">
+              <div className="vod-admin-section-head">
+                <div>
+                  <span>Lineup</span>
+                  <small>
+                    Cada jugador seleccionado suma
+                    automáticamente 1 MATCH en sus
+                    estadísticas. Si lo quitás, se
+                    recalcula.
+                  </small>
+                </div>
+
+                <strong>{lineup.length}</strong>
+              </div>
+
+              <div className="vod-admin-lineup">
+                {players.map(player => (
+                  <button
+                    type="button"
+                    key={player.id}
+                    className={
+                      lineup.includes(player.id)
+                        ? 'selected'
+                        : ''
+                    }
+                    onClick={() =>
+                      togglePlayer(player.id)
+                    }
+                  >
+                    <strong>
+                      {player.nickname}
+                    </strong>
+                    <small>
+                      {player.player_role || 'PLAYER'}
+                    </small>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="vod-admin-actions">
+              <button
+                className="save"
+                disabled={busy}
+              >
+                {busy
+                  ? 'Guardando…'
+                  : selected
+                    ? 'Guardar cambios'
+                    : 'Crear VOD'}
+              </button>
+
+              {selected && (
+                <button
+                  type="button"
+                  className="delete"
+                  disabled={busy}
+                  onClick={async () => {
+                    if (
+                      !confirm(
+                        `¿Eliminar ${current?.title}?`,
+                      )
+                    ) {
+                      return
+                    }
+
+                    setBusy(true)
+
+                    try {
+                      await deleteVod(current)
+                      newVod()
+                      await refresh()
+                      setMsg('VOD eliminada.')
+                    } catch (error) {
+                      setErr(error.message)
+                    } finally {
+                      setBusy(false)
+                    }
+                  }}
+                >
+                  Eliminar VOD
+                </button>
               )}
             </div>
-          </section>
-        </div>
-      )}
+          </form>
+
+          <div className="vod-admin-section">
+            <div className="vod-admin-section-head">
+              <span>Clips</span>
+              <strong>{clips.length}</strong>
+            </div>
+
+            {!selected ? (
+              <p className="vod-admin-empty">
+                Guardá la VOD para agregar clips.
+              </p>
+            ) : (
+              <>
+                <form
+                  className="vod-admin-clipform"
+                  onSubmit={addNewClip}
+                >
+                  <div className="vod-admin-grid">
+                    <label>
+                      <span>Título</span>
+                      <input
+                        value={clip.title}
+                        onChange={event =>
+                          setClip(currentClip => ({
+                            ...currentClip,
+                            title:
+                              event.target.value,
+                          }))
+                        }
+                        required
+                      />
+                    </label>
+
+                    <label>
+                      <span>Jugador</span>
+                      <select
+                        value={clip.player_id}
+                        onChange={event =>
+                          setClip(currentClip => ({
+                            ...currentClip,
+                            player_id:
+                              event.target.value,
+                          }))
+                        }
+                      >
+                        <option value="">
+                          SIN JUGADOR
+                        </option>
+
+                        {players.map(player => (
+                          <option
+                            key={player.id}
+                            value={player.id}
+                          >
+                            {player.nickname}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+
+                    <label className="wide">
+                      <span>URL</span>
+                      <input
+                        type="url"
+                        value={clip.video_url}
+                        onChange={event =>
+                          setClip(currentClip => ({
+                            ...currentClip,
+                            video_url:
+                              event.target.value,
+                          }))
+                        }
+                      />
+                    </label>
+
+                    <label className="wide file">
+                      <input
+                        type="file"
+                        accept="video/*"
+                        onChange={event =>
+                          setClipFile(
+                            event.target.files?.[0] ||
+                              null,
+                          )
+                        }
+                      />
+                      <span>
+                        {clipFile?.name ||
+                          'O SUBIR VIDEO'}
+                      </span>
+                    </label>
+
+                    <label className="check wide">
+                      <input
+                        type="checkbox"
+                        checked={
+                          clip.is_published
+                        }
+                        onChange={event =>
+                          setClip(currentClip => ({
+                            ...currentClip,
+                            is_published:
+                              event.target.checked,
+                          }))
+                        }
+                      />
+                      <span>Publicar clip</span>
+                    </label>
+                  </div>
+
+                  <button
+                    className="vod-admin-addclip"
+                    disabled={busy}
+                  >
+                    Agregar clip
+                  </button>
+                </form>
+
+                <div className="vod-admin-clips">
+                  {clips.map(currentClip => (
+                    <article key={currentClip.id}>
+                      <div>
+                        <strong>
+                          {currentClip.title}
+                        </strong>
+                      </div>
+
+                      <span
+                        className={
+                          currentClip.is_published
+                            ? 'on'
+                            : ''
+                        }
+                      >
+                        {currentClip.is_published
+                          ? 'PUBLICADO'
+                          : 'PRIVADO'}
+                      </span>
+
+                      <div>
+                        {currentClip.video_url && (
+                          <a
+                            href={
+                              currentClip.video_url
+                            }
+                            target="_blank"
+                            rel="noreferrer"
+                          >
+                            VER
+                          </a>
+                        )}
+
+                        <button
+                          type="button"
+                          onClick={async () => {
+                            try {
+                              const updated =
+                                await toggleClip(
+                                  currentClip,
+                                )
+
+                              setClips(currentClips =>
+                                currentClips.map(item =>
+                                  item.id === updated.id
+                                    ? updated
+                                    : item,
+                                ),
+                              )
+                            } catch (error) {
+                              setErr(error.message)
+                            }
+                          }}
+                        >
+                          {currentClip.is_published
+                            ? 'OCULTAR'
+                            : 'PUBLICAR'}
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={async () => {
+                            if (
+                              !confirm(
+                                '¿Eliminar clip?',
+                              )
+                            ) {
+                              return
+                            }
+
+                            try {
+                              await deleteClip(
+                                currentClip,
+                              )
+
+                              setClips(currentClips =>
+                                currentClips.filter(
+                                  item =>
+                                    item.id !==
+                                    currentClip.id,
+                                ),
+                              )
+                            } catch (error) {
+                              setErr(error.message)
+                            }
+                          }}
+                        >
+                          ELIMINAR
+                        </button>
+                      </div>
+                    </article>
+                  ))}
+                </div>
+              </>
+            )}
+          </div>
+        </section>
+      </div>
     </main>
   )
 }

@@ -1,0 +1,67 @@
+.selected-player-shell {
+  position: relative;
+}
+
+.selected-player-shell::after {
+  content: '';
+  position: absolute;
+  z-index: 8;
+  left: 50%;
+  top: 48%;
+  width: min(52vw, 720px);
+  aspect-ratio: 1.35 / 1;
+  pointer-events: none;
+  opacity: 0;
+  transform:
+    translate(-50%, -50%)
+    scale(.72);
+  background:
+    radial-gradient(
+      ellipse at center,
+      rgba(0, 232, 117, .18) 0%,
+      rgba(0, 232, 117, .07) 34%,
+      rgba(0, 232, 117, 0) 72%
+    );
+  filter: blur(12px);
+}
+
+.selected-player-shell.is-player-light-flash::after {
+  animation:
+    asteriPlayerFlash
+    .5s
+    cubic-bezier(.2,.75,.2,1)
+    both;
+}
+
+@keyframes asteriPlayerFlash {
+  0% {
+    opacity: 0;
+    transform:
+      translate(-50%, -50%)
+      scale(.68);
+  }
+
+  28% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+    transform:
+      translate(-50%, -50%)
+      scale(1.08);
+  }
+}
+
+@media (max-width: 680px) {
+  .selected-player-shell::after {
+    width: 110vw;
+    top: 34%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .selected-player-shell::after {
+    display: none;
+  }
+}

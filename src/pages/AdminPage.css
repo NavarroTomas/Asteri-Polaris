@@ -836,3 +836,144 @@
     min-height: 100px;
   }
 }
+
+
+/* ANALYTICS + ANIMATION DIAGNOSTICS */
+
+.admin-analytics-form {
+  display: grid;
+  grid-template-columns: minmax(260px, 1fr) auto;
+  gap: 12px;
+  align-items: end;
+  padding: 20px;
+}
+
+.admin-analytics-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.admin-analytics-form label span {
+  color: #bfc6c1;
+  font-size: 11px;
+  font-weight: 650;
+}
+
+.admin-analytics-form input {
+  min-height: 42px;
+  box-sizing: border-box;
+  border: 1px solid #2a312c;
+  outline: none;
+  padding: 0 12px;
+  background: #070907;
+  color: #eef1ef;
+  font: 500 12px Inter, sans-serif;
+}
+
+.admin-analytics-form input:focus {
+  border-color: #00d96e;
+}
+
+.admin-analytics-form button {
+  min-height: 42px;
+  border: 1px solid #00d96e;
+  padding: 0 14px;
+  background: #00d96e;
+  color: #031109;
+  cursor: pointer;
+  font: 750 10px Inter, sans-serif;
+}
+
+.admin-analytics-form > small {
+  grid-column: 1 / -1;
+  color: #6e7871;
+  font-size: 10px;
+  line-height: 1.5;
+}
+
+.admin-diagnostics-wrap {
+  padding: 20px;
+}
+
+.admin-animation-diagnostics {
+  display: grid;
+  gap: 18px;
+}
+
+.admin-animation-diagnostics > div:first-child strong {
+  font-size: 13px;
+}
+
+.admin-animation-diagnostics > div:first-child p {
+  max-width: 680px;
+  margin: 6px 0 0;
+  color: #7e8881;
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.admin-animation-diagnostics dl {
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.admin-animation-diagnostics dl > div {
+  min-height: 78px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 12px;
+  border: 1px solid #242b26;
+  background: #090c0a;
+}
+
+.admin-animation-diagnostics dt {
+  color: #77817a;
+  font-size: 10px;
+}
+
+.admin-animation-diagnostics dd {
+  margin: 0;
+  color: #d8ddda;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.admin-animation-diagnostics dd.good {
+  color: #00d96e;
+}
+
+.admin-animation-diagnostics dd.bad {
+  color: #e05252;
+}
+
+.admin-animation-diagnostics code {
+  overflow-wrap: anywhere;
+  padding: 12px;
+  border: 1px solid #242b26;
+  background: #070907;
+  color: #707a73;
+  font-size: 9px;
+  line-height: 1.5;
+}
+
+@media (max-width: 760px) {
+  .admin-analytics-form {
+    grid-template-columns: 1fr;
+    padding: 14px;
+  }
+
+  .admin-animation-diagnostics dl {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .admin-animation-diagnostics dl {
+    grid-template-columns: 1fr;
+  }
+}
