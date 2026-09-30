@@ -164,7 +164,7 @@
 
 .public-player-primary-stats {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   gap: 1px;
   background: #1b211d;
   border-bottom: 1px solid #1b211d;
@@ -194,12 +194,6 @@
 .public-player-primary-stats strong {
   font: 400 clamp(54px, 7vw, 110px)/.72 Anton, Impact, sans-serif;
   letter-spacing: -.03em;
-  overflow-wrap: anywhere;
-}
-
-.public-player-primary-stats article.is-text strong {
-  font-size: clamp(28px, 4vw, 58px);
-  line-height: .88;
 }
 
 .public-player-section {
@@ -578,7 +572,7 @@
   }
 
   .public-player-primary-stats {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(2, 1fr);
   }
 
   .public-player-story,
@@ -673,20 +667,12 @@
 
 @media (max-width: 520px) {
   .public-player-primary-stats {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: 1fr 1fr;
   }
 
   .public-player-primary-stats article {
-    min-height: 122px;
-    padding: 12px;
-  }
-
-  .public-player-primary-stats strong {
-    font-size: clamp(28px, 9vw, 40px);
-  }
-
-  .public-player-primary-stats article.is-text strong {
-    font-size: clamp(18px, 5.4vw, 27px);
+    min-height: 140px;
+    padding: 17px;
   }
 
   .public-player-advanced-stats,

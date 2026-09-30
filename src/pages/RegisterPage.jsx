@@ -139,18 +139,6 @@ export default function RegisterPage() {
         if (signUpError) {
           throw signUpError
         }
-
-        /*
-          Email confirmation está desactivado
-          en ASTERI.
-
-          El trigger crea:
-          role = player
-          status = pending
-
-          AuthContext detecta la nueva sesión
-          y la página redirige a /account.
-        */
       } catch (err) {
         setError(
           err.message ||
@@ -162,7 +150,7 @@ export default function RegisterPage() {
     }
 
   return (
-    <main className="asteri-auth-page">
+    <main className="asteri-auth-page asteri-register-page">
       <Link
         className="asteri-auth-back"
         to="/"
@@ -170,38 +158,62 @@ export default function RegisterPage() {
         ← ASTERI
       </Link>
 
-      <section className="asteri-auth-layout">
-        <div className="asteri-auth-copy">
+      <section className="asteri-register-layout">
+        <div className="asteri-register-copy">
           <span>
-            PLAYER SYSTEM / 02
+            PLAYER ACCESS
           </span>
 
           <h1>
-            CREAR
+            SOLICITÁ
             <br />
-            CUENTA.
+            ACCESO.
           </h1>
 
           <p>
-            El registro crea una
-            solicitud de acceso. El
-            Owner deberá aprobarla y
-            vincularla con el jugador
-            correspondiente.
+            Creá tu cuenta para acceder al sistema privado
+            de jugadores. El Owner revisará la solicitud y
+            la vinculará con tu perfil de ASTERI.
           </p>
+
+          <div className="asteri-register-steps">
+            <article>
+              <strong>01</strong>
+              <div>
+                <span>CREÁ TU CUENTA</span>
+                <p>Usá tu nickname habitual y un email válido.</p>
+              </div>
+            </article>
+
+            <article>
+              <strong>02</strong>
+              <div>
+                <span>ESPERÁ LA APROBACIÓN</span>
+                <p>La cuenta queda pendiente hasta ser vinculada.</p>
+              </div>
+            </article>
+
+            <article>
+              <strong>03</strong>
+              <div>
+                <span>GESTIONÁ TU PERFIL</span>
+                <p>Una vez aprobado podés editar tus datos de jugador.</p>
+              </div>
+            </article>
+          </div>
         </div>
 
         <form
-          className="asteri-auth-form"
+          className="asteri-auth-form asteri-register-form"
           onSubmit={submit}
         >
           <div className="asteri-auth-form-head">
             <span>
-              REGISTER
+              REGISTRO
             </span>
 
             <strong>
-              SOLICITAR ACCESO
+              NUEVA CUENTA
             </strong>
           </div>
 
@@ -246,51 +258,53 @@ export default function RegisterPage() {
             />
           </label>
 
-          <label>
-            <span>
-              CONTRASEÑA
-            </span>
+          <div className="asteri-register-passwords">
+            <label>
+              <span>
+                CONTRASEÑA
+              </span>
 
-            <input
-              type="password"
-              autoComplete="new-password"
-              minLength="8"
-              value={
-                form.password
-              }
-              onChange={(event) =>
-                set(
-                  'password',
-                  event.target.value,
-                )
-              }
-              placeholder="Mínimo 8 caracteres"
-              required
-            />
-          </label>
+              <input
+                type="password"
+                autoComplete="new-password"
+                minLength="8"
+                value={
+                  form.password
+                }
+                onChange={(event) =>
+                  set(
+                    'password',
+                    event.target.value,
+                  )
+                }
+                placeholder="Mínimo 8 caracteres"
+                required
+              />
+            </label>
 
-          <label>
-            <span>
-              REPETIR CONTRASEÑA
-            </span>
+            <label>
+              <span>
+                REPETIR CONTRASEÑA
+              </span>
 
-            <input
-              type="password"
-              autoComplete="new-password"
-              minLength="8"
-              value={
-                form.repeatPassword
-              }
-              onChange={(event) =>
-                set(
-                  'repeatPassword',
-                  event.target.value,
-                )
-              }
-              placeholder="Repetí la contraseña"
-              required
-            />
-          </label>
+              <input
+                type="password"
+                autoComplete="new-password"
+                minLength="8"
+                value={
+                  form.repeatPassword
+                }
+                onChange={(event) =>
+                  set(
+                    'repeatPassword',
+                    event.target.value,
+                  )
+                }
+                placeholder="Repetí la contraseña"
+                required
+              />
+            </label>
+          </div>
 
           {error && (
             <p className="asteri-auth-message error">
@@ -299,11 +313,9 @@ export default function RegisterPage() {
           )}
 
           <p className="asteri-auth-note">
-            Después del registro podés
-            iniciar sesión normalmente,
-            pero el perfil permanecerá
-            PENDIENTE hasta que el Owner
-            lo apruebe.
+            La cuenta se crea inmediatamente, pero el acceso
+            de jugador permanece pendiente hasta que el Owner
+            la apruebe.
           </p>
 
           <button

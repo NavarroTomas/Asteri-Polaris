@@ -242,14 +242,6 @@ export default function RosterShowcase() {
     const scroller = scrollerRef.current
     if (!scroller) return
 
-    if (event.pointerType !== 'mouse') {
-      try {
-        scroller.setPointerCapture?.(event.pointerId)
-      } catch {
-        // Algunos navegadores móviles no exponen pointer capture.
-      }
-    }
-
     dragRef.current = {
       down: true,
       startX: event.clientX,
@@ -396,21 +388,9 @@ export default function RosterShowcase() {
           sin cruz, sin bordes entre celdas y sin paneles internos.
         */
         .selected-player-stats {
-          grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
           gap: clamp(18px, 2vw, 34px) !important;
           border: 0 !important;
           background: transparent !important;
-        }
-
-        .selected-player-name > span:empty {
-          display: none !important;
-        }
-
-        .roster-carousel {
-          touch-action: pan-y;
-          overscroll-behavior-x: contain;
-          -webkit-overflow-scrolling: touch;
-          user-select: none;
         }
 
         .selected-player-stats > div,
@@ -616,7 +596,7 @@ export default function RosterShowcase() {
           .selected-player-stats {
             order: 3 !important;
             width: 100%;
-            grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+            grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
             gap: 8px !important;
           }
 
@@ -628,8 +608,7 @@ export default function RosterShowcase() {
           }
 
           .selected-player-stats strong {
-            font-size: clamp(22px, 7vw, 34px) !important;
-            overflow-wrap: anywhere;
+            font-size: clamp(28px, 10vw, 40px) !important;
           }
 
           .selected-player-depth-name {
@@ -749,16 +728,20 @@ export default function RosterShowcase() {
 
           <div className="selected-player-stats">
             <div>
+              <strong>{player.stats.rating}</strong>
+              <span>RATING</span>
+            </div>
+            <div>
+              <strong>{player.stats.kd}</strong>
+              <span>K/D</span>
+            </div>
+            <div>
+              <strong>{player.stats.hs}</strong>
+              <span>HS%</span>
+            </div>
+            <div>
               <strong>{player.stats.maps}</strong>
-              <span>MATCHES JUGADOS</span>
-            </div>
-            <div>
-              <strong>{player.age}</strong>
-              <span>EDAD</span>
-            </div>
-            <div>
-              <strong>{player.role}</strong>
-              <span>POSICIÓN</span>
+              <span>MAPAS</span>
             </div>
           </div>
 

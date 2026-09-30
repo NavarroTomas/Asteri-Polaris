@@ -59,16 +59,3 @@
   }
 
 }
-
-/* Mobile / touch roster navigation */
-.roster-carousel {
-  touch-action: pan-y;
-  overscroll-behavior-x: contain;
-  -webkit-overflow-scrolling: touch;
-}
-
-.roster-carousel.is-dragging,
-.roster-carousel.is-dragging * {
-  cursor: grabbing !important;
-  user-select: none !important;
-}

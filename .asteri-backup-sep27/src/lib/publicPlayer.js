@@ -12,7 +12,6 @@ export async function getPublicPlayerBySlug(slug) {
       slug,
       nickname,
       real_name,
-      age,
       player_role,
       country_code,
       jersey_number,
@@ -116,26 +115,8 @@ export async function getPublicPlayerBySlug(slug) {
     vods = data ?? []
   }
 
-  const normalizedRealName = String(player.real_name || '')
-    .trim()
-    .toLocaleLowerCase('es')
-    .replace(/\s+/g, ' ')
-
-  const normalizedNickname = String(player.nickname || '')
-    .trim()
-    .toLocaleLowerCase('es')
-    .replace(/\s+/g, ' ')
-
-  const publicPlayer = {
-    ...player,
-    real_name:
-      normalizedRealName && normalizedRealName !== normalizedNickname
-        ? player.real_name
-        : null,
-  }
-
   return {
-    player: publicPlayer,
+    player,
     stats: statsResult.data,
     config: configResult.data,
     clips: clipsResult.data ?? [],

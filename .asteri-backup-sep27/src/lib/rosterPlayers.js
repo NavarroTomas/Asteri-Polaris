@@ -156,23 +156,6 @@ function fallbackForSlug(slug) {
   return rosterFallback.find((player) => player.slug === slug)
 }
 
-function normalizeIdentity(value) {
-  return String(value || '')
-    .trim()
-    .toLocaleLowerCase('es')
-    .replace(/\s+/g, ' ')
-}
-
-function distinctRealName(realName, nickname) {
-  const real = String(realName || '').trim()
-  const nick = String(nickname || '').trim()
-
-  if (!real) return ''
-  if (normalizeIdentity(real) === normalizeIdentity(nick)) return ''
-
-  return real
-}
-
 export async function getRosterPlayers() {
   const { data: players, error: playersError } = await supabase
     .from('players')
@@ -181,7 +164,6 @@ export async function getRosterPlayers() {
       slug,
       nickname,
       real_name,
-      age,
       player_role,
       country_code,
       jersey_number,
@@ -245,12 +227,10 @@ export async function getRosterPlayers() {
       slug: player.slug,
       nickname: player.nickname || fallback?.nickname || 'PLAYER',
       name:
-        distinctRealName(player.real_name, player.nickname) ||
-        distinctRealName(fallback?.name, player.nickname),
-      age:
-        player.age !== null && player.age !== undefined
-          ? displayNumber(player.age)
-          : '—',
+        player.real_name ||
+        fallback?.name ||
+        player.nickname ||
+        'ASTERI PLAYER',
       role: player.player_role || fallback?.role || 'PLAYER',
       image: player.image_url || fallback?.image || '',
       number:

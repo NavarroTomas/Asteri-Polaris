@@ -52,7 +52,6 @@ export async function getRosterAdminData() {
         slug,
         nickname,
         real_name,
-        age,
         player_role,
         country_code,
         jersey_number,
@@ -138,7 +137,6 @@ export async function createRosterPlayer(values) {
     slug: slugifyPlayer(values.slug || values.nickname),
     nickname: String(values.nickname || '').trim(),
     real_name: cleanText(values.real_name),
-    age: nullableInteger(values.age),
     player_role: cleanText(values.player_role),
     country_code:
       String(values.country_code || 'AR')
@@ -224,7 +222,6 @@ export async function saveRosterPlayer(
     slug: slugifyPlayer(values.slug),
     nickname: String(values.nickname || '').trim(),
     real_name: cleanText(values.real_name),
-    age: nullableInteger(values.age),
     player_role: cleanText(values.player_role),
     country_code:
       String(values.country_code || 'AR')

@@ -20,7 +20,6 @@ import FounderSection from '../components/FounderSection'
 import NextObjective from '../components/NextObjective'
 import MatchesHub from '../components/MatchesHub'
 import CommunitySection from '../components/CommunitySection'
-import TeamApplicationSection from '../components/TeamApplicationSection'
 import Footer from '../components/Footer'
 import ScrollRevealBlock from '../components/ScrollRevealBlock'
 import SiteIntroLoader from '../components/SiteIntroLoader'
@@ -378,10 +377,6 @@ export default function HomePage() {
         >
           <ScrollRevealBlock>
             <NextObjective />
-          </ScrollRevealBlock>
-
-          <ScrollRevealBlock>
-            <TeamApplicationSection />
           </ScrollRevealBlock>
         </div>
 

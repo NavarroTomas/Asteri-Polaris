@@ -16,13 +16,13 @@ const eras = [
     text: 'El primer escudo nace de una idea simple: nunca dejar de mirar hacia arriba. La figura central representa los sueños, la ambición y la voluntad de seguir superándose; las estrellas simbolizan esas metas que solo se alcanzan con trabajo, perseverancia y la decisión de ir siempre un poco más lejos.',
   },
   {
-    period: 'SEGUNDA IDENTIDAD',
+    period: 'SEGUNDO ESCUDO',
     title: 'ESTRELLA POLAR',
     logo: polarisStar,
     text: 'La segunda identidad toma una representación directa de la Estrella Polar. Durante siglos fue una referencia para encontrar el rumbo incluso en la oscuridad; para ASTERI representa una dirección clara, una guía constante y una meta que nunca se deja de perseguir.',
   },
   {
-    period: 'IDENTIDAD ACTUAL',
+    period: 'TERCER ESCUDO',
     title: 'ASTERI',
     logo: asteriA,
     text: 'El escudo actual representa la evolución de ASTERI sin borrar su origen. Conserva los valores que dieron forma a Polaris y los transforma en una identidad más moderna, competitiva y reconocible: un símbolo propio para afrontar cada nuevo desafío.',
@@ -383,7 +383,7 @@ export default function HistoryTimeline() {
         >
           <div className="history-scroll-logo-sticky">
             <span className="history-logo-kicker">
-              IDENTIDAD / EVOLUCIÓN
+              ESCUDOS / EVOLUCIÓN
             </span>
 
             <div className="history-scroll-logo-stage">

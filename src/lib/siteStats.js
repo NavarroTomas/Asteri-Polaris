@@ -1,59 +1,83 @@
 import { supabase } from './supabase'
 
 export const DEFAULT_SITE_STATS = {
-  players: 6,
-  matches: 2,
-  wins: 2,
+  players: 0,
+  matches: 0,
+  wins: 0,
   teams: 1,
 }
 
-function normalizeStats(row) {
-  return {
-    players: Number(row?.players ?? DEFAULT_SITE_STATS.players),
-    matches: Number(row?.matches ?? DEFAULT_SITE_STATS.matches),
-    wins: Number(row?.wins ?? DEFAULT_SITE_STATS.wins),
-    teams: Number(row?.teams ?? DEFAULT_SITE_STATS.teams),
+function resolveWin(vod) {
+  if (vod.match_outcome === 'win') return true
+  if (vod.match_outcome === 'loss') return false
+  if (vod.match_outcome === 'draw') return false
+
+  if (
+    vod.score_asteri === null ||
+    vod.score_asteri === undefined ||
+    vod.score_opponent === null ||
+    vod.score_opponent === undefined
+  ) {
+    return false
   }
+
+  return Number(vod.score_asteri) > Number(vod.score_opponent)
 }
 
 export async function getSiteStats() {
-  const { data, error } = await supabase
-    .from('site_stats')
-    .select('players, matches, wins, teams')
-    .eq('id', 1)
-    .maybeSingle()
+  const [
+    playersResult,
+    matchesResult,
+  ] = await Promise.all([
+    supabase
+      .from('players')
+      .select('id', {
+        count: 'exact',
+        head: true,
+      })
+      .eq('is_active', true),
 
-  if (error) throw error
+    supabase
+      .from('vods')
+      .select(`
+        id,
+        status,
+        match_outcome,
+        score_asteri,
+        score_opponent
+      `)
+      .eq('is_published', true)
+      .eq('status', 'played'),
+  ])
 
-  return normalizeStats(data)
-}
-
-export async function updateSiteStats(values) {
-  const payload = {
-    players: Math.max(0, Number.parseInt(values.players, 10) || 0),
-    matches: Math.max(0, Number.parseInt(values.matches, 10) || 0),
-    wins: Math.max(0, Number.parseInt(values.wins, 10) || 0),
-    teams: Math.max(0, Number.parseInt(values.teams, 10) || 0),
-    updated_at: new Date().toISOString(),
+  if (playersResult.error) {
+    throw playersResult.error
   }
 
-  const {
-    data: { user },
-    error: userError,
-  } = await supabase.auth.getUser()
+  if (matchesResult.error) {
+    throw matchesResult.error
+  }
 
-  if (userError) throw userError
+  const matches =
+    matchesResult.data || []
 
-  payload.updated_by = user?.id ?? null
+  return {
+    players:
+      Number(playersResult.count) || 0,
+    matches:
+      matches.length,
+    wins:
+      matches.filter(resolveWin).length,
+    teams:
+      1,
+  }
+}
 
-  const { data, error } = await supabase
-    .from('site_stats')
-    .update(payload)
-    .eq('id', 1)
-    .select('players, matches, wins, teams')
-    .single()
-
-  if (error) throw error
-
-  return normalizeStats(data)
+/*
+  Compatibilidad: el dashboard anterior importaba esta función.
+  Los números ya no se guardan manualmente porque ahora se calculan
+  desde Plantel + VODs/Calendario.
+*/
+export async function updateSiteStats() {
+  return getSiteStats()
 }

@@ -33,13 +33,6 @@ function externalLinks(player) {
   ].filter(([, url]) => Boolean(url))
 }
 
-function normalizedName(value = '') {
-  return String(value)
-    .trim()
-    .toLocaleLowerCase('es-AR')
-    .replace(/\s+/g, ' ')
-}
-
 export default function PlayerPage() {
   const { slug } = useParams()
 
@@ -129,15 +122,11 @@ export default function PlayerPage() {
     )
   }
 
-  const showRealName =
-    Boolean(player.real_name) &&
-    normalizedName(player.real_name) !==
-      normalizedName(player.nickname)
-
   const primaryStats = [
-    ['MATCHES JUGADOS', valueOrDash(stats.maps)],
-    ['EDAD', valueOrDash(player.age)],
-    ['POSICIÓN', valueOrDash(player.player_role)],
+    ['RATING', valueOrDash(stats.rating)],
+    ['K/D', valueOrDash(stats.kd)],
+    ['HS%', valueOrDash(stats.hs_percentage, stats.hs_percentage !== null && stats.hs_percentage !== undefined ? '%' : '')],
+    ['MAPAS', valueOrDash(stats.maps)],
   ]
 
   const advancedStats = [
@@ -178,13 +167,17 @@ export default function PlayerPage() {
       <main>
         <section className="public-player-hero">
           <div className="public-player-hero-copy">
+            <span className="public-player-kicker">
+              ASTERI / PLAYER {player.jersey_number || '00'}
+            </span>
+
             <p className="public-player-role">
               {player.player_role || 'PLAYER'} · {player.country_code || 'AR'}
             </p>
 
             <h1>{player.nickname}</h1>
 
-            {showRealName && (
+            {player.real_name && (
               <p className="public-player-real-name">
                 {player.real_name}
               </p>

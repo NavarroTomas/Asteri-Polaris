@@ -60,7 +60,6 @@ const EMPTY_PLAYER = {
   slug: '',
   nickname: '',
   real_name: '',
-  age: '',
   player_role: '',
   country_code: 'AR',
   jersey_number: '',
@@ -105,7 +104,6 @@ function normalizePlayer(player) {
     slug: inputValue(player.slug),
     nickname: inputValue(player.nickname),
     real_name: inputValue(player.real_name),
-    age: inputValue(player.age),
     player_role:
       inputValue(player.player_role),
     country_code:
@@ -854,23 +852,6 @@ export default function RosterManager() {
                         )
                       }
                       placeholder="Rifler / AWPer / IGL"
-                    />,
-                  )}
-
-                  {fieldLabel(
-                    'EDAD',
-                    <input
-                      type="number"
-                      min="13"
-                      max="99"
-                      value={form.age}
-                      onChange={(event) =>
-                        set(
-                          'age',
-                          event.target.value,
-                        )
-                      }
-                      placeholder="20"
                     />,
                   )}
 

@@ -163,7 +163,6 @@ export default function AccountPage() {
     () => ({
       nickname: player?.nickname ?? '',
       real_name: player?.real_name ?? '',
-      age: player?.age ?? '',
       player_role: player?.player_role ?? '',
       country_code: player?.country_code ?? 'AR',
       jersey_number: player?.jersey_number ?? '',
@@ -213,10 +212,7 @@ export default function AccountPage() {
     setError('')
 
     try {
-      const updated = await updateMyPlayer(player.id, {
-        ...profileForm,
-        age: cleanNumber(profileForm.age),
-      })
+      const updated = await updateMyPlayer(player.id, profileForm)
       setPlayer(updated)
       setMessage('Perfil actualizado.')
     } catch (err) {
@@ -551,18 +547,6 @@ export default function AccountPage() {
                   value={player.player_role || ''}
                   onChange={e => changePlayer('player_role', e.target.value)}
                   placeholder="Rifler / AWPer / IGL"
-                />
-              </label>
-
-              <label>
-                <span>EDAD</span>
-                <input
-                  type="number"
-                  min="13"
-                  max="99"
-                  value={player.age ?? ''}
-                  onChange={e => changePlayer('age', e.target.value)}
-                  placeholder="20"
                 />
               </label>
 

@@ -13,7 +13,6 @@ export async function getMyPlayerData(userId) {
       slug,
       nickname,
       real_name,
-      age,
       player_role,
       country_code,
       jersey_number,

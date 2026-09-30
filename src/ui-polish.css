@@ -1,0 +1,366 @@
+/* =========================================================
+   ASTERI SEP30 — UI POLISH
+   Loaded after responsive.css on purpose.
+   ========================================================= */
+
+/* ---------- GLOBAL SCROLL ---------- */
+
+html {
+  scroll-padding-top: 78px;
+}
+
+/* ---------- ROSTER: FIRMA / NOMBRE REAL ---------- */
+
+body .roster .selected-player-name {
+  gap: 18px !important;
+}
+
+body .roster .selected-player-name strong {
+  line-height: .78 !important;
+  padding-bottom: 7px !important;
+}
+
+body .roster .selected-player-name > span {
+  position: relative;
+  z-index: 2;
+  margin-top: 4px !important;
+  line-height: 1.25 !important;
+}
+
+@media (max-width: 580px) {
+  body .roster .selected-player-name {
+    gap: 14px !important;
+  }
+
+  body .roster .selected-player-name strong {
+    padding-bottom: 4px !important;
+  }
+}
+
+/* ---------- REGISTER ---------- */
+
+.asteri-register-page {
+  min-height: 100svh;
+  display: block;
+  padding-top: 82px;
+}
+
+.asteri-register-layout {
+  width: min(1120px, 100%);
+  min-height: calc(100svh - 130px);
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: minmax(0, .9fr) minmax(390px, 1fr);
+  gap: clamp(54px, 7vw, 110px);
+  align-items: center;
+}
+
+.asteri-register-copy {
+  max-width: 520px;
+}
+
+.asteri-register-copy > span {
+  display: block;
+  margin-bottom: 16px;
+  color: #00d96e;
+  font: 750 9px/1 Inter, sans-serif;
+  letter-spacing: .17em;
+}
+
+.asteri-register-copy h1 {
+  margin: 0;
+  color: #f2f4f0;
+  font:
+    400
+    clamp(58px, 6.4vw, 98px)/.82
+    Anton,
+    Impact,
+    sans-serif;
+  letter-spacing: -.035em;
+  text-transform: uppercase;
+}
+
+.asteri-register-copy > p {
+  max-width: 470px;
+  margin: 24px 0 0;
+  color: #8b958f;
+  font: 500 14px/1.65 Inter, sans-serif;
+}
+
+.asteri-register-steps {
+  margin-top: 36px;
+  border-top: 1px solid #1f2521;
+}
+
+.asteri-register-steps article {
+  display: grid;
+  grid-template-columns: 38px 1fr;
+  gap: 14px;
+  align-items: start;
+  padding: 15px 0;
+  border-bottom: 1px solid #1f2521;
+}
+
+.asteri-register-steps article > strong {
+  color: #00d96e;
+  font: 700 11px/1 Inter, sans-serif;
+}
+
+.asteri-register-steps article span {
+  display: block;
+  color: #d9dedb;
+  font: 700 10px/1 Inter, sans-serif;
+  letter-spacing: .08em;
+}
+
+.asteri-register-steps article p {
+  margin: 7px 0 0;
+  color: #69746d;
+  font: 500 11px/1.45 Inter, sans-serif;
+}
+
+.asteri-register-form {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 28px;
+  gap: 16px;
+}
+
+.asteri-register-passwords {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.asteri-register-form .asteri-auth-note {
+  padding: 12px 0 2px;
+  border-top: 1px solid #1f2521;
+}
+
+@media (max-width: 820px) {
+  .asteri-register-page {
+    padding-top: 88px;
+  }
+
+  .asteri-register-layout {
+    min-height: auto;
+    grid-template-columns: 1fr;
+    gap: 42px;
+  }
+
+  .asteri-register-copy {
+    max-width: 650px;
+  }
+
+  .asteri-register-copy h1 {
+    font-size: clamp(56px, 14vw, 86px);
+  }
+}
+
+@media (max-width: 540px) {
+  .asteri-register-page {
+    padding: 78px 18px 34px;
+  }
+
+  .asteri-register-layout {
+    gap: 34px;
+  }
+
+  .asteri-register-copy h1 {
+    font-size: clamp(52px, 16vw, 72px);
+  }
+
+  .asteri-register-copy > p {
+    font-size: 13px;
+  }
+
+  .asteri-register-steps {
+    margin-top: 28px;
+  }
+
+  .asteri-register-form {
+    padding: 20px 16px;
+  }
+
+  .asteri-register-passwords {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ---------- PUBLIC PLAYER ---------- */
+
+.public-player-hero-copy {
+  padding-top: 28px;
+}
+
+.public-player-role {
+  margin-bottom: 20px;
+}
+
+.public-player-hero h1 {
+  line-height: .74;
+}
+
+.public-player-real-name {
+  position: relative;
+  z-index: 4;
+  margin-top: 34px;
+}
+
+.public-player-primary-stats {
+  grid-template-columns: repeat(3, 1fr) !important;
+}
+
+.public-player-primary-stats article {
+  min-height: 160px;
+}
+
+.public-player-primary-stats strong {
+  font-size: clamp(34px, 5vw, 74px);
+  line-height: .86;
+  overflow-wrap: anywhere;
+}
+
+.public-player-story {
+  grid-template-columns:
+    minmax(260px, .82fr)
+    minmax(300px, 1fr);
+  gap: clamp(56px, 8vw, 130px);
+  align-items: center;
+}
+
+.public-player-story h2,
+.public-player-section-title h2 {
+  line-height: .86 !important;
+}
+
+.public-player-story h2 {
+  max-width: 620px;
+  font-size:
+    clamp(
+      58px,
+      7.1vw,
+      112px
+    );
+}
+
+.public-player-story p {
+  align-self: center;
+  max-width: 590px;
+  margin: 0;
+  padding-top: 4px;
+  font-size:
+    clamp(
+      16px,
+      1.45vw,
+      22px
+    );
+  line-height: 1.62;
+}
+
+@media (max-width: 1020px) {
+  .public-player-primary-stats {
+    grid-template-columns: repeat(3, 1fr) !important;
+  }
+
+  .public-player-story {
+    grid-template-columns: 1fr;
+    gap: 28px;
+  }
+}
+
+@media (max-width: 760px) {
+  .public-player-hero h1 {
+    font-size:
+      clamp(
+        76px,
+        22vw,
+        145px
+      );
+    line-height: .78;
+  }
+
+  .public-player-real-name {
+    margin-top: 24px;
+  }
+
+  .public-player-primary-stats {
+    grid-template-columns: 1fr !important;
+  }
+
+  .public-player-primary-stats article {
+    min-height: 118px;
+  }
+
+  .public-player-story h2 {
+    font-size:
+      clamp(
+        52px,
+        14vw,
+        82px
+      );
+    line-height: .88 !important;
+  }
+}
+
+@media (max-width: 520px) {
+  .public-player-story h2 {
+    font-size:
+      clamp(
+        48px,
+        14.5vw,
+        68px
+      );
+  }
+
+  .public-player-story p {
+    font-size: 15px;
+  }
+}
+
+/* ---------- AUTO SITE STATS ---------- */
+
+.asteri-site-stats-auto
+.asteri-site-stats-grid {
+  grid-template-columns:
+    repeat(
+      2,
+      minmax(0, 1fr)
+    );
+}
+
+.asteri-site-stat-readonly {
+  min-height: 116px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 14px;
+  border: 1px solid #242b26;
+  background: #090c0a;
+}
+
+.asteri-site-stat-readonly span {
+  color: #7b857e;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.asteri-site-stat-readonly strong {
+  color: #eef1ef;
+  font:
+    750 40px/1
+    'Bricolage Grotesque',
+    sans-serif;
+}
+
+.asteri-site-stats-sync-copy {
+  color: #707a73 !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto !important;
+  }
+}

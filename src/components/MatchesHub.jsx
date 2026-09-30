@@ -81,8 +81,7 @@ function initialMonth(matches) {
     sorted.find(match => {
       const end = new Date(`${match.dateISO}T23:59:59`)
       return end >= now && match.status !== 'CANCELADO'
-    }) ||
-    sorted[sorted.length - 1]
+    }) || sorted[sorted.length - 1]
 
   const target = dateFromISO(upcoming.dateISO)
 
@@ -894,29 +893,34 @@ export default function MatchesHub() {
           background: #00d96e;
         }
 
+        /* Número arriba/izquierda, estrella abajo/derecha: no se pisan */
         .calendar-day-number {
-          position: relative;
-          z-index: 2;
+          position: absolute;
+          z-index: 3;
+          top: 9px;
+          left: 9px;
           font: 700 16px/1 var(--font-tactical);
         }
 
         .calendar-result-markers {
           position: absolute;
-          inset: 0;
+          z-index: 2;
+          right: 9px;
+          bottom: 10px;
           display: flex;
-          align-items: center;
-          justify-content: center;
-          gap: 8px;
+          align-items: flex-end;
+          justify-content: flex-end;
+          gap: 5px;
           pointer-events: none;
         }
 
         .calendar-result-markers span {
           display: grid;
           place-items: center;
-          width: 28px;
-          height: 28px;
+          width: 31px;
+          height: 31px;
           color: var(--outcome-color);
-          font: 800 24px/1 var(--font-tactical);
+          font: 800 27px/1 var(--font-tactical);
           filter: drop-shadow(0 0 7px color-mix(in srgb, var(--outcome-color) 30%, transparent));
         }
 
@@ -1070,13 +1074,15 @@ export default function MatchesHub() {
           }
 
           .calendar-result-markers {
-            gap: 4px;
+            right: 6px;
+            bottom: 7px;
+            gap: 3px;
           }
 
           .calendar-result-markers span {
-            width: 20px;
-            height: 20px;
-            font-size: 17px;
+            width: 22px;
+            height: 22px;
+            font-size: 19px;
           }
 
           .calendar-day-matches article {
@@ -1111,13 +1117,21 @@ export default function MatchesHub() {
           }
 
           .calendar-day-number {
-            font-size: 12px;
+            top: 5px;
+            left: 5px;
+            font-size: 11px;
+          }
+
+          .calendar-result-markers {
+            right: 4px;
+            bottom: 5px;
+            gap: 2px;
           }
 
           .calendar-result-markers span {
-            width: 16px;
-            height: 16px;
-            font-size: 13px;
+            width: 18px;
+            height: 18px;
+            font-size: 15px;
           }
         }
       `}</style>

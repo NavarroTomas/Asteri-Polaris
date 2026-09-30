@@ -189,8 +189,9 @@ export default function HomeSettingsManager() {
           <div>
             <h2>Números públicos</h2>
             <p>
-              Players, matches, wins y team de la
-              sección de cuadrados de la Home.
+              Estos valores ya no se editan manualmente.
+              Se calculan automáticamente desde el plantel
+              activo y los partidos publicados del calendario.
             </p>
           </div>
         </div>
@@ -202,29 +203,29 @@ export default function HomeSettingsManager() {
 
           <div className="admin-numbers-reference">
             <span>
-              Referencia visual de la sección que
-              se está modificando.
+              Referencia visual de los cuadrados
+              sincronizados de la Home.
             </span>
 
             <div className="admin-numbers-reference-preview">
               <article>
-                <strong>06</strong>
-                <small>PLAYERS</small>
+                <strong>PLAYERS</strong>
+                <small>PLANTEL ACTIVO</small>
               </article>
 
               <article>
-                <strong>02</strong>
-                <small>MATCHES</small>
+                <strong>MATCHES</strong>
+                <small>PARTIDOS JUGADOS</small>
               </article>
 
               <article>
-                <strong>02</strong>
-                <small>WINS</small>
+                <strong>WINS</strong>
+                <small>VICTORIAS</small>
               </article>
 
               <article>
-                <strong>01</strong>
-                <small>TEAM</small>
+                <strong>TEAM</strong>
+                <small>ASTERI</small>
               </article>
             </div>
           </div>

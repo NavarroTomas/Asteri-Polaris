@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useMemo, useRef } from 'react'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 
@@ -10,6 +10,87 @@ const founder = {
     'Creé ASTERI POLARIS para construir un proyecto competitivo que pudiera crecer y mantenerse en el tiempo. Más allá de los torneos, la idea siempre fue formar una base sólida, desarrollar jugadores y evolucionar sin perder nuestra identidad.',
   name: 'FUNDADOR',
   role: 'ASTERI POLARIS',
+}
+
+function FounderQuote({ text }) {
+  const quoteRef = useRef(null)
+
+  const words = useMemo(
+    () =>
+      text.split(/(\s+)/).map((part, index) => {
+        if (/^\s+$/.test(part)) return part
+
+        return (
+          <span
+            className="founder-quote-word"
+            key={`${part}-${index}`}
+          >
+            {part}
+          </span>
+        )
+      }),
+    [text],
+  )
+
+  useEffect(() => {
+    const quote = quoteRef.current
+    if (!quote) return undefined
+
+    const reducedMotion = window.matchMedia(
+      '(prefers-reduced-motion: reduce)',
+    ).matches
+
+    const wordElements =
+      quote.querySelectorAll('.founder-quote-word')
+
+    if (reducedMotion) {
+      gsap.set(wordElements, {
+        opacity: 1,
+        y: 0,
+        filter: 'blur(0px)',
+        color: '#f2f4f0',
+      })
+
+      return undefined
+    }
+
+    const context = gsap.context(() => {
+      gsap.fromTo(
+        wordElements,
+        {
+          opacity: 0.12,
+          y: 10,
+          filter: 'blur(5px)',
+          color: 'rgba(242,244,240,.22)',
+        },
+        {
+          opacity: 1,
+          y: 0,
+          filter: 'blur(0px)',
+          color: '#f2f4f0',
+          ease: 'none',
+          stagger: 0.032,
+          scrollTrigger: {
+            trigger: quote,
+            start: 'top 82%',
+            end: 'bottom 48%',
+            scrub: 0.8,
+            invalidateOnRefresh: true,
+          },
+        },
+      )
+    }, quote)
+
+    return () => context.revert()
+  }, [])
+
+  return (
+    <blockquote ref={quoteRef}>
+      <span className="founder-quote-mark">“</span>
+      {words}
+      <span className="founder-quote-mark">”</span>
+    </blockquote>
+  )
 }
 
 export default function FounderSection() {
@@ -93,9 +174,7 @@ export default function FounderSection() {
             {founder.label}
           </span>
 
-          <blockquote>
-            “{founder.quote}”
-          </blockquote>
+          <FounderQuote text={founder.quote} />
 
           <div className="founder-minimal-signature">
             <strong>{founder.name}</strong>
@@ -267,6 +346,16 @@ export default function FounderSection() {
           letter-spacing: -.045em;
         }
 
+        .founder-quote-word {
+          display: inline-block;
+          will-change: opacity, transform, filter, color;
+        }
+
+        .founder-quote-mark {
+          display: inline-block;
+          color: #00e875;
+        }
+
         .founder-minimal-signature {
           margin-top: clamp(34px, 4vh, 52px);
 
@@ -407,9 +496,11 @@ export default function FounderSection() {
 
         @media (prefers-reduced-motion: reduce) {
           .founder-minimal-visual img,
-          .founder-minimal-copy {
+          .founder-minimal-copy,
+          .founder-quote-word {
             opacity: 1 !important;
             transform: none !important;
+            filter: none !important;
           }
         }
       `}</style>

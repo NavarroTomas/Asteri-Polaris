@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react'
 import {
   DEFAULT_SITE_STATS,
   getSiteStats,
-  updateSiteStats,
 } from '../lib/siteStats'
 
 const FIELDS = [
@@ -15,56 +14,35 @@ const FIELDS = [
 export default function SiteStatsManager() {
   const [values, setValues] = useState(DEFAULT_SITE_STATS)
   const [loading, setLoading] = useState(true)
-  const [saving, setSaving] = useState(false)
-  const [message, setMessage] = useState('')
+  const [refreshing, setRefreshing] = useState(false)
   const [error, setError] = useState('')
 
-  useEffect(() => {
-    let alive = true
-
-    const load = async () => {
-      try {
-        const data = await getSiteStats()
-        if (alive) setValues(data)
-      } catch (err) {
-        if (alive) setError(err.message || 'No se pudieron cargar los números.')
-      } finally {
-        if (alive) setLoading(false)
-      }
+  const load = async ({
+    refresh = false,
+  } = {}) => {
+    if (refresh) {
+      setRefreshing(true)
     }
 
-    load()
-
-    return () => {
-      alive = false
-    }
-  }, [])
-
-  const change = (key, value) => {
-    setValues(current => ({
-      ...current,
-      [key]: value.replace(/[^0-9]/g, ''),
-    }))
-    setMessage('')
-    setError('')
-  }
-
-  const save = async event => {
-    event.preventDefault()
-    setSaving(true)
-    setMessage('')
     setError('')
 
     try {
-      const next = await updateSiteStats(values)
-      setValues(next)
-      setMessage('NÚMEROS ACTUALIZADOS')
+      const data = await getSiteStats()
+      setValues(data)
     } catch (err) {
-      setError(err.message || 'No se pudieron guardar los números.')
+      setError(
+        err.message ||
+          'No se pudieron cargar los números.',
+      )
     } finally {
-      setSaving(false)
+      setLoading(false)
+      setRefreshing(false)
     }
   }
+
+  useEffect(() => {
+    load()
+  }, [])
 
   if (loading) {
     return (
@@ -75,39 +53,42 @@ export default function SiteStatsManager() {
   }
 
   return (
-    <form
-      className="asteri-site-stats-editor"
-      onSubmit={save}
-    >
+    <div className="asteri-site-stats-editor asteri-site-stats-auto">
       <div className="asteri-site-stats-grid">
         {FIELDS.map(field => (
-          <label key={field.key}>
+          <div
+            className="asteri-site-stat-readonly"
+            key={field.key}
+          >
             <span>{field.label}</span>
-            <input
-              type="number"
-              inputMode="numeric"
-              min="0"
-              step="1"
-              value={values[field.key]}
-              onChange={event =>
-                change(field.key, event.target.value)
-              }
-            />
-          </label>
+            <strong>
+              {String(values[field.key]).padStart(2, '0')}
+            </strong>
+          </div>
         ))}
       </div>
 
       <div className="asteri-site-stats-actions">
         <button
-          type="submit"
-          disabled={saving}
+          type="button"
+          onClick={() => load({ refresh: true })}
+          disabled={refreshing}
         >
-          {saving ? 'GUARDANDO…' : 'GUARDAR NÚMEROS'}
+          {refreshing
+            ? 'ACTUALIZANDO…'
+            : 'ACTUALIZAR DATOS'}
         </button>
 
-        {message && <span>{message}</span>}
-        {error && <span className="error">{error}</span>}
+        <span className="asteri-site-stats-sync-copy">
+          SINCRONIZADO CON PLANTEL + PARTIDOS
+        </span>
+
+        {error && (
+          <span className="error">
+            {error}
+          </span>
+        )}
       </div>
-    </form>
+    </div>
   )
 }
