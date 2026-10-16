@@ -1,4 +1,4 @@
-const APPLICATION_URL = 'https://koya.gg/form/nh5mG438'
+import { APPLICATION_URL } from '../config/application'
 
 export default function TeamApplicationSection() {
   return (

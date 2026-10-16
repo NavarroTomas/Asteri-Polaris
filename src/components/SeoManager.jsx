@@ -17,6 +17,18 @@ const OG_IMAGE =
   'https://raw.githubusercontent.com/NavarroTomas/Asteri-Polaris/main/src/assets/brand/asteri-wordmark-wide.png'
 
 const STATIC_META = {
+  '/equipo': {
+    title: `Equipo e historia — ${SITE_NAME}`,
+    description: 'Conocé al plantel de ASTERI POLARIS y la historia de nuestra identidad.',
+    index: true,
+    type: 'website',
+  },
+  '/partidos': {
+    title: `Partidos y VODs — ${SITE_NAME}`,
+    description: 'Calendario, resultados y VODs de ASTERI POLARIS en Counter-Strike 2.',
+    index: true,
+    type: 'website',
+  },
   '/': {
     title: DEFAULT_TITLE,
     description: DEFAULT_DESCRIPTION,

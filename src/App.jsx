@@ -1,5 +1,7 @@
 import { Route, Routes } from 'react-router-dom'
 import HomePage from './pages/HomePage'
+import TeamPage from './pages/TeamPage'
+import MatchesPage from './pages/MatchesPage'
 import LoginPage from './pages/LoginPage'
 import RegisterPage from './pages/RegisterPage'
 import ForgotPasswordPage from './pages/ForgotPasswordPage'
@@ -31,6 +33,8 @@ export default function App() {
 
       <Routes>
         <Route path="/" element={<HomePage />} />
+        <Route path="/equipo" element={<TeamPage />} />
+        <Route path="/partidos" element={<MatchesPage />} />
 
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />

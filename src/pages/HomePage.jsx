@@ -1,403 +1,91 @@
-import { useLayoutEffect, useRef, useState } from 'react'
-import {
-  motion,
-  useScroll,
-  useSpring,
-  useTransform,
-  useMotionValue,
-  useVelocity,
-  useAnimationFrame,
-} from 'motion/react'
-
+import { useEffect, useState } from 'react'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import Header from '../components/Header'
-import SideTimeline from '../components/SideTimeline'
-import HeroVideo from '../components/HeroVideo'
-import RosterShowcase from '../components/RosterShowcase'
-import PlayersNumbersTransition from '../components/PlayersNumbersTransition'
-import AsteriNumbers from '../components/AsteriNumbers'
-import HistoryTimeline from '../components/HistoryTimeline'
-import FounderSection from '../components/FounderSection'
-import NextObjective from '../components/NextObjective'
-import MatchesHub from '../components/MatchesHub'
-import CommunitySection from '../components/CommunitySection'
-import TeamApplicationSection from '../components/TeamApplicationSection'
-import Footer from '../components/Footer'
-import ScrollRevealBlock from '../components/ScrollRevealBlock'
-import SiteIntroLoader from '../components/SiteIntroLoader'
+import PortalFooter from '../components/PortalFooter'
+import asteriA from '../assets/brand/asteri-a.png'
+import polarisStar from '../assets/brand/polaris-star.png'
+import { SOCIAL_LINKS } from '../config/socialLinks'
+import { APPLICATION_URL } from '../config/application'
+import { getHomeMatches } from '../lib/homeMatches'
+import { getSiteSettings, DEFAULT_SITE_SETTINGS } from '../lib/siteSettings'
+import './HomePage.css'
 
-function useElementWidth(ref) {
-  const [width, setWidth] = useState(0)
+const channels = [
+  ['IG', 'Instagram', 'El día a día del equipo', SOCIAL_LINKS.instagram],
+  ['X', 'X / Twitter', 'Novedades de ASTERI', SOCIAL_LINKS.x],
+  ['DC', 'Discord', 'Nuestra comunidad', SOCIAL_LINKS.discord],
+  ['F', 'FACEIT', 'Jugá con la comunidad', SOCIAL_LINKS.faceit],
+]
 
-  useLayoutEffect(() => {
-    const updateWidth = () => {
-      if (ref.current) {
-        setWidth(ref.current.offsetWidth)
-      }
-    }
-
-    updateWidth()
-
-    window.addEventListener(
-      'resize',
-      updateWidth,
-    )
-
-    return () =>
-      window.removeEventListener(
-        'resize',
-        updateWidth,
-      )
-  }, [ref])
-
-  return width
-}
-
-function wrap(min, max, value) {
-  const range = max - min
-  const mod =
-    (((value - min) % range) + range) %
-    range
-
-  return mod + min
-}
-
-function VelocityText({
-  children,
-  baseVelocity,
-  damping = 50,
-  stiffness = 350,
-  numCopies = 14,
-  velocityMapping = {
-    input: [0, 1000],
-    output: [0, 4],
-  },
-  className = '',
-}) {
-  const baseX =
-    useMotionValue(0)
-
-  const { scrollY } =
-    useScroll()
-
-  const scrollVelocity =
-    useVelocity(scrollY)
-
-  const smoothVelocity =
-    useSpring(
-      scrollVelocity,
-      {
-        damping,
-        stiffness,
-      },
-    )
-
-  const velocityFactor =
-    useTransform(
-      smoothVelocity,
-      velocityMapping.input,
-      velocityMapping.output,
-      { clamp: false },
-    )
-
-  const copyRef =
-    useRef(null)
-
-  const copyWidth =
-    useElementWidth(copyRef)
-
-  const directionFactor =
-    useRef(1)
-
-  const x =
-    useTransform(
-      baseX,
-      value => {
-        if (
-          copyWidth === 0
-        ) {
-          return '0px'
-        }
-
-        return `${
-          wrap(
-            -copyWidth,
-            0,
-            value,
-          )
-        }px`
-      },
-    )
-
-  useAnimationFrame(
-    (_, delta) => {
-      let moveBy =
-        directionFactor.current *
-        baseVelocity *
-        (delta / 1000)
-
-      if (
-        velocityFactor.get() <
-        0
-      ) {
-        directionFactor.current =
-          -1
-      } else if (
-        velocityFactor.get() >
-        0
-      ) {
-        directionFactor.current =
-          1
-      }
-
-      moveBy +=
-        directionFactor.current *
-        moveBy *
-        velocityFactor.get()
-
-      baseX.set(
-        baseX.get() +
-          moveBy,
-      )
-    },
-  )
-
-  return (
-    <div className="asteri-velocity-parallax">
-      <motion.div
-        className="asteri-velocity-scroller"
-        style={{ x }}
-      >
-        {Array.from(
-          {
-            length:
-              numCopies,
-          },
-          (_, index) => (
-            <span
-              className={
-                className
-              }
-              key={index}
-              ref={
-                index === 0
-                  ? copyRef
-                  : null
-              }
-            >
-              {children}
-              &nbsp;
-            </span>
-          ),
-        )}
-      </motion.div>
-    </div>
-  )
-}
-
-function AsteriVelocityStrip() {
-  return (
-    <section
-      className="asteri-velocity-strip"
-      aria-label="Identidad ASTERI"
-    >
-      <style>{`
-        .asteri-velocity-strip {
-          width: 100%;
-          overflow: hidden;
-          background: #01d069;
-          padding: .62rem 0;
-          border-top: 1px solid rgba(3, 17, 9, .18);
-          border-bottom: 1px solid rgba(3, 17, 9, .18);
-        }
-
-        .asteri-velocity-parallax {
-          position: relative;
-          width: 100%;
-          overflow: hidden;
-        }
-
-        .asteri-velocity-parallax + .asteri-velocity-parallax {
-          margin-top: .28rem;
-        }
-
-        .asteri-velocity-scroller {
-          display: flex;
-          width: max-content;
-          min-width: 100%;
-          white-space: nowrap;
-          align-items: center;
-          will-change: transform;
-        }
-
-        .asteri-velocity-text {
-          flex: 0 0 auto;
-          display: inline-flex;
-          align-items: center;
-          padding-right: .7rem;
-          font-family: 'Bricolage Grotesque', 'Inter', sans-serif;
-          font-size: clamp(.8rem, 1.05vw, 1.08rem);
-          line-height: 1;
-          font-weight: 800;
-          letter-spacing: .01em;
-          text-transform: uppercase;
-        }
-
-        .asteri-velocity-text--primary {
-          color: #031109;
-        }
-
-        .asteri-velocity-text--secondary {
-          color: rgba(3, 17, 9, .62);
-        }
-
-        .asteri-velocity-dot {
-          display: inline-block;
-          margin: 0 .44rem;
-          color: #031109;
-          opacity: .42;
-        }
-
-        @media (max-width: 768px) {
-          .asteri-velocity-strip {
-            padding: .52rem 0;
-          }
-
-          .asteri-velocity-text {
-            font-size: .76rem;
-          }
-        }
-
-        @media (prefers-reduced-motion: reduce) {
-          .asteri-velocity-scroller {
-            transform: none !important;
-          }
-        }
-      `}</style>
-
-      <VelocityText
-        baseVelocity={32}
-        damping={48}
-        stiffness={320}
-        numCopies={14}
-        className="asteri-velocity-text asteri-velocity-text--primary"
-      >
-        ASTERI POLARIS{' '}
-        <span className="asteri-velocity-dot">
-          •
-        </span>
-        COUNTER-STRIKE 2{' '}
-        <span className="asteri-velocity-dot">
-          •
-        </span>
-        ARGENTINA{' '}
-        <span className="asteri-velocity-dot">
-          •
-        </span>
-      </VelocityText>
-
-      <VelocityText
-        baseVelocity={-26}
-        damping={52}
-        stiffness={300}
-        numCopies={16}
-        className="asteri-velocity-text asteri-velocity-text--secondary"
-      >
-        DREAM{' '}
-        <span className="asteri-velocity-dot">
-          •
-        </span>
-        COMPETE{' '}
-        <span className="asteri-velocity-dot">
-          •
-        </span>
-        EVOLVE{' '}
-        <span className="asteri-velocity-dot">
-          •
-        </span>
-      </VelocityText>
-    </section>
-  )
+function MatchList({ matches, status, retry, replays }) {
+  if (status === 'loading') return <div className="ap-empty" role="status">Cargando partidos…</div>
+  if (status === 'error') return <div className="ap-empty" role="status"><strong>No pudimos cargar la agenda.</strong><p>Intentá nuevamente en unos instantes.</p><button className="ap-text-button" onClick={retry}>Reintentar →</button></div>
+  if (!matches.length) return <div className="ap-empty"><span className="ap-empty-symbol" aria-hidden="true">↗</span><strong>{replays ? 'El juego queda para volver a verlo.' : 'La próxima cita está por llegar.'}</strong><p>{replays ? 'Los VODs aparecerán acá cuando estén publicados.' : 'Los próximos partidos aparecerán acá cuando estén confirmados.'}</p></div>
+  return <div className="ap-match-list">{matches.map(match => <Link className="ap-match" key={match.id} to={match.vod}>
+    <span className="ap-match-date"><strong>{match.date}</strong><small>{replays ? 'FINALIZADO' : match.time === '—' ? 'Hora a confirmar' : `${match.time} h · ARG`}</small></span>
+    <span className="ap-match-teams"><img src={asteriA} alt="" /><b>ASTERI</b><em>{replays ? match.score || 'vs' : 'vs'}</em><b>{match.opponent}</b></span>
+    <span className="ap-match-meta">{match.competition}<small>{replays ? 'Ver VOD ↗' : 'Ver partido ↗'}</small></span>
+  </Link>)}</div>
 }
 
 export default function HomePage() {
-  return (
-    <div>
-      <SiteIntroLoader />
-      <Header />
-      <SideTimeline />
-
-      <main>
-        <HeroVideo />
-
-        <ScrollRevealBlock distance={42}>
-          <AsteriVelocityStrip />
-        </ScrollRevealBlock>
-
-        <div
-          className="asteri-chapter asteri-chapter--team"
-          data-chapter="team"
-        >
-          <ScrollRevealBlock>
-            <RosterShowcase />
-          </ScrollRevealBlock>
-
-          <ScrollRevealBlock distance={58}>
-            <PlayersNumbersTransition />
-          </ScrollRevealBlock>
-
-          <ScrollRevealBlock>
-            <AsteriNumbers />
-          </ScrollRevealBlock>
+  const { hash } = useLocation()
+  const navigate = useNavigate()
+  useEffect(() => {
+    if (['#plantel', '#historia'].includes(hash)) navigate(`/equipo${hash}`, { replace: true })
+  }, [hash, navigate])
+  const [matches, setMatches] = useState([])
+  const [status, setStatus] = useState('loading')
+  const [attempt, setAttempt] = useState(0)
+  const [tab, setTab] = useState('upcoming')
+  const [video, setVideo] = useState(import.meta.env.VITE_HERO_VIDEO_URL || DEFAULT_SITE_SETTINGS.hero_video_url)
+  useEffect(() => {
+    let alive = true
+    setStatus('loading')
+    getHomeMatches().then(data => { if (alive) { setMatches(data); setStatus('ready') } }).catch(() => { if (alive) setStatus('error') })
+    return () => { alive = false }
+  }, [attempt])
+  useEffect(() => {
+    let alive = true
+    getSiteSettings().then(settings => { if (alive) setVideo(settings.hero_video_url) }).catch(() => {})
+    return () => { alive = false }
+  }, [])
+  const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Argentina/Buenos_Aires', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date())
+  const upcoming = matches.filter(match => match.status === 'PRÓXIMO' && match.dateISO >= today && match.slug).slice(0, 3)
+  const replays = matches.filter(match => match.status === 'JUGADO' && match.slug).sort((a, b) => b.dateISO.localeCompare(a.dateISO)).slice(0, 3)
+  return <div className="ap-home" id="inicio">
+    <Header />
+    <main className="ap-home-main" id="contenido" tabIndex={-1}>
+      <div className="ap-page-heading"><div><span className="ap-eyebrow">DREAM. COMPETE. EVOLVE.</span><h1>EL PUNTO DE <span>ENCUENTRO.</span></h1></div><span className="ap-heading-mark">ASTERI / CS2 <i aria-hidden="true">✦</i></span></div>
+      <div className="ap-home-grid">
+        <div className="ap-main-column">
+          <section className="ap-recruit" id="postulate" aria-labelledby="recruit-title">
+            <div className="ap-recruit-art" aria-hidden="true"><span className="ap-orbit ap-orbit-one" /><span className="ap-orbit ap-orbit-two" /><img src={asteriA} alt="" /><span className="ap-art-label">EST. ARGENTINA<br />COUNTER-STRIKE 2</span></div>
+            <div className="ap-recruit-copy"><span className="ap-tag">FORMÁ PARTE DE ASTERI</span><h2 id="recruit-title">TU PRÓXIMO<br />NIVEL <span>EMPIEZA<br />ACÁ.</span></h2><p>La ambición nos une. Postulate al equipo y compartí tu perfil con el staff.</p><a className="ap-button" href={APPLICATION_URL} target="_blank" rel="noreferrer">COMPLETAR INSCRIPCIÓN <span aria-hidden="true">↗</span></a><small>Postulación al equipo · Formulario externo</small></div>
+          </section>
+          <section className="ap-section" id="novedades" aria-labelledby="updates-title">
+            <div className="ap-section-heading"><h2 id="updates-title">EN EL RADAR<span>01</span></h2><span>LO IMPORTANTE, ACÁ.</span></div>
+            <div className="ap-updates">
+              <a className="ap-update-card" href={SOCIAL_LINKS.x} target="_blank" rel="noreferrer"><span className="ap-eyebrow">NOVEDADES / CANAL OFICIAL</span><h3>Seguí cada paso<br />de ASTERI.</h3><p>Los anuncios y novedades del equipo, en nuestro canal oficial.</p><span className="ap-card-link">SEGUIR EN X <b>↗</b></span></a>
+              <Link className="ap-update-card ap-team-card" to="/equipo#plantel"><img src={polarisStar} alt="" /><span className="ap-eyebrow">IDENTIDAD / EQUIPO</span><h3>Un equipo.<br />El mismo norte.</h3><p>Conocé al plantel y la historia detrás de Polaris.</p><span className="ap-card-link">CONOCÉ ASTERI <b>↗</b></span></Link>
+            </div>
+          </section>
+          <section className="ap-section" id="partidos" aria-labelledby="matches-title">
+            <div className="ap-section-heading"><h2 id="matches-title">EN EL SERVIDOR<span>02</span></h2><span>COUNTER-STRIKE 2</span></div>
+            <div className="ap-match-panel"><div className="ap-tabs" role="group" aria-label="Mostrar partidos"><button aria-pressed={tab === 'upcoming'} onClick={() => setTab('upcoming')}>PRÓXIMOS PARTIDOS</button><button aria-pressed={tab === 'replays'} onClick={() => setTab('replays')}>ÚLTIMOS VODS</button></div><MatchList matches={tab === 'upcoming' ? upcoming : replays} status={status} retry={() => setAttempt(value => value + 1)} replays={tab === 'replays'} /><Link className="ap-calendar-link" to="/partidos">VER CALENDARIO COMPLETO Y RESULTADOS <span>↗</span></Link></div>
+          </section>
+          <section className="ap-section" id="media" aria-labelledby="media-title">
+            <div className="ap-section-heading"><h2 id="media-title">DENTRO DE ASTERI<span>03</span></h2><span>MEDIA / EQUIPO</span></div>
+            <div className="ap-media-card"><video key={video} src={video} controls playsInline preload="metadata" aria-label="Video de presentación de ASTERI" /><div><span className="ap-eyebrow">NUESTRA IDENTIDAD</span><h3>Esto es ASTERI.</h3><p>Conocé el equipo desde adentro.</p><Link className="ap-card-link" to="/equipo#historia">NUESTRA HISTORIA <b>↗</b></Link></div></div>
+          </section>
         </div>
-
-        <div
-          className="asteri-chapter asteri-chapter--compete"
-          data-chapter="compete"
-        >
-          <ScrollRevealBlock>
-            <MatchesHub />
-          </ScrollRevealBlock>
-        </div>
-
-        <div
-          className="asteri-chapter asteri-chapter--story"
-          data-chapter="story"
-        >
-          <ScrollRevealBlock>
-            <HistoryTimeline />
-          </ScrollRevealBlock>
-
-          <ScrollRevealBlock>
-            <FounderSection />
-          </ScrollRevealBlock>
-        </div>
-
-        <div
-          className="asteri-chapter asteri-chapter--future"
-          data-chapter="future"
-        >
-          <ScrollRevealBlock>
-            <NextObjective />
-          </ScrollRevealBlock>
-
-          <ScrollRevealBlock>
-            <TeamApplicationSection />
-          </ScrollRevealBlock>
-        </div>
-
-        <div
-          className="asteri-chapter asteri-chapter--community"
-          data-chapter="community"
-        >
-          <ScrollRevealBlock>
-            <CommunitySection />
-          </ScrollRevealBlock>
-        </div>
-      </main>
-
-      <ScrollRevealBlock distance={52}>
-        <Footer />
-      </ScrollRevealBlock>
-    </div>
-  )
+        <aside className="ap-sidebar" id="comunidad" aria-label="Comunidad y canales oficiales">
+          <section className="ap-channels"><span className="ap-eyebrow">CONECTÁ CON EL EQUIPO</span><h2>NUESTROS<br />CANALES<span>↗</span></h2><div>{channels.map(([icon, title, description, href]) => <a className="ap-channel" href={href} key={title} target="_blank" rel="noreferrer"><span className="ap-channel-icon" aria-hidden="true">{icon}</span><span><strong>{title}</strong><small>{description}</small></span><b aria-hidden="true">↗</b></a>)}</div><p>Una misma pasión.<br /><strong>Dentro y fuera del servidor.</strong></p></section>
+          <section className="ap-discord"><span className="ap-eyebrow">EL EQUIPO TAMBIÉN SOS VOS</span><span className="ap-discord-symbol" aria-hidden="true">✳</span><h2>HAY LUGAR<br />PARA VOS.</h2><p>Compartí partidas, charlas y todo lo que nos mueve.</p><a className="ap-button" href={SOCIAL_LINKS.discord} target="_blank" rel="noreferrer">ENTRAR AL DISCORD <span>↗</span></a></section>
+          <div className="ap-sidebar-note"><img src={polarisStar} alt="" /><span>SIEMPRE<br /><strong>HACIA ARRIBA.</strong></span></div>
+        </aside>
+      </div>
+    </main>
+    <PortalFooter />
+  </div>
 }

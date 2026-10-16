@@ -61,6 +61,12 @@ async function supabasePublicQuery(path) {
 }
 
 const urls = [
+  ...['equipo', 'partidos'].map(path => ({
+    loc: `${siteUrl}/${path}`,
+    lastmod: today,
+    changefreq: 'weekly',
+    priority: '0.8',
+  })),
   {
     loc: `${siteUrl}/`,
     lastmod: today,
