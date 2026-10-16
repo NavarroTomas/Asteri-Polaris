@@ -76,3 +76,31 @@
   :is(.ap-update-card, a.pp-match-row, .pp-link-card, .pp-player, .pp-vod-card) { transition: none; }
   :is(.ap-update-card, a.pp-match-row, .pp-link-card, .pp-player, .pp-vod-card):hover { transform: none; }
 }
+/* Shared curves for cards, panels and controls. */
+:root { --radius-card: 18px; --radius-panel: 24px; --radius-control: 12px; }
+:is(.ap-update-card,.pp-player,.pp-vod-card,.pp-tournament-card,.pp-link-card) { border-radius: var(--radius-card); overflow: hidden; }
+:is(.ap-recruit,.ap-match-panel,.ap-media-card,.pp-team-feature,.pp-video-feature,.pp-history-card,.pp-quote,.pp-about-hero,.pp-contact-card,.pp-application,.pp-community-hero,.pp-filter-bar,.pp-empty) { border-radius: var(--radius-panel); }
+:is(.ap-match-panel,.ap-media-card,.pp-video-feature,.pp-history-card) { overflow: hidden; }
+a.pp-match-row { border-radius: var(--radius-card); }
+:is(.ap-button,.pp-more,.asteri-auth-submit) { border-radius: 999px; }
+:is(.ap-menu,.ap-theme-toggle,.ap-about > button,.ap-about-links) { border-radius: var(--radius-control); }
+.ap-tabs button { border-radius: 999px; }
+.pp-filter-bar input, .pp-filter-bar select, .asteri-auth-form input { border-radius: var(--radius-control); }
+:is(.public-player-page,.vod-page,.asteri-account-page) article { border-radius: var(--radius-control); }
+.asteri-auth-form { border-radius: var(--radius-panel); }
+.ap-recruit { display: block; min-height: 0; }
+.ap-recruit-copy { padding: 38px; max-width: 650px; }
+.ap-recruit-copy h1 { margin: 0 0 20px; color: var(--color-text); font: 700 clamp(32px, 3.5vw, 46px)/1.1 'Bricolage Grotesque', sans-serif; letter-spacing: -.035em; }
+.ap-recruit p { max-width: 430px; }
+.ap-recruit-copy > small { margin-top: 14px; }
+.ap-update-card { min-height: 210px; }
+.ap-update-card h3, .pp-link-card h2 { font-weight: 600; }
+.ap-sidebar, .pp-aside { border-bottom: 1px solid var(--color-border); }
+.ap-footer-identity p { margin: 0; font-size: 14px; line-height: 1.8; }
+.pp-vod-card > div:last-child { padding: 28px; }
+.pp-contact-card h2 { font-size: 32px; }
+@media (max-width: 550px) {
+ :root { --radius-card: 16px; --radius-panel: 20px; }
+ .ap-recruit-copy { padding: 28px 24px; }
+ .ap-recruit-copy h1 { font-size: 34px; }
+}

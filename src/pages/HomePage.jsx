@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import Header from '../components/Header'
 import PortalFooter from '../components/PortalFooter'
-import asteriA from '../assets/brand/asteri-a.png'
 import { SOCIAL_LINKS } from '../config/socialLinks'
 import { APPLICATION_URL } from '../config/application'
 import { getHomeMatches } from '../lib/homeMatches'
@@ -10,10 +9,10 @@ import { getSiteSettings, DEFAULT_SITE_SETTINGS } from '../lib/siteSettings'
 import './HomePage.css'
 
 const channels = [
-  ['IG', 'Instagram', 'El día a día del equipo', SOCIAL_LINKS.instagram],
-  ['X', 'X / Twitter', 'Novedades de ASTERI', SOCIAL_LINKS.x],
-  ['DC', 'Discord', 'Nuestra comunidad', SOCIAL_LINKS.discord],
-  ['F', 'FACEIT', 'Jugá con la comunidad', SOCIAL_LINKS.faceit],
+  ['IG', 'Instagram', 'Fotos y publicaciones', SOCIAL_LINKS.instagram],
+  ['X', 'X / Twitter', 'Anuncios', SOCIAL_LINKS.x],
+  ['DC', 'Discord', 'Conversaciones y partidas', SOCIAL_LINKS.discord],
+  ['F', 'FACEIT', 'Club de CS2', SOCIAL_LINKS.faceit],
 ]
 
 function MatchList({ matches, status, retry, replays }) {
@@ -22,7 +21,7 @@ function MatchList({ matches, status, retry, replays }) {
   if (!matches.length) return <div className="ap-empty"><strong>{replays ? 'Todavía no hay VODs publicados.' : 'No hay próximos partidos confirmados.'}</strong><p>{replays ? 'Los VODs aparecerán acá cuando estén publicados.' : 'Los próximos partidos aparecerán acá cuando estén confirmados.'}</p></div>
   return <div className="ap-match-list">{matches.map(match => <Link className="ap-match" key={match.id} to={match.vod}>
     <span className="ap-match-date"><strong>{match.date}</strong><small>{replays ? 'FINALIZADO' : match.time === '—' ? 'Hora a confirmar' : `${match.time} h · ARG`}</small></span>
-    <span className="ap-match-teams"><img src={asteriA} alt="" /><b>ASTERI</b><em>{replays ? match.score || 'vs' : 'vs'}</em><b>{match.opponent}</b></span>
+    <span className="ap-match-teams"><b>ASTERI</b><em>{replays ? match.score || 'vs' : 'vs'}</em><b>{match.opponent}</b></span>
     <span className="ap-match-meta">{match.competition}<small>{replays ? 'Ver VOD ' : 'Ver partido '}</small></span>
   </Link>)}</div>
 }
@@ -58,16 +57,14 @@ export default function HomePage() {
     <main className="ap-home-main" id="contenido" tabIndex={-1}>
       <div className="ap-home-grid">
         <div className="ap-main-column">
-          <div className="ap-page-heading"><h1>ASTERI POLARIS</h1></div>
           <section className="ap-recruit" id="postulate" aria-labelledby="recruit-title">
-            <div className="ap-recruit-art" aria-hidden="true"><img src={asteriA} alt="" /></div>
-            <div className="ap-recruit-copy"><h2 id="recruit-title">INSCRIPCIÓN<br />AL EQUIPO</h2><p>Completá el formulario de postulación para que el staff pueda revisar tu perfil.</p><a className="ap-button" href={APPLICATION_URL} target="_blank" rel="noreferrer">COMPLETAR INSCRIPCIÓN </a><small>Postulación al equipo · Formulario externo</small></div>
+            <div className="ap-recruit-copy"><h1 id="recruit-title">Sumate al plantel</h1><p>Contanos sobre tu experiencia y compartí tu perfil con el staff.</p><a className="ap-button" href={APPLICATION_URL} target="_blank" rel="noreferrer">ABRIR FORMULARIO</a><small>Se abre en una nueva pestaña.</small></div>
           </section>
           <section className="ap-section" id="novedades" aria-labelledby="updates-title">
             <div className="ap-section-heading"><h2 id="updates-title">NOVEDADES</h2></div>
             <div className="ap-updates">
-              <a className="ap-update-card" href={SOCIAL_LINKS.x} target="_blank" rel="noreferrer"><h3>Anuncios del equipo</h3><p>Los anuncios y novedades del equipo, en nuestro canal oficial.</p><span className="ap-card-link">SEGUIR EN X </span></a>
-              <Link className="ap-update-card ap-team-card" to="/equipo"><h3>Plantel de CS2</h3><p>Conocé al plantel y la historia detrás de Polaris.</p><span className="ap-card-link">CONOCÉ ASTERI </span></Link>
+              <a className="ap-update-card" href={SOCIAL_LINKS.x} target="_blank" rel="noreferrer"><h3>Comunicados</h3><p>Anuncios y cambios publicados en X.</p><span className="ap-card-link">VER PUBLICACIONES</span></a>
+              <Link className="ap-update-card ap-team-card" to="/equipo"><h3>Jugadores</h3><p>Roles y fichas individuales.</p><span className="ap-card-link">VER PLANTEL</span></Link>
             </div>
           </section>
           <section className="ap-section" id="partidos" aria-labelledby="matches-title">
@@ -76,12 +73,11 @@ export default function HomePage() {
           </section>
           <section className="ap-section" id="media" aria-labelledby="media-title">
             <div className="ap-section-heading"><h2 id="media-title">VIDEOS</h2></div>
-            <div className="ap-media-card"><video key={video} src={video} controls playsInline preload="metadata" aria-label="Video de presentación de ASTERI" /><div><h3>Video del equipo</h3><p>Partidas y contenido de ASTERI POLARIS.</p><Link className="ap-card-link" to="/historia">NUESTRA HISTORIA </Link></div></div>
+            <div className="ap-media-card"><video key={video} src={video} controls playsInline preload="metadata" aria-label="Video de presentación de ASTERI" /><div><h3>Presentación</h3><p>Videos y grabaciones de partidas.</p><Link className="ap-card-link" to="/media">VER MULTIMEDIA</Link></div></div>
           </section>
         </div>
         <aside className="ap-sidebar" id="comunidad" aria-label="Comunidad y canales oficiales">
           <section className="ap-channels"><h2>REDES SOCIALES</h2><div>{channels.map(([icon, title, description, href]) => <a className="ap-channel" href={href} key={title} target="_blank" rel="noreferrer"><span><strong>{title}</strong><small>{description}</small></span></a>)}</div></section>
-          <section className="ap-discord"><h2>COMUNIDAD<br />EN DISCORD</h2><p>Ingresá al servidor de Discord de ASTERI POLARIS.</p><a className="ap-button" href={SOCIAL_LINKS.discord} target="_blank" rel="noreferrer">ENTRAR AL DISCORD </a></section>
 
         </aside>
       </div>

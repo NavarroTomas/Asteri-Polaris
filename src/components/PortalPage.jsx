@@ -1,14 +1,13 @@
-import { Link } from 'react-router-dom'
 import Header from './Header'
 import PortalFooter from './PortalFooter'
 import { SOCIAL_LINKS } from '../config/socialLinks'
 import './PortalPages.css'
 
 export const CHANNELS = [
-  ['IG', 'Instagram', 'El día a día del equipo', SOCIAL_LINKS.instagram],
-  ['X', 'X / Twitter', 'Novedades oficiales', SOCIAL_LINKS.x],
-  ['DC', 'Discord', 'Nuestra comunidad', SOCIAL_LINKS.discord],
-  ['F', 'FACEIT', 'Jugá con la comunidad', SOCIAL_LINKS.faceit],
+  ['IG', 'Instagram', 'Fotos y publicaciones', SOCIAL_LINKS.instagram],
+  ['X', 'X / Twitter', 'Anuncios', SOCIAL_LINKS.x],
+  ['DC', 'Discord', 'Conversaciones y partidas', SOCIAL_LINKS.discord],
+  ['F', 'FACEIT', 'Club de CS2', SOCIAL_LINKS.faceit],
 ]
 
 export function ChannelPanel() {
@@ -16,13 +15,13 @@ export function ChannelPanel() {
 }
 
 export function PageAside() {
-  return <><ChannelPanel /><section className="pp-aside-cta"><h2>POSTULACIÓN<br />AL EQUIPO</h2><p>Compartí tu perfil y postulate al equipo.</p><Link className="ap-button" to="/inscripcion">INSCRIBITE </Link></section></>
+  return <ChannelPanel />
 }
 
 export function PageState({ status, retry, empty, children }) {
   if (status === 'loading') return <div className="pp-empty" role="status">Cargando contenido…</div>
   if (status === 'error') return <div className="pp-empty" role="status"><h3>No pudimos cargar el contenido.</h3><p>Intentá nuevamente en unos instantes.</p><button className="ap-button" onClick={retry}>REINTENTAR </button></div>
-  if (empty) return <div className="pp-empty"><h3>{empty}</h3><p>Encontrá las novedades del equipo en nuestros canales oficiales.</p></div>
+  if (empty) return <div className="pp-empty"><h3>{empty}</h3><p>Las publicaciones confirmadas aparecerán acá.</p></div>
   return children
 }
 
