@@ -2,6 +2,10 @@ import { Route, Routes } from 'react-router-dom'
 import HomePage from './pages/HomePage'
 import TeamPage from './pages/TeamPage'
 import MatchesPage from './pages/MatchesPage'
+import CalendarPage from './pages/CalendarPage'
+import TournamentsPage from './pages/TournamentsPage'
+import MediaPage from './pages/MediaPage'
+import { AboutPage, HistoryPage, CommunityPage, ContactPage, ApplicationPage } from './pages/OrganizationPages'
 import LoginPage from './pages/LoginPage'
 import RegisterPage from './pages/RegisterPage'
 import ForgotPasswordPage from './pages/ForgotPasswordPage'
@@ -35,6 +39,14 @@ export default function App() {
         <Route path="/" element={<HomePage />} />
         <Route path="/equipo" element={<TeamPage />} />
         <Route path="/partidos" element={<MatchesPage />} />
+        <Route path="/calendario" element={<CalendarPage />} />
+        <Route path="/torneos" element={<TournamentsPage />} />
+        <Route path="/media" element={<MediaPage />} />
+        <Route path="/nosotros" element={<AboutPage />} />
+        <Route path="/historia" element={<HistoryPage />} />
+        <Route path="/comunidad" element={<CommunityPage />} />
+        <Route path="/contacto" element={<ContactPage />} />
+        <Route path="/inscripcion" element={<ApplicationPage />} />
 
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />

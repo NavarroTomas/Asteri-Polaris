@@ -17,9 +17,19 @@ const OG_IMAGE =
   'https://raw.githubusercontent.com/NavarroTomas/Asteri-Polaris/main/src/assets/brand/asteri-wordmark-wide.png'
 
 const STATIC_META = {
+  ...Object.fromEntries([
+    ['/torneos', 'Torneos', 'Las competencias y participaciones publicadas de ASTERI POLARIS.'],
+    ['/media', 'Media', 'Videos del equipo y VODs publicados de ASTERI POLARIS.'],
+    ['/nosotros', 'Nosotros', 'Conocé el proyecto argentino de Counter-Strike 2 ASTERI POLARIS.'],
+    ['/historia', 'Nuestra historia', 'La evolución de los escudos y la identidad de ASTERI POLARIS.'],
+    ['/comunidad', 'Comunidad', 'Los canales oficiales y la comunidad de ASTERI POLARIS.'],
+    ['/contacto', 'Contacto', 'Contactá al equipo de ASTERI POLARIS.'],
+    ['/inscripcion', 'Inscripción', 'Cómo postularte al equipo de ASTERI POLARIS.'],
+    ['/calendario', 'Calendario', 'Calendario mensual de partidos y resultados de ASTERI POLARIS.'],
+  ].map(([path, title, description]) => [path, { title: `${title} — ${SITE_NAME}`, description, index: true, type: 'website' }])),
   '/equipo': {
-    title: `Equipo e historia — ${SITE_NAME}`,
-    description: 'Conocé al plantel de ASTERI POLARIS y la historia de nuestra identidad.',
+    title: `Equipo — ${SITE_NAME}`,
+    description: 'Conocé al plantel de Counter-Strike 2 de ASTERI POLARIS.',
     index: true,
     type: 'website',
   },

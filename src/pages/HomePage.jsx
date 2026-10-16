@@ -32,7 +32,8 @@ export default function HomePage() {
   const { hash } = useLocation()
   const navigate = useNavigate()
   useEffect(() => {
-    if (['#plantel', '#historia'].includes(hash)) navigate(`/equipo${hash}`, { replace: true })
+    if (hash === '#plantel') navigate('/equipo', { replace: true })
+    if (hash === '#historia') navigate('/historia', { replace: true })
   }, [hash, navigate])
   const [matches, setMatches] = useState([])
   const [status, setStatus] = useState('loading')
@@ -67,7 +68,7 @@ export default function HomePage() {
             <div className="ap-section-heading"><h2 id="updates-title">EN EL RADAR<span>01</span></h2><span>LO IMPORTANTE, ACÁ.</span></div>
             <div className="ap-updates">
               <a className="ap-update-card" href={SOCIAL_LINKS.x} target="_blank" rel="noreferrer"><span className="ap-eyebrow">NOVEDADES / CANAL OFICIAL</span><h3>Seguí cada paso<br />de ASTERI.</h3><p>Los anuncios y novedades del equipo, en nuestro canal oficial.</p><span className="ap-card-link">SEGUIR EN X <b>↗</b></span></a>
-              <Link className="ap-update-card ap-team-card" to="/equipo#plantel"><img src={polarisStar} alt="" /><span className="ap-eyebrow">IDENTIDAD / EQUIPO</span><h3>Un equipo.<br />El mismo norte.</h3><p>Conocé al plantel y la historia detrás de Polaris.</p><span className="ap-card-link">CONOCÉ ASTERI <b>↗</b></span></Link>
+              <Link className="ap-update-card ap-team-card" to="/equipo"><img src={polarisStar} alt="" /><span className="ap-eyebrow">IDENTIDAD / EQUIPO</span><h3>Un equipo.<br />El mismo norte.</h3><p>Conocé al plantel y la historia detrás de Polaris.</p><span className="ap-card-link">CONOCÉ ASTERI <b>↗</b></span></Link>
             </div>
           </section>
           <section className="ap-section" id="partidos" aria-labelledby="matches-title">
@@ -76,7 +77,7 @@ export default function HomePage() {
           </section>
           <section className="ap-section" id="media" aria-labelledby="media-title">
             <div className="ap-section-heading"><h2 id="media-title">DENTRO DE ASTERI<span>03</span></h2><span>MEDIA / EQUIPO</span></div>
-            <div className="ap-media-card"><video key={video} src={video} controls playsInline preload="metadata" aria-label="Video de presentación de ASTERI" /><div><span className="ap-eyebrow">NUESTRA IDENTIDAD</span><h3>Esto es ASTERI.</h3><p>Conocé el equipo desde adentro.</p><Link className="ap-card-link" to="/equipo#historia">NUESTRA HISTORIA <b>↗</b></Link></div></div>
+            <div className="ap-media-card"><video key={video} src={video} controls playsInline preload="metadata" aria-label="Video de presentación de ASTERI" /><div><span className="ap-eyebrow">NUESTRA IDENTIDAD</span><h3>Esto es ASTERI.</h3><p>Conocé el equipo desde adentro.</p><Link className="ap-card-link" to="/historia">NUESTRA HISTORIA <b>↗</b></Link></div></div>
           </section>
         </div>
         <aside className="ap-sidebar" id="comunidad" aria-label="Comunidad y canales oficiales">

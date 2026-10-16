@@ -61,7 +61,7 @@ async function supabasePublicQuery(path) {
 }
 
 const urls = [
-  ...['equipo', 'partidos'].map(path => ({
+  ...['equipo', 'partidos', 'calendario', 'torneos', 'media', 'nosotros', 'historia', 'comunidad', 'contacto', 'inscripcion'].map(path => ({
     loc: `${siteUrl}/${path}`,
     lastmod: today,
     changefreq: 'weekly',

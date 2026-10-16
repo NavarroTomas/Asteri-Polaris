@@ -73,3 +73,24 @@ body:has(.ap-home) { min-width: 0; }
  .ap-nav-actions { gap: 6px; }
  .ap-account { font-size: 9px; }
 }
+.ap-about { position: relative; display: flex; align-items: stretch; }
+.ap-about > button { border: 0; background: transparent; color: #a8b8ad; cursor: pointer; padding: 0 7px; font-size: 17px; }
+.ap-about > button:hover { color: #01d069; }
+.ap-about.is-current > a { color: #01d069; }
+.ap-about.is-current > a::after { transform: scaleX(1); }
+.ap-about-links { position: absolute; z-index: 100; top: 100%; right: 0; width: 195px; background: #111b15; border: 1px solid #314638; box-shadow: 0 20px 35px #0006; padding: 6px 0; }
+.ap-about-links[hidden] { display: none; }
+.ap-about-links a { min-height: 50px; padding: 15px 22px; font-size: 12px; letter-spacing: .04em; }
+.ap-about-links a:hover, .ap-about-links a[aria-current] { background: #203c2a; color: #01d069; }
+.ap-about-links a::after { display: none; }
+@media (min-width: 821px) { .ap-nav-shell { gap: 28px; } .ap-nav { gap: 21px; } .ap-nav a { font-size: 10px; } .ap-nav-actions { gap: 18px; } }
+@media (min-width: 821px) and (max-width: 1050px) { .ap-nav-shell { gap: 20px; } .ap-nav { gap: 16px; } .ap-nav-actions { gap: 12px; } .ap-button-small { padding-inline: 12px; gap: 12px; } }
+@media (max-width: 820px) {
+ .ap-about { flex-wrap: wrap; align-items: center; }
+ .ap-about > a { flex: 1; }
+ .ap-about > button { min-width: 48px; min-height: 48px; border: 1px solid #314638; }
+ .ap-about-links { position: static; width: 100%; border: 0; box-shadow: none; padding: 0 0 0 12px; }
+ .ap-about-links a { min-height: 45px; padding-left: 15px; }
+ .ap-nav.is-open { max-height: 75vh; overflow-y: auto; }
+}
+@media (min-width: 1200px) { .ap-nav { gap: 28px; } .ap-nav a { font-size: 11px; } .ap-nav-shell { gap: 36px; } }
