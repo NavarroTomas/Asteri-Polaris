@@ -27,5 +27,5 @@ export function PageState({ status, retry, empty, children }) {
 }
 
 export default function PortalPage({ title, intro, children, aside = true }) {
-  return <div className="pp-page"><Header /><main id="contenido" tabIndex={-1} className="pp-shell"><div className="pp-heading"><h1>{title}</h1>{intro && <p>{intro}</p>}</div><div className={aside ? 'pp-layout' : 'pp-layout pp-layout-wide'}><div className="pp-content">{children}</div>{aside && <aside className="pp-aside" aria-label="Canales y comunidad"><PageAside /></aside>}</div></main><PortalFooter /></div>
+  return <div className="pp-page"><Header /><main id="contenido" tabIndex={-1} className="pp-shell"><div className={aside ? 'pp-layout' : 'pp-layout pp-layout-wide'}><div className="pp-content"><div className="pp-heading"><h1>{title}</h1>{intro && <p>{intro}</p>}</div>{children}</div>{aside && <aside className="pp-aside" aria-label="Canales y comunidad"><PageAside /></aside>}</div></main><PortalFooter /></div>
 }

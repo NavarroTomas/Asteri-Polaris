@@ -56,9 +56,9 @@ export default function HomePage() {
   return <div className="ap-home" id="inicio">
     <Header />
     <main className="ap-home-main" id="contenido" tabIndex={-1}>
-      <div className="ap-page-heading"><div><h1>ASTERI POLARIS</h1></div></div>
       <div className="ap-home-grid">
         <div className="ap-main-column">
+          <div className="ap-page-heading"><h1>ASTERI POLARIS</h1></div>
           <section className="ap-recruit" id="postulate" aria-labelledby="recruit-title">
             <div className="ap-recruit-art" aria-hidden="true"><img src={asteriA} alt="" /></div>
             <div className="ap-recruit-copy"><h2 id="recruit-title">INSCRIPCIÓN<br />AL EQUIPO</h2><p>Completá el formulario de postulación para que el staff pueda revisar tu perfil.</p><a className="ap-button" href={APPLICATION_URL} target="_blank" rel="noreferrer">COMPLETAR INSCRIPCIÓN </a><small>Postulación al equipo · Formulario externo</small></div>
