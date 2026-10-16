@@ -7,13 +7,17 @@ import './styles.css'
 import './responsive.css'
 import './ui-polish.css'
 import './DesignRefinement.css'
+import './Theme.css'
+import { initializeTheme, ThemeProvider } from './context/ThemeContext'
+
+initializeTheme()
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <BrowserRouter>
-      <AuthProvider>
+      <ThemeProvider><AuthProvider>
         <App />
-      </AuthProvider>
+      </AuthProvider></ThemeProvider>
     </BrowserRouter>
   </React.StrictMode>
 )

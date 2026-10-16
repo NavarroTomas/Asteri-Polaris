@@ -1,0 +1,53 @@
+:root[data-theme="light"] {
+  color-scheme: light;
+  --color-bg: #ffffff;
+  --color-bg-secondary: #f5f7f5;
+  --color-surface: #e8eee9;
+  --color-text: #152019;
+  --color-text-muted: #536359;
+  --color-border: #d5ded7;
+  --color-primary: #01d069;
+  --color-secondary: #58b65a;
+  --color-green-medium: #4a994b;
+  --color-green-dark: #2d5e2e;
+  --footer-bg: #f5f7f5;
+}
+:root[data-theme="dark"] { color-scheme: dark; }
+.ap-theme-toggle { display: inline-flex; align-items: center; justify-content: center; min-height: 38px; padding: 0 13px; background: var(--color-bg-secondary); color: var(--color-text); border: 1px solid var(--color-border); border-radius: 8px; font: 600 11px/1.3 'Inter', sans-serif; cursor: pointer; white-space: nowrap; }
+.ap-theme-toggle:hover { background: var(--color-surface); border-color: var(--color-primary); }
+.ap-theme-toggle:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 3px; }
+.ap-nav-actions { gap: 12px; }
+@media (min-width: 821px) and (max-width: 1180px) { .ap-logo > span { display: none; } .ap-nav-shell { gap: 18px; padding-inline: 20px; } .ap-nav { gap: 16px; } .ap-nav-actions { gap: 9px; } }
+@media (max-width: 480px) { .ap-theme-toggle { font-size: 10px; padding-inline: 9px; } .ap-nav-actions { gap: 6px; } .ap-account { display: none; } }
+[data-theme="light"] :is(.ap-home, .pp-page) :is(h1,h2,h3) { color: var(--color-text); }
+[data-theme="light"] .ap-nav a:hover, [data-theme="light"] .ap-nav a[aria-current], [data-theme="light"] .ap-about.is-current > a, [data-theme="light"] .ap-about-links a:hover, [data-theme="light"] .ap-about-links a[aria-current] { color: #176b3b; }
+[data-theme="light"] :is(.ap-card-link,.ap-calendar-link,.pp-inline-link,.ap-tabs button[aria-pressed=true],.pp-more,.pp-contact-email,.ap-text-button) { color: #176b3b; }
+[data-theme="light"] .ap-logo small, [data-theme="light"] .ap-footer-brand small { color: #176b3b; }
+[data-theme="light"] :is(.ap-match,.pp-match-row,.pp-team-socials a,.ap-empty,.pp-empty,.pp-tournament-card p,.pp-player-copy > div span,.pp-filter-bar label > span) { color: var(--color-text-muted); }
+[data-theme="light"] .ap-match-teams b, [data-theme="light"] .pp-match-teams b, [data-theme="light"] .pp-match-event strong, [data-theme="light"] .ap-empty strong { color: var(--color-text); }
+[data-theme="light"] .pp-match-event { border-color: var(--color-border); }
+[data-theme="light"] .pp-match-teams .pp-result { color: #465b4e; border-color: #b4c5ba; }
+[data-theme="light"] .pp-match-teams .pp-result-win { color: #176b3b; border-color: #84bc99; }
+[data-theme="light"] .pp-match-teams .pp-result-loss { color: #a02e2e; border-color: #d5a5a5; }
+[data-theme="light"] .pp-section-title > span, [data-theme="light"] .ap-empty p, [data-theme="light"] .ap-match-teams em { color: var(--color-text-muted); }
+[data-theme="light"] .pp-filter-bar input, [data-theme="light"] .pp-filter-bar select { color: var(--color-text); color-scheme: light; }
+[data-theme="light"] .pp-quote p { color: var(--color-text); }
+[data-theme="light"] .pp-application > small { color: var(--color-text-muted); }
+[data-theme="light"] .ap-match + .ap-match { border-color: var(--color-border); }
+[data-theme="light"] .ap-calendar-link:hover { background: var(--color-surface); }
+[data-theme="light"] .pp-player-photo { background: #102110; }
+[data-theme="light"] :is(.public-player-page,.public-player-page main,.public-player-state,.vod-page,.vod-state,.asteri-auth-page,.asteri-account-page,.auth-loading) { background: var(--color-bg); color: var(--color-text); }
+[data-theme="light"] :is(.public-player-page,.vod-page) :is(section,article,aside) { background-color: var(--color-bg-secondary); border-color: var(--color-border); }
+[data-theme="light"] :is(.public-player-page,.vod-page) :is(h1,h2,h3,strong,b) { color: var(--color-text); }
+[data-theme="light"] :is(.public-player-page,.vod-page) p { color: var(--color-text-muted); }
+[data-theme="light"] :is(.public-player-socials a,.public-player-crosshair button) { background: var(--color-surface); color: var(--color-text); border-color: var(--color-border); }
+[data-theme="light"] :is(.asteri-auth-card,.asteri-account-card,.asteri-auth-form input) { background: var(--color-bg-secondary); color: var(--color-text); border-color: var(--color-border); }
+[data-theme="light"] :is(.asteri-auth-title,.asteri-auth-back,.asteri-auth-footer a,.asteri-auth-form label) { color: var(--color-text); }
+[data-theme="light"] .ap-button, [data-theme="light"] .ap-discord .ap-button, [data-theme="light"] .pp-community-hero .ap-button { color: #031109; }
+.ap-nav .ap-mobile-account { display: none; }
+@media (max-width: 480px) { .ap-nav .ap-mobile-account { display: flex; } }
+[data-theme="light"] .asteri-auth-form { background: var(--color-bg-secondary); border-color: var(--color-border); }
+[data-theme="light"] .asteri-auth-form-head { border-color: var(--color-border); }
+[data-theme="light"] .asteri-auth-form-head strong, [data-theme="light"] .asteri-auth-bottom a { color: var(--color-text); }
+[data-theme="light"] .asteri-auth-form label > span, [data-theme="light"] .asteri-auth-copy p, [data-theme="light"] .asteri-auth-bottom { color: var(--color-text-muted); }
+[data-theme="light"] .ap-match-meta small { color: #176b3b; }

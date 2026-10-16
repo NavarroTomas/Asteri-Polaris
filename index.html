@@ -2,6 +2,14 @@
 <html lang="es-AR">
   <head>
     <meta charset="UTF-8" />
+    <script>
+      try {
+        const savedTheme = localStorage.getItem('asteri-theme')
+        document.documentElement.dataset.theme = savedTheme === 'dark' ? 'dark' : 'light'
+      } catch {
+        document.documentElement.dataset.theme = 'light'
+      }
+    </script>
     <meta
       name="viewport"
       content="width=device-width, initial-scale=1.0"
