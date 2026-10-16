@@ -51,3 +51,28 @@
 [data-theme="light"] .asteri-auth-form-head strong, [data-theme="light"] .asteri-auth-bottom a { color: var(--color-text); }
 [data-theme="light"] .asteri-auth-form label > span, [data-theme="light"] .asteri-auth-copy p, [data-theme="light"] .asteri-auth-bottom { color: var(--color-text-muted); }
 [data-theme="light"] .ap-match-meta small { color: #176b3b; }
+/* Cards lift on hover without changing their border or surface color. */
+:root { --card-hover-shadow: 0 10px 25px rgba(0, 0, 0, .45), 0 3px 8px rgba(0, 0, 0, .25); }
+:root[data-theme="light"] { --card-hover-shadow: 0 10px 25px rgba(21, 32, 25, .13), 0 3px 8px rgba(21, 32, 25, .08); }
+:is(.ap-update-card, a.pp-match-row, .pp-link-card, .pp-player, .pp-vod-card) {
+  --card-background: var(--color-bg-secondary);
+  position: relative;
+  transition: transform .18s ease, box-shadow .18s ease;
+}
+.pp-player { --card-background: var(--color-surface); }
+:is(.ap-update-card, a.pp-match-row, .pp-link-card, .pp-player, .pp-vod-card):hover {
+  background: var(--card-background);
+  border-color: var(--color-border);
+}
+@media (hover: hover) and (pointer: fine) {
+  :is(.ap-update-card, a.pp-match-row, .pp-link-card, .pp-player, .pp-vod-card):hover {
+    transform: translateY(-4px);
+    box-shadow: var(--card-hover-shadow);
+    z-index: 1;
+  }
+}
+:is(.ap-update-card, a.pp-match-row, .pp-link-card, .pp-player, .pp-vod-card):focus-visible { box-shadow: var(--card-hover-shadow); }
+@media (prefers-reduced-motion: reduce) {
+  :is(.ap-update-card, a.pp-match-row, .pp-link-card, .pp-player, .pp-vod-card) { transition: none; }
+  :is(.ap-update-card, a.pp-match-row, .pp-link-card, .pp-player, .pp-vod-card):hover { transform: none; }
+}
