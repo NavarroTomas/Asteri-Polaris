@@ -1,0 +1,95 @@
+/* Flat surfaces and the original ASTERI palette. */
+.ap-home, .pp-page, .ap-header { background: var(--color-bg); color: var(--color-text); }
+.ap-header { border-color: var(--color-border); }
+.ap-nav-shell { min-height: 84px; }
+.ap-nav a, .ap-account { color: var(--color-text); }
+.ap-about-links { background: var(--color-bg-secondary); border-color: var(--color-border); box-shadow: none; }
+.ap-about-links a:hover, .ap-about-links a[aria-current] { background: var(--color-surface); }
+.ap-about > button { font: 500 11px/1 'Inter', sans-serif; padding: 0 10px; color: var(--color-text-muted); }
+.ap-menu { min-width: 54px; padding: 0 10px; font: 600 11px/1 'Inter', sans-serif; border-color: var(--color-border); }
+.ap-button, .pp-discipline { background: var(--color-primary); color: var(--color-bg); border-color: var(--color-primary); }
+.ap-button { justify-content: center; gap: 0; font-size: 11px; letter-spacing: 0; }
+.ap-button:hover { background: var(--color-secondary); border-color: var(--color-secondary); transform: none; }
+.ap-footer { color: var(--color-text-muted); border-color: var(--color-border); }
+.ap-footer > span { font-size: 11px; letter-spacing: 0; }
+.ap-page-heading h1, .pp-heading h1 { color: var(--color-text); font-size: clamp(28px, 3vw, 40px); font-weight: 700; letter-spacing: -.03em; line-height: 1.15; }
+.ap-page-heading { margin-bottom: 26px; }
+.ap-home-main, .pp-shell { padding-top: 34px; }
+.pp-heading h1 { margin: 0 0 14px; }
+.ap-recruit { min-height: 330px; grid-template-columns: .85fr 1.15fr; background: var(--color-bg-secondary); border-color: var(--color-border); }
+.ap-recruit-art { background: none; }
+.ap-recruit-art::after { display: none; }
+.ap-recruit-art > img { width: min(65%, 230px); transform: none; filter: none; }
+.ap-recruit-copy { padding: 40px 32px 36px 0; align-self: center; }
+.ap-recruit h2 { font-size: clamp(30px, 3.3vw, 46px); line-height: 1.08; font-weight: 700; letter-spacing: -.035em; margin: 0 0 22px; }
+.ap-recruit p { color: var(--color-text-muted); margin-bottom: 24px; font-size: 14px; }
+.ap-recruit-copy > small { font-size: 11px; color: var(--color-text-muted); }
+.ap-update-card, .ap-match-panel, .ap-media-card, .pp-match-row, .pp-empty, .pp-vod-card, .pp-video-feature, .pp-tournament-card, .pp-link-card, .pp-history-card { background: var(--color-bg-secondary); border-color: var(--color-border); }
+.ap-update-card:hover, a.pp-match-row:hover, .pp-link-card:hover { background: var(--color-surface); border-color: var(--color-primary); }
+.ap-update-card { min-height: 215px; }
+.ap-update-card h3, .ap-media-card h3 { font-size: 25px; line-height: 1.15; font-weight: 700; margin-top: 0; letter-spacing: -.025em; }
+.ap-update-card p, .ap-media-card p { color: var(--color-text-muted); font-size: 13px; }
+.ap-section-heading h2, .pp-section-title h2 { font-size: 23px; font-weight: 700; letter-spacing: -.02em; }
+.ap-card-link, .ap-calendar-link, .pp-inline-link { border-color: var(--color-border); font-size: 11px; letter-spacing: 0; }
+.ap-tabs, .ap-calendar-link { border-color: var(--color-border); }
+.ap-tabs button { font-size: 10px; letter-spacing: 0; color: var(--color-text-muted); }
+.ap-tabs button[aria-pressed=true] { background: var(--color-surface); color: var(--color-primary); }
+.ap-channels, .pp-channels { background: var(--color-bg-secondary); color: var(--color-text); border: 1px solid var(--color-border); padding: 26px; }
+.ap-channels h2, .pp-channels h2 { font: 700 23px/1.15 'Bricolage Grotesque', sans-serif; letter-spacing: -.02em; margin: 0 0 24px; }
+.ap-channel, .ap-channel:last-child, .pp-channel, .pp-channel:last-of-type { border-color: var(--color-border); min-height: 76px; }
+.ap-channel:hover, .pp-channel:hover { background: var(--color-surface); }
+.ap-channel strong, .pp-channel strong { font-size: 14px; font-weight: 600; }
+.ap-channel small, .pp-channel small { color: var(--color-text-muted); font-size: 12px; line-height: 1.5; }
+.ap-discord, .pp-aside-cta, .pp-community-hero { background: var(--color-bg-secondary); color: var(--color-text); border: 1px solid var(--color-border); }
+.ap-discord h2, .pp-aside-cta h2 { font: 700 25px/1.15 'Bricolage Grotesque', sans-serif; letter-spacing: -.025em; margin: 0 0 20px; }
+.ap-discord p, .pp-aside-cta p { color: var(--color-text-muted); font-size: 13px; }
+.ap-discord .ap-button, .pp-community-hero .ap-button { background: var(--color-primary); color: var(--color-bg); border-color: var(--color-primary); }
+.ap-discord .ap-button:hover, .pp-community-hero .ap-button:hover { background: var(--color-secondary); }
+.ap-match:hover { background: var(--color-surface); }
+.ap-match small, .ap-empty p, .pp-heading > p, .pp-match-date small, .pp-match-event small, .pp-empty p, .pp-link-card p { color: var(--color-text-muted); }
+.pp-filter-bar { background: var(--color-bg-secondary); border-color: var(--color-border); }
+.pp-filter-bar input, .pp-filter-bar select { background: var(--color-bg); border-color: var(--color-border); }
+.pp-filter-bar label > span { color: var(--color-text-muted); font-size: 11px; text-transform: none; letter-spacing: 0; }
+.pp-section-title > span { font-size: 10px; letter-spacing: 0; }
+.pp-team-feature { background: var(--color-bg-secondary); border-color: var(--color-border); }
+.pp-team-heading h2 { font-size: clamp(30px, 3vw, 42px); font-weight: 700; letter-spacing: -.03em; margin: 0; }
+.pp-team-socials a { color: var(--color-text-muted); font-size: 13px; }
+.pp-player { background: var(--color-surface); border-color: var(--color-border); }
+.pp-player:hover { transform: none; }
+.pp-player-photo, .pp-vod-art, .pp-tournament-art, .pp-history-card > div:first-child { background: var(--color-bg); }
+.pp-player-copy h3 { font-size: 24px; font-weight: 700; }
+.pp-player-copy p { color: var(--color-text-muted); font-size: 12px; }
+.pp-player-copy > small { color: var(--color-text); font-size: 10px; letter-spacing: 0; }
+.pp-player-copy > div span { font-size: 11px; color: var(--color-text-muted); }
+.pp-player-copy > div b { font-size: 10px; font-weight: 500; color: var(--color-text); border: 0; padding: 0; }
+.pp-vod-art img { opacity: 1; width: 85px; height: 85px; }
+.pp-tournament-art { border-color: var(--color-border); }
+.pp-tournament-label { font-size: 11px; color: var(--color-text-muted); border-color: var(--color-border); }
+.pp-video-feature h3, .pp-vod-card h3 { font-size: 24px; font-weight: 700; margin-top: 0; }
+.pp-history-card p { color: var(--color-text-muted); font-size: 13px; }
+.pp-quote, .pp-about-hero, .pp-contact-card, .pp-application { background: var(--color-bg-secondary); border-color: var(--color-border); }
+.pp-quote { border-left-width: 1px; }
+.pp-quote cite { font-size: 12px; letter-spacing: 0; color: var(--color-text-muted); }
+.pp-about-hero h2, .pp-contact-card h2, .pp-application h2, .pp-community-hero h2 { font: 700 clamp(28px, 3vw, 42px)/1.1 'Bricolage Grotesque', sans-serif; letter-spacing: -.03em; margin: 0 0 25px; }
+.pp-about-hero p, .pp-contact-card p, .pp-application > p, .pp-community-hero p { color: var(--color-text-muted); font-size: 14px; }
+.pp-application > p { margin-bottom: 28px; }
+.pp-more { background: var(--color-bg-secondary); border-color: var(--color-border); font-size: 11px; }
+.pp-more:hover { background: var(--color-surface); }
+@media (max-width: 820px) { .ap-nav { background: var(--color-bg-secondary); } .ap-nav-shell { min-height: 72px; } }
+@media (max-width: 700px) { .ap-recruit { grid-template-columns: .7fr 1.3fr; } .ap-recruit-art > img { width: 85%; } .ap-recruit-copy { padding: 30px 24px 30px 0; } }
+@media (max-width: 480px) {
+ .ap-recruit { grid-template-columns: 1fr; min-height: 0; }
+ .ap-recruit-art { display: none; }
+ .ap-recruit-copy { padding: 30px 24px; }
+ .ap-recruit h2 { font-size: 34px; }
+ .ap-recruit p { max-width: none; }
+ .ap-section-heading h2, .pp-section-title h2 { font-size: 21px; }
+ .ap-logo > span { font-size: 16px; }
+ .ap-nav-actions { gap: 6px; }
+ .ap-menu { min-width: 48px; font-size: 10px; }
+ .ap-button-small { font-size: 9px; padding-inline: 9px; }
+ .ap-account { font-size: 10px; }
+ .pp-filter-bar label { flex-basis: 100%; }
+ .pp-player-copy h3 { font-size: 22px; }
+ .pp-player-copy > small { font-size: 8px; }
+}
