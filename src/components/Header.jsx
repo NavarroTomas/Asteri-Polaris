@@ -2,14 +2,12 @@ import { useEffect, useRef, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import asteriA from '../assets/brand/asteri-a.png'
 import { useAuth } from '../context/AuthContext'
-import { useTheme } from '../context/ThemeContext'
 import './Portal.css'
 
 const navigation = [['INICIO', '/'], ['PARTIDOS', '/partidos'], ['TORNEOS', '/torneos'], ['EQUIPO', '/equipo'], ['MEDIA', '/media']]
 const organization = [['Nosotros', '/nosotros'], ['Historia', '/historia'], ['Comunidad', '/comunidad'], ['Contacto', '/contacto']]
 export default function Header() {
   const { loading, isAuthenticated } = useAuth()
-  const { theme, toggleTheme } = useTheme()
   const [open, setOpen] = useState(false)
   const [aboutOpen, setAboutOpen] = useState(false)
   const toggle = useRef(null)
@@ -46,7 +44,6 @@ export default function Header() {
         {!loading && <Link className="ap-mobile-account" to={isAuthenticated ? '/account' : '/login'} onClick={close}>{isAuthenticated ? 'Mi cuenta' : 'Ingresar'}</Link>}
       </nav>
       <div className="ap-nav-actions">
-        <button className="ap-theme-toggle" type="button" onClick={toggleTheme} aria-label={theme === 'light' ? 'Activar modo oscuro' : 'Activar modo claro'} aria-pressed={theme === 'dark'}>{theme === 'light' ? 'Oscuro' : 'Claro'}</button>
         {!loading && <Link className="ap-account" to={isAuthenticated ? '/account' : '/login'}>{isAuthenticated ? 'Mi cuenta' : 'Ingresar'}</Link>}
         <Link className="ap-button ap-button-small" to="/inscripcion" onClick={close}>INSCRIBITE </Link>
         <button ref={toggle} className="ap-menu" type="button" aria-controls="ap-navigation" aria-expanded={open} aria-label={open ? 'Cerrar menú' : 'Abrir menú'} onClick={() => setOpen(value => !value)}>{open ? 'Cerrar' : 'Menú'}</button>

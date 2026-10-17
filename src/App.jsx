@@ -1,4 +1,6 @@
 import { Route, Routes } from 'react-router-dom'
+import ThemeToggle from './components/ThemeToggle'
+import PageEntrance from './components/PageEntrance'
 import HomePage from './pages/HomePage'
 import TeamPage from './pages/TeamPage'
 import MatchesPage from './pages/MatchesPage'
@@ -31,6 +33,8 @@ export default function App() {
       <SeoManager />
       <AnalyticsTracker />
       <RouteScrollManager />
+      <PageEntrance />
+      <ThemeToggle />
 
       <RosterInteractionEnhancer />
       <MatchTerminologySync />

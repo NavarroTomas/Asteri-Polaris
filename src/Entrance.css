@@ -1,0 +1,24 @@
+.ap-header { max-width: 1400px; width: 100%; }
+.ap-nav-shell { min-height: 88px; padding-inline: 32px; }
+.ap-theme-float { position: fixed; z-index: 150; right: max(22px, env(safe-area-inset-right)); bottom: max(22px, env(safe-area-inset-bottom)); display: grid; place-items: center; width: 52px; height: 52px; padding: 0; border: 1px solid var(--color-border); border-radius: 50%; background: var(--color-bg-secondary); color: var(--color-text); box-shadow: 0 5px 22px rgba(0,0,0,.17); cursor: pointer; transition: transform .2s, background .2s; }
+.ap-theme-float:hover { background: var(--color-surface); transform: translateY(-3px); }
+.ap-theme-float:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 4px; }
+.ap-theme-float svg { transition: transform .35s; }
+.ap-theme-float[aria-pressed=true] svg { transform: rotate(-18deg); }
+.ap-recruit { display: grid; grid-template-columns: minmax(0, 1fr) 265px; align-items: center; overflow: hidden; min-height: 360px; }
+.ap-recruit-copy { padding: 38px 12px 38px 36px; }
+.ap-mascot-stage { align-self: stretch; display: grid; align-items: end; justify-items: center; padding: 22px 14px 14px 0; }
+.ap-mascot { display: block; width: 100%; height: 330px; object-fit: contain; object-position: center bottom; }
+@media (min-width: 821px) and (max-width: 1080px) { .ap-nav-shell { padding-inline: 24px; } .ap-recruit { grid-template-columns: minmax(0,1fr) 185px; } .ap-mascot { height: 285px; } .ap-recruit-copy { padding-left: 25px; } }
+@media (max-width: 820px) { .ap-header { width: 100%; } .ap-nav-shell { min-height: 72px; padding-inline: 18px; } }
+@media (max-width: 550px) {
+ .ap-recruit { grid-template-columns: minmax(0,1fr); }
+ .ap-recruit-copy { padding: 28px 24px 8px; }
+ .ap-mascot-stage { padding: 0 20px 20px; }
+ .ap-mascot { width: 235px; height: 255px; }
+ .ap-theme-float { right: max(16px, env(safe-area-inset-right)); bottom: max(16px, env(safe-area-inset-bottom)); width: 48px; height: 48px; }
+}
+@media (prefers-reduced-motion: reduce) { .ap-theme-float, .ap-theme-float svg { transition: none; } .ap-theme-float:hover { transform: none; } }
+.ap-enter-pending { opacity: 0 !important; }
+@media (prefers-reduced-motion: reduce) { .ap-enter-pending { opacity: 1 !important; } }
+.ap-sidebar:has(.ap-entering), .pp-aside:has(.ap-entering) { overflow-y: clip; }
