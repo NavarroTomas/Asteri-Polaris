@@ -12,6 +12,7 @@ import './Entrance.css'
 import './Spacious.css'
 import './Interactions.css'
 import './Backgrounds.css'
+import './DetailDesign.css'
 import { initializeTheme, ThemeProvider } from './context/ThemeContext'
 
 initializeTheme()

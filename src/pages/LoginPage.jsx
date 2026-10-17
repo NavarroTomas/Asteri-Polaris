@@ -166,7 +166,7 @@ export default function LoginPage() {
         className="asteri-auth-back"
         to="/"
       >
-        ← ASTERI
+        Volver al inicio
       </Link>
 
       <section className="asteri-auth-layout">
@@ -272,7 +272,7 @@ export default function LoginPage() {
             </span>
 
             <Link to="/register">
-              SOLICITAR ACCESO →
+              SOLICITAR ACCESO
             </Link>
           </div>
         </form>

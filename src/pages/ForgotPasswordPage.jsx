@@ -190,7 +190,7 @@ export default function ForgotPasswordPage() {
               </span>
 
               <Link to="/login">
-                INICIAR SESIÓN →
+                INICIAR SESIÓN
               </Link>
             </div>
           </form>

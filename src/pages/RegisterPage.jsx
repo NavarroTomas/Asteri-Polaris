@@ -155,7 +155,7 @@ export default function RegisterPage() {
         className="asteri-auth-back"
         to="/"
       >
-        ← ASTERI
+        Volver al inicio
       </Link>
 
       <section className="asteri-register-layout">
@@ -334,7 +334,7 @@ export default function RegisterPage() {
             </span>
 
             <Link to="/login">
-              INICIAR SESIÓN →
+              INICIAR SESIÓN
             </Link>
           </div>
         </form>

@@ -14,18 +14,19 @@ export default function QuietCursor() {
     let targetX = 0
     let targetY = 0
     const hide = () => {
+      document.documentElement.classList.remove('has-quiet-cursor')
       element.hidden = true
       cancelAnimationFrame(frame)
       frame = 0
     }
     const draw = () => {
-      x += (targetX - x) * .22
-      y += (targetY - y) * .22
+      x = targetX
+      y = targetY
       element.style.transform = `translate3d(${x}px, ${y}px, 0)`
       frame = Math.abs(targetX - x) + Math.abs(targetY - y) > .2 ? requestAnimationFrame(draw) : 0
     }
     const move = event => {
-      if (!preference.matches || event.pointerType !== 'mouse' || !(event.target instanceof Element) || event.target.closest('input, textarea, select, [contenteditable="true"]')) {
+      if (!preference.matches || event.pointerType !== 'mouse' || !(event.target instanceof Element) || event.target.closest('input, textarea, select, video, iframe, [contenteditable="true"]')) {
         hide()
         return
       }
@@ -33,7 +34,9 @@ export default function QuietCursor() {
       targetY = event.clientY
       if (element.hidden) { x = targetX; y = targetY }
       element.hidden = false
-      element.dataset.active = event.target.closest('a[href], button, [role="button"]') ? 'true' : 'false'
+      document.documentElement.classList.add('has-quiet-cursor')
+      const action = event.target.closest('a[href], button, [role="button"]')
+      element.dataset.active = action && !action.matches(':disabled, [aria-disabled="true"]') ? 'true' : 'false'
       if (!frame) frame = requestAnimationFrame(draw)
     }
     const leave = event => { if (!event.relatedTarget) hide() }

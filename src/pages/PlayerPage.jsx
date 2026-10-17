@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import Header from '../components/Header'
-import Footer from '../components/Footer'
+import Footer from '../components/PortalFooter'
 import { getPublicPlayerBySlug } from '../lib/publicPlayer'
 import './PlayerPage.css'
 
@@ -114,7 +114,7 @@ export default function PlayerPage() {
         <span>PLAYER SYSTEM / ERROR</span>
         <h1>NO SE PUDO<br />CARGAR.</h1>
         <p>{error}</p>
-        <Link to="/">← VOLVER A ASTERI</Link>
+        <Link to="/">VOLVER A ASTERI</Link>
       </main>
     )
   }
@@ -124,7 +124,7 @@ export default function PlayerPage() {
       <main className="public-player-state">
         <span>ASTERI / PLAYER PROFILE</span>
         <h1>JUGADOR NO<br />ENCONTRADO.</h1>
-        <Link to="/">← VOLVER A ASTERI</Link>
+        <Link to="/">VOLVER A ASTERI</Link>
       </main>
     )
   }
@@ -175,7 +175,7 @@ export default function PlayerPage() {
     <div className="public-player-page">
       <Header />
 
-      <main>
+      <main id="contenido" tabIndex={-1}>
         <section className="public-player-hero">
           <div className="public-player-hero-copy">
             <p className="public-player-role">
@@ -199,7 +199,7 @@ export default function PlayerPage() {
                     target="_blank"
                     rel="noreferrer"
                   >
-                    {label} ↗
+                    {label}
                   </a>
                 ))}
               </div>
@@ -207,9 +207,6 @@ export default function PlayerPage() {
           </div>
 
           <div className="public-player-hero-visual">
-            <span className="public-player-number" aria-hidden="true">
-              {player.jersey_number || '00'}
-            </span>
 
             {player.image_url ? (
               <img
@@ -218,7 +215,7 @@ export default function PlayerPage() {
               />
             ) : (
               <div className="public-player-no-image">
-                PLAYER IMAGE
+                Sin foto publicada
               </div>
             )}
           </div>
@@ -234,29 +231,20 @@ export default function PlayerPage() {
         </section>
 
         <section className="public-player-section story-section">
-          <div className="public-player-section-index">
-            <span>01</span>
-            <small>HISTORIA</small>
-          </div>
 
           <div className="public-player-story">
-            <h2>HISTORIA<br />JUGADOR.</h2>
-            <p>{player.biography || 'Historia jugador.'}</p>
+            <h2>Historia</h2>
+            <p>{player.biography && !/^historia jugador\.?$/i.test(player.biography.trim()) ? player.biography : 'Todavía no hay una biografía publicada.'}</p>
           </div>
         </section>
 
         <section className="public-player-section stats-section">
-          <div className="public-player-section-index">
-            <span>02</span>
-            <small>PERFORMANCE</small>
-          </div>
 
           <div>
             <div className="public-player-section-title">
-              <h2>STATS.</h2>
+              <h2>Estadísticas</h2>
               <p>
-                Datos competitivos cargados y actualizados desde el perfil
-                privado del jugador.
+                Estadísticas publicadas del jugador.
               </p>
             </div>
 
@@ -279,14 +267,10 @@ export default function PlayerPage() {
         </section>
 
         <section className="public-player-section config-section-public">
-          <div className="public-player-section-index">
-            <span>03</span>
-            <small>CONFIG CS2</small>
-          </div>
 
           <div>
             <div className="public-player-section-title">
-              <h2>SETUP.</h2>
+              <h2>Configuración</h2>
               <p>
                 Sensibilidad, video, crosshair y equipamiento utilizados por
                 {` ${player.nickname}`}.
@@ -351,14 +335,10 @@ export default function PlayerPage() {
         </section>
 
         <section className="public-player-section clips-section">
-          <div className="public-player-section-index">
-            <span>04</span>
-            <small>HIGHLIGHTS</small>
-          </div>
 
           <div>
             <div className="public-player-section-title">
-              <h2>CLIPS.</h2>
+              <h2>Clips</h2>
               <p>
                 Highlights publicados directamente por el jugador.
               </p>
@@ -394,7 +374,7 @@ export default function PlayerPage() {
                     )}
 
                     <span className="public-player-clip-action">
-                      VER CLIP ↗
+                      VER CLIP
                     </span>
                   </a>
                 ))}
@@ -404,14 +384,10 @@ export default function PlayerPage() {
         </section>
 
         <section className="public-player-section vods-section">
-          <div className="public-player-section-index">
-            <span>05</span>
-            <small>PARTIDOS</small>
-          </div>
 
           <div>
             <div className="public-player-section-title">
-              <h2>VODS.</h2>
+              <h2>Partidos</h2>
               <p>
                 Últimos partidos publicados en los que participó
                 {` ${player.nickname}`}.
@@ -456,7 +432,7 @@ export default function PlayerPage() {
                         target="_blank"
                         rel="noreferrer"
                       >
-                        VOD ↗
+                        VOD
                       </a>
                     ) : (
                       <span className="public-player-vod-disabled">—</span>
@@ -469,8 +445,8 @@ export default function PlayerPage() {
         </section>
 
         <section className="public-player-back">
-          <Link to="/#plantel">
-            ← VOLVER AL PLANTEL
+          <Link to="/equipo">
+            VOLVER AL PLANTEL
           </Link>
 
           <strong>ASTERI POLARIS</strong>

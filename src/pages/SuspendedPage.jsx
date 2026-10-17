@@ -25,7 +25,7 @@ export default function SuspendedPage() {
         className="asteri-auth-back"
         to="/"
       >
-        ← ASTERI
+        Volver al inicio
       </Link>
 
       <section className="asteri-auth-layout">

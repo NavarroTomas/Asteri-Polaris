@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import Header from '../components/Header'
-import Footer from '../components/Footer'
+import Footer from '../components/PortalFooter'
 import { getPublicVod } from '../lib/vods'
 import { getVodDownloadHref } from '../lib/vodLinks'
 import { getCompetitiveMap } from '../config/competitiveMaps'
@@ -172,7 +172,7 @@ export default function VodPage() {
         <p>{err}</p>
 
         <Link to="/">
-          ← VOLVER
+          VOLVER
         </Link>
       </main>
     )
@@ -202,7 +202,7 @@ export default function VodPage() {
     <div className="vod-page">
       <Header />
 
-      <main>
+      <main id="contenido" tabIndex={-1}>
         <section className="vod-hero">
           <div>
             <span>
@@ -240,13 +240,7 @@ export default function VodPage() {
               </b>
 
               <b>
-                {vod.status?.toUpperCase()}
-              </b>
-
-              <b>
-                {
-                  result.label
-                }
+                {({ played: 'Finalizado', scheduled: 'Programado', upcoming: 'Próximo', cancelled: 'Cancelado' }[vod.status] || vod.status)}
               </b>
             </div>
           </div>
@@ -276,7 +270,7 @@ export default function VodPage() {
         {vod.description && (
           <section className="vod-description">
             <span>
-              01 / MATCH INFO
+              01 / Información del partido
             </span>
 
             <p>
@@ -288,16 +282,10 @@ export default function VodPage() {
         )}
 
         <section className="vod-section">
-          <div className="vod-index">
-            <span>02</span>
-            <small>
-              LINEUP
-            </small>
-          </div>
 
           <div>
             <h2>
-              PLAYERS.
+              Jugadores
             </h2>
 
             <div className="vod-lineup">
@@ -353,13 +341,9 @@ export default function VodPage() {
 
         {hasSeriesMaps && (
           <section className="vod-section">
-            <div className="vod-index">
-              <span>03</span>
-              <small>MAPAS</small>
-            </div>
 
             <div>
-              <h2>SERIE.</h2>
+              <h2>Mapas</h2>
 
               <div className="vod-series-maps">
                 {maps.map((item, index) => {
@@ -406,15 +390,9 @@ export default function VodPage() {
         )}
 
         <section className="vod-section">
-          <div className="vod-index">
-            <span>{watchIndex}</span>
-            <small>
-              WATCH
-            </small>
-          </div>
 
           <div>
-            <h2>VOD.</h2>
+            <h2>Grabación</h2>
 
             <div className="vod-actions">
               {vod.youtube_url && (
@@ -426,7 +404,7 @@ export default function VodPage() {
                   target="_blank"
                   rel="noreferrer"
                 >
-                  ABRIR VOD ↗
+                  ABRIR VOD
                 </a>
               )}
 
@@ -454,16 +432,10 @@ export default function VodPage() {
         </section>
 
         <section className="vod-section">
-          <div className="vod-index">
-            <span>{clipsIndex}</span>
-            <small>
-              CLIPS
-            </small>
-          </div>
 
           <div>
             <h2>
-              HIGHLIGHTS.
+              Clips
             </h2>
 
             {clips.length ? (
@@ -526,7 +498,7 @@ export default function VodPage() {
                       </p>
 
                       <em>
-                        VER CLIP ↗
+                        VER CLIP
                       </em>
                     </a>
                   ),
@@ -542,8 +514,8 @@ export default function VodPage() {
         </section>
 
         <section className="vod-back">
-          <Link to="/#partidos">
-            ← VOLVER A
+          <Link to="/partidos">
+            VOLVER A
             PARTIDOS
           </Link>
 
