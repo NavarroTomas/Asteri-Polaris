@@ -1,5 +1,6 @@
 import { Route, Routes } from 'react-router-dom'
 import ThemeToggle from './components/ThemeToggle'
+import QuietCursor from './components/QuietCursor'
 import PageEntrance from './components/PageEntrance'
 import HomePage from './pages/HomePage'
 import TeamPage from './pages/TeamPage'
@@ -35,6 +36,7 @@ export default function App() {
       <RouteScrollManager />
       <PageEntrance />
       <ThemeToggle />
+      <QuietCursor />
 
       <RosterInteractionEnhancer />
       <MatchTerminologySync />

@@ -1,0 +1,25 @@
+.ap-quiet-cursor { position: fixed; top: 0; left: 0; width: 0; height: 0; pointer-events: none; z-index: 1000; }
+.ap-quiet-cursor[hidden] { display: none; }
+.ap-quiet-cursor span { display: block; width: 18px; height: 18px; border: 1px solid var(--color-primary); border-radius: 50%; opacity: .3; transform: translate(-50%, -50%); transition: width .22s ease, height .22s ease, opacity .22s ease; }
+.ap-quiet-cursor[data-active="true"] span { width: 30px; height: 30px; opacity: .45; }
+.ap-promo { align-items: center; min-height: 200px; }
+.ap-promo h2 { max-width: none; font-size: clamp(30px, 2.5vw, 42px); }
+.ap-promo::before { content: ''; position: absolute; inset: 0; border-radius: inherit; background: var(--color-primary); opacity: .03; animation: ap-sponsor-breathe 14s ease-in-out infinite alternate; pointer-events: none; }
+.ap-promo-cocoliche::before { background: #fff; animation-delay: -7s; }
+@keyframes ap-sponsor-breathe { to { opacity: .12; } }
+@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+ .ap-button, .ap-menu, .pp-more, .ap-theme-float { transition: transform .22s ease, box-shadow .22s ease, background .22s ease; }
+ .ap-button:hover, .ap-menu:hover, .pp-more:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(0,0,0,.14); }
+ .ap-channel > span, .pp-channel > div { transition: transform .22s ease; }
+ .ap-channel:hover > span, .pp-channel:hover > div { transform: translateX(3px); }
+ .ap-footer a, .pp-inline-link, .ap-card-link { text-decoration-color: transparent; text-underline-offset: 5px; transition: text-decoration-color .22s ease, color .22s ease; }
+ .ap-footer a:hover, .pp-inline-link:hover, a:hover > .ap-card-link { text-decoration: underline; text-decoration-color: currentColor; }
+ .ap-match { transition: background .22s ease, box-shadow .22s ease; }
+ .ap-match:hover { box-shadow: inset 3px 0 0 var(--color-primary); }
+}
+@media (hover: none), (pointer: coarse), (prefers-reduced-motion: reduce) {
+ .ap-quiet-cursor { display: none !important; }
+}
+@media (prefers-reduced-motion: reduce) {
+ .ap-promo::before { animation: none; opacity: .04; }
+}
