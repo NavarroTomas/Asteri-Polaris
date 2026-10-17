@@ -1,4 +1,6 @@
 import Header from './Header'
+import { useLocation } from 'react-router-dom'
+import Mascot from './Mascot'
 import PortalFooter from './PortalFooter'
 import { SOCIAL_LINKS } from '../config/socialLinks'
 import './PortalPages.css'
@@ -26,5 +28,7 @@ export function PageState({ status, retry, empty, children }) {
 }
 
 export default function PortalPage({ title, intro, children, aside = true }) {
-  return <div className="pp-page"><Header /><main id="contenido" tabIndex={-1} className="pp-shell"><div className={aside ? 'pp-layout' : 'pp-layout pp-layout-wide'}><div className="pp-content"><div className="pp-heading"><h1>{title}</h1>{intro && <p>{intro}</p>}</div>{children}</div>{aside && <aside className="pp-aside" aria-label="Canales y comunidad"><PageAside /></aside>}</div></main><PortalFooter /></div>
+  const { pathname } = useLocation()
+  const pose = { '/partidos': 'matches', '/torneos': 'tournaments', '/equipo': 'team', '/media': 'media', '/nosotros': 'about', '/historia': 'history', '/comunidad': 'community', '/contacto': 'contact', '/inscripcion': 'application' }[pathname.replace(/\/$/, '')]
+  return <div className="pp-page"><Header /><main id="contenido" tabIndex={-1} className="pp-shell"><div className={aside ? 'pp-layout' : 'pp-layout pp-layout-wide'}><div className="pp-content"><div className={pose ? 'pp-heading pp-heading-with-mascot' : 'pp-heading'}><div><h1>{title}</h1>{intro && <p>{intro}</p>}</div>{pose && <Mascot pose={pose} priority />}</div>{children}</div>{aside && <aside className="pp-aside" aria-label="Canales y comunidad"><PageAside /></aside>}</div></main><PortalFooter /></div>
 }

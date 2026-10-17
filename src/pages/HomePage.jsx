@@ -7,7 +7,7 @@ import { APPLICATION_URL } from '../config/application'
 import { getHomeMatches } from '../lib/homeMatches'
 import { getSiteSettings, DEFAULT_SITE_SETTINGS } from '../lib/siteSettings'
 import './HomePage.css'
-import mascot from '../assets/brand/asteri-mascot.png'
+import Mascot from '../components/Mascot'
 
 const channels = [
   ['IG', 'Instagram', 'Fotos y publicaciones', SOCIAL_LINKS.instagram],
@@ -60,7 +60,7 @@ export default function HomePage() {
         <div className="ap-main-column">
           <section className="ap-recruit" id="postulate" aria-labelledby="recruit-title">
             <div className="ap-recruit-copy"><h1 id="recruit-title">Sumate al plantel</h1><p>Contanos sobre tu experiencia y compartí tu perfil con el staff.</p><a className="ap-button" href={APPLICATION_URL} target="_blank" rel="noreferrer">ABRIR FORMULARIO</a><small>Se abre en una nueva pestaña.</small></div>
-            <div className="ap-mascot-stage"><img className="ap-mascot" src={mascot} alt="Cocodrilo, mascota de ASTERI" width="1223" height="1286" fetchPriority="high" /></div>
+            <div className="ap-mascot-stage"><Mascot pose="welcome" priority /></div>
           </section>
           <section className="ap-section" id="novedades" aria-labelledby="updates-title">
             <div className="ap-section-heading"><h2 id="updates-title">NOVEDADES</h2></div>
