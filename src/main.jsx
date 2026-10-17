@@ -9,6 +9,7 @@ import './ui-polish.css'
 import './DesignRefinement.css'
 import './Theme.css'
 import './Entrance.css'
+import './Spacious.css'
 import { initializeTheme, ThemeProvider } from './context/ThemeContext'
 
 initializeTheme()

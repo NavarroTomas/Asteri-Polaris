@@ -8,6 +8,7 @@ import { getHomeMatches } from '../lib/homeMatches'
 import { getSiteSettings, DEFAULT_SITE_SETTINGS } from '../lib/siteSettings'
 import './HomePage.css'
 import Mascot from '../components/Mascot'
+import SidebarPromotions from '../components/SidebarPromotions'
 
 const channels = [
   ['IG', 'Instagram', 'Fotos y publicaciones', SOCIAL_LINKS.instagram],
@@ -80,7 +81,7 @@ export default function HomePage() {
         </div>
         <aside className="ap-sidebar" id="comunidad" aria-label="Comunidad y canales oficiales">
           <section className="ap-channels"><h2>REDES SOCIALES</h2><div>{channels.map(([icon, title, description, href]) => <a className="ap-channel" href={href} key={title} target="_blank" rel="noreferrer"><span><strong>{title}</strong><small>{description}</small></span></a>)}</div></section>
-
+          <SidebarPromotions />
         </aside>
       </div>
     </main>
