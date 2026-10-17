@@ -1,0 +1,20 @@
+:root { --site-background: url('./assets/backgrounds/asteri-dark.png'); }
+:root[data-theme="light"] { --site-background: url('./assets/backgrounds/asteri-light.png'); }
+body {
+  min-height: 100vh;
+  background-color: var(--color-bg);
+  background-image: var(--site-background);
+  background-size: max(100vw, 1440px) auto;
+  background-position: center top;
+  background-repeat: repeat-y;
+  background-attachment: fixed;
+}
+html[data-theme] :is(.ap-home,.pp-page,.ap-home-grid,.pp-layout,.ap-main-column,.pp-content,.public-player-page,.public-player-page main,.public-player-state,.vod-page,.vod-state,.asteri-auth-page,.asteri-account-page) {
+  background: transparent;
+}
+.ap-header { background: color-mix(in srgb, var(--color-bg) 94%, transparent); }
+.ap-footer { background: transparent; }
+.ap-promo-dev { background-image: var(--site-background); background-size: cover; background-position: center; }
+@media (max-width: 820px) {
+  body { background-attachment: scroll; background-size: auto 850px; }
+}
