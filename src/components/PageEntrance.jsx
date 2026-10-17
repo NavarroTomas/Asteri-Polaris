@@ -4,7 +4,7 @@ import { useLocation } from 'react-router-dom'
 const TARGETS = [
   '.ap-logo', '.ap-nav > a', '.ap-about', '.ap-nav-actions > *',
   '.ap-recruit-copy', '.ap-mascot-stage .ap-mascot', '.ap-section-heading', '.ap-update-card', '.ap-match-panel', '.ap-media-card',
-  '.ap-promo', '.ap-channels h2', '.ap-channel', '.pp-channels h2', '.pp-channel',
+  '.ap-home-feature', '.ap-promo', '.ap-channels h2', '.ap-channel', '.pp-channels h2', '.pp-channel',
   '.pp-heading', '.pp-filter-bar', '.pp-section-title', '.pp-match-row', '.pp-empty',
   '.pp-team-heading', '.pp-team-socials', '.pp-player', '.pp-video-feature', '.pp-vod-card',
   '.pp-history-card', '.pp-quote', '.pp-link-card', '.pp-community-hero', '.pp-contact-card', '.pp-application',

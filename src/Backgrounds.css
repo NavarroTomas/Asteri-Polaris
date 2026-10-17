@@ -18,3 +18,5 @@ html[data-theme] :is(.ap-home,.pp-page,.ap-home-grid,.pp-layout,.ap-main-column,
 @media (max-width: 820px) {
   body { background-attachment: scroll; background-size: auto 850px; }
 }
+.ap-promo-cocoliche { background-image: url('./assets/backgrounds/cocoliche-green.png'); background-size: cover; background-position: center; }
+.ap-promo-cocoliche h2 { padding: 8px 12px; border-radius: 12px; background: #01d069; color: #031109; }

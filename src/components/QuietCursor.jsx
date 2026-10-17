@@ -35,7 +35,7 @@ export default function QuietCursor() {
       if (element.hidden) { x = targetX; y = targetY }
       element.hidden = false
       document.documentElement.classList.add('has-quiet-cursor')
-      const action = event.target.closest('a[href], button, [role="button"]')
+      const action = event.target.closest('a[href], button, summary, [role="button"]')
       element.dataset.active = action && !action.matches(':disabled, [aria-disabled="true"]') ? 'true' : 'false'
       if (!frame) frame = requestAnimationFrame(draw)
     }

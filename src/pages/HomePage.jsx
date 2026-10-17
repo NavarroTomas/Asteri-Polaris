@@ -9,6 +9,7 @@ import { getSiteSettings, DEFAULT_SITE_SETTINGS } from '../lib/siteSettings'
 import './HomePage.css'
 import Mascot from '../components/Mascot'
 import SidebarPromotions from '../components/SidebarPromotions'
+import HomeExtras, { LatestMatch } from '../components/HomeExtras'
 
 const channels = [
   ['IG', 'Instagram', 'Fotos y publicaciones', SOCIAL_LINKS.instagram],
@@ -54,6 +55,7 @@ export default function HomePage() {
   const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Argentina/Buenos_Aires', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date())
   const upcoming = matches.filter(match => match.status === 'PRÓXIMO' && match.dateISO >= today && match.slug).slice(0, 3)
   const replays = matches.filter(match => match.status === 'JUGADO' && match.slug).sort((a, b) => b.dateISO.localeCompare(a.dateISO)).slice(0, 3)
+  const latestMatch = matches.filter(match => match.status === 'JUGADO').sort((a,b) => b.dateISO.localeCompare(a.dateISO) || b.time.localeCompare(a.time))[0]
   return <div className="ap-home" id="inicio">
     <Header />
     <main className="ap-home-main" id="contenido" tabIndex={-1}>
@@ -70,6 +72,7 @@ export default function HomePage() {
               <Link className="ap-update-card ap-team-card" to="/equipo"><h3>Jugadores</h3><p>Roles y fichas individuales.</p><span className="ap-card-link">VER PLANTEL</span></Link>
             </div>
           </section>
+          <LatestMatch match={latestMatch} status={status} retry={() => setAttempt(value => value + 1)} />
           <section className="ap-section" id="partidos" aria-labelledby="matches-title">
             <div className="ap-section-heading"><h2 id="matches-title">PARTIDOS</h2></div>
             <div className="ap-match-panel"><div className="ap-tabs" role="group" aria-label="Mostrar partidos"><button aria-pressed={tab === 'upcoming'} onClick={() => setTab('upcoming')}>PRÓXIMOS PARTIDOS</button><button aria-pressed={tab === 'replays'} onClick={() => setTab('replays')}>ÚLTIMOS VODS</button></div><MatchList matches={tab === 'upcoming' ? upcoming : replays} status={status} retry={() => setAttempt(value => value + 1)} replays={tab === 'replays'} /><Link className="ap-calendar-link" to="/partidos">VER CALENDARIO COMPLETO Y RESULTADOS </Link></div>
@@ -78,6 +81,7 @@ export default function HomePage() {
             <div className="ap-section-heading"><h2 id="media-title">VIDEOS</h2></div>
             <div className="ap-media-card"><video key={video} src={video} controls playsInline preload="metadata" aria-label="Video de presentación de ASTERI" /><div><h3>Presentación</h3><p>Videos y grabaciones de partidas.</p><Link className="ap-card-link" to="/media">VER MULTIMEDIA</Link></div></div>
           </section>
+          <HomeExtras />
         </div>
         <aside className="ap-sidebar" id="comunidad" aria-label="Comunidad y canales oficiales">
           <section className="ap-channels"><h2>REDES SOCIALES</h2><div>{channels.map(([icon, title, description, href]) => <a className="ap-channel" href={href} key={title} target="_blank" rel="noreferrer"><span><strong>{title}</strong><small>{description}</small></span></a>)}</div></section>
