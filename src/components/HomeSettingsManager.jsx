@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react'
-import SiteStatsManager from './SiteStatsManager'
 import AnimationDiagnostics from './AnimationDiagnostics'
 import {
   DEFAULT_SITE_SETTINGS,
@@ -181,54 +180,6 @@ export default function HomeSettingsManager() {
               </button>
             </div>
           </form>
-        </div>
-      </section>
-
-      <section className="admin-settings-card">
-        <div className="admin-settings-card-head">
-          <div>
-            <h2>Números públicos</h2>
-            <p>
-              Estos valores ya no se editan manualmente.
-              Se calculan automáticamente desde el plantel
-              activo y los partidos publicados del calendario.
-            </p>
-          </div>
-        </div>
-
-        <div className="admin-numbers-layout">
-          <div>
-            <SiteStatsManager />
-          </div>
-
-          <div className="admin-numbers-reference">
-            <span>
-              Referencia visual de los cuadrados
-              sincronizados de la Home.
-            </span>
-
-            <div className="admin-numbers-reference-preview">
-              <article>
-                <strong>PLAYERS</strong>
-                <small>PLANTEL ACTIVO</small>
-              </article>
-
-              <article>
-                <strong>MATCHES</strong>
-                <small>PARTIDOS JUGADOS</small>
-              </article>
-
-              <article>
-                <strong>WINS</strong>
-                <small>VICTORIAS</small>
-              </article>
-
-              <article>
-                <strong>TEAM</strong>
-                <small>ASTERI</small>
-              </article>
-            </div>
-          </div>
         </div>
       </section>
 

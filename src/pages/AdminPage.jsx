@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useState } from 'react'
-import { Link, Navigate, useNavigate } from 'react-router-dom'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { Link, Navigate, useNavigate, useSearchParams } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import {
   approveAndLinkPlayer,
@@ -12,6 +12,7 @@ import {
 import RosterManager from '../components/RosterManager'
 import AuditLogManager from '../components/AuditLogManager'
 import HomeSettingsManager from '../components/HomeSettingsManager'
+import AdminAnalytics from '../components/AdminAnalytics'
 import './AdminPage.css'
 
 function formatDate(value) {
@@ -21,35 +22,6 @@ function formatDate(value) {
     dateStyle: 'short',
     timeStyle: 'short',
   }).format(new Date(value))
-}
-
-function actionCopy(log) {
-  const names = {
-    PROFILES_INSERT: 'Cuenta creada',
-    PROFILES_UPDATE: 'Cuenta actualizada',
-    PLAYERS_INSERT: 'Jugador creado',
-    PLAYERS_UPDATE: 'Jugador actualizado',
-    PLAYER_STATS_UPDATE: 'Estadísticas actualizadas',
-    PLAYER_CONFIGS_UPDATE: 'Configuración actualizada',
-    VODS_INSERT: 'VOD creada',
-    VODS_UPDATE: 'VOD actualizada',
-    VODS_DELETE: 'VOD eliminada',
-    VOD_MAPS_INSERT: 'Mapa añadido a una serie',
-    VOD_MAPS_UPDATE: 'Resultado de mapa actualizado',
-    VOD_MAPS_DELETE: 'Mapa eliminado de una serie',
-    CLIPS_INSERT: 'Clip creado',
-    CLIPS_UPDATE: 'Clip actualizado',
-    CLIPS_DELETE: 'Clip eliminado',
-    VOD_PLAYERS_INSERT: 'Jugador añadido a una VOD',
-    VOD_PLAYERS_DELETE: 'Jugador eliminado de una VOD',
-    CALENDAR_EVENTS_INSERT: 'Fecha añadida al calendario',
-    CALENDAR_EVENTS_UPDATE: 'Fecha del calendario actualizada',
-    CALENDAR_EVENTS_DELETE: 'Fecha eliminada del calendario',
-    SITE_STATS_UPDATE: 'Números públicos actualizados',
-    SITE_SETTINGS_UPDATE: 'Configuración de inicio actualizada',
-  }
-
-  return names[log.action] || String(log.action || '').replaceAll('_', ' ')
 }
 
 function AdminSectionHeader({ title, description, onBack }) {
@@ -71,7 +43,15 @@ export default function AdminPage() {
   const { profile, signOut, isOwner } = useAuth()
   const navigate = useNavigate()
 
-  const [view, setView] = useState('overview')
+  const [params, setParams] = useSearchParams()
+  const requestedView = params.get('section') || 'overview'
+  const allowedViews = ['overview', 'users', 'pending', 'roster', 'vods', 'activity', 'analytics', ...(isOwner ? ['home'] : [])]
+  const view = allowedViews.includes(requestedView) ? requestedView : 'overview'
+  const setView = section => setParams(section === 'overview' ? {} : { section })
+  const heading = useRef(null)
+  const [refreshing, setRefreshing] = useState(false)
+  const [loaded, setLoaded] = useState(false)
+  useEffect(() => { heading.current?.focus(); window.scrollTo({ top: 0, behavior: 'instant' }) }, [view])
   const [snapshot, setSnapshot] = useState({
     profiles: [],
     players: [],
@@ -86,14 +66,17 @@ export default function AdminPage() {
 
   const load = async () => {
     setError('')
+    setRefreshing(true)
 
     try {
       const data = await getAdminSnapshot()
       setSnapshot(data)
+      setLoaded(true)
     } catch (err) {
       setError(err.message || 'No se pudo cargar el panel.')
     } finally {
       setLoading(false)
+      setRefreshing(false)
     }
   }
 
@@ -118,11 +101,6 @@ export default function AdminPage() {
         .map(player => [player.user_id, player]),
     )
   }, [snapshot.players])
-
-  const activePlayers = useMemo(
-    () => snapshot.players.filter(player => player.is_active),
-    [snapshot.players],
-  )
 
   const runAction = async (key, action) => {
     setWorkingId(key)
@@ -178,14 +156,6 @@ export default function AdminPage() {
     navigate('/', { replace: true })
   }
 
-  const goToPending = () => {
-    requestAnimationFrame(() => {
-      document
-        .getElementById('pending-users')
-        ?.scrollIntoView({ behavior: 'smooth', block: 'start' })
-    })
-  }
-
   if (loading) {
     return (
       <main className="auth-loading">
@@ -195,57 +165,17 @@ export default function AdminPage() {
   }
 
   const modules = [
-    {
-      id: 'users',
-      title: 'Usuarios',
-      description: 'Accesos, roles, estados y cuentas vinculadas.',
-      value: snapshot.profiles.length,
-      action: () => setView('users'),
-    },
-    {
-      id: 'pending',
-      title: 'Pendientes',
-      description: 'Solicitudes que necesitan aprobación o rechazo.',
-      value: pendingUsers.length,
-      action: goToPending,
-      warning: pendingUsers.length > 0,
-    },
-    {
-      id: 'roster',
-      title: 'Plantel',
-      description: 'Jugadores, perfiles, estadísticas y configuración.',
-      value: activePlayers.length,
-      action: () => setView('roster'),
-    },
-    {
-      id: 'vods',
-      title: 'Partidos y VODs',
-      description: 'Calendario, series, resultados, VODs y clips.',
-      value: snapshot.vods.length,
-      action: () => setView('vods'),
-    },
-    ...(isOwner
-      ? [
-          {
-            id: 'home',
-            title: 'Inicio',
-            description: 'Video principal y números públicos de la Home.',
-            value: 'WEB',
-            action: () => setView('home'),
-          },
-        ]
-      : []),
-    {
-      id: 'activity',
-      title: 'Actividad',
-      description: 'Historial completo de cambios administrativos.',
-      value: snapshot.logs.length,
-      action: () => setView('activity'),
-    },
+    { id: 'analytics', title: 'Analítica' },
+    { id: 'roster', title: 'Plantel' },
+    { id: 'vods', title: 'Partidos y VODs' },
+    { id: 'users', title: 'Usuarios' },
+    { id: 'pending', title: 'Solicitudes' },
+    ...(isOwner ? [{ id: 'home', title: 'Configuración web' }] : []),
+    { id: 'activity', title: 'Actividad' },
   ]
 
   return (
-    <main className="asteri-admin">
+    <main className="asteri-admin" ref={heading} tabIndex={-1}>
       <header className="admin-topbar">
         <Link className="admin-brand" to="/">
           <span>ASTERI</span>
@@ -262,8 +192,8 @@ export default function AdminPage() {
             Ver sitio
           </Link>
 
-          <button type="button" onClick={load}>
-            Actualizar
+          <button type="button" onClick={load} disabled={refreshing} aria-busy={refreshing}>
+            {refreshing ? 'Actualizando…' : 'Actualizar'}
           </button>
 
           <button type="button" onClick={logout}>
@@ -272,44 +202,26 @@ export default function AdminPage() {
         </div>
       </header>
 
-      {error && <div className="admin-global-error">{error}</div>}
+      {error && <div className="admin-global-error" role="alert">{error}<button type="button" onClick={load} disabled={refreshing}>Reintentar</button></div>}
 
+      {view !== 'overview' && <nav className="admin-section-nav" aria-label="Secciones del panel">
+        <button type="button" onClick={() => setView('overview')}>Panel</button>
+        {modules.map(module => <button key={module.id} type="button" aria-current={view === module.id ? 'page' : undefined} onClick={() => setView(module.id)}>{module.title}</button>)}
+      </nav>}
       {view === 'overview' && (
         <div className="admin-dashboard">
-          <section className="admin-dashboard-intro">
-            <div>
-              <h1>Panel de administración</h1>
-              <p>
-                Gestioná usuarios, contenido y configuración pública del sitio
-                desde un solo lugar.
-              </p>
-            </div>
-
-            <span className="admin-role-badge">
-              {isOwner ? 'Owner' : 'Admin'}
-            </span>
-          </section>
-
+          <section className="admin-dashboard-intro"><h1>Administración</h1></section>
           <section className="admin-module-grid" aria-label="Secciones administrativas">
-            {modules.map(module => (
-              <button
-                type="button"
-                className={`admin-module-card ${
-                  module.warning ? 'has-warning' : ''
-                }`}
-                key={module.id}
-                onClick={module.action}
-              >
-                <div className="admin-module-card-top">
-                  <span>{module.title}</span>
-                  <strong>{module.value}</strong>
-                </div>
-
-                <p>{module.description}</p>
-              </button>
-            ))}
+            {modules.map(module => <button type="button" className="admin-module-card" key={module.id} onClick={() => setView(module.id)}><span>{module.title}</span></button>)}
           </section>
-
+        </div>
+      )}
+      {view === 'analytics' && <div className="admin-content-view">
+        <AdminSectionHeader title="Analítica" description="Estado de la web y rendimiento del equipo." onBack={() => setView('overview')} />
+        {loaded ? <AdminAnalytics snapshot={snapshot} isOwner={isOwner} onSettings={() => setView('home')} /> : <p role="status">No se pudieron cargar los datos. Usá Reintentar para volver a consultar.</p>}
+      </div>}
+      {view === 'pending' && <div className="admin-content-view">
+        <AdminSectionHeader title="Solicitudes" onBack={() => setView('overview')} />
           <section className="admin-dashboard-section" id="pending-users">
             <div className="admin-dashboard-section-head">
               <div>
@@ -319,7 +231,7 @@ export default function AdminPage() {
                 </p>
               </div>
 
-              <span>{pendingUsers.length}</span>
+
             </div>
 
             {pendingUsers.length === 0 ? (
@@ -383,42 +295,7 @@ export default function AdminPage() {
               </div>
             )}
           </section>
-
-          <section className="admin-dashboard-section">
-            <div className="admin-dashboard-section-head">
-              <div>
-                <h2>Últimos movimientos administrativos</h2>
-                <p>
-                  Cambios recientes realizados sobre usuarios y contenido.
-                </p>
-              </div>
-
-              <button type="button" onClick={() => setView('activity')}>
-                Ver historial completo
-              </button>
-            </div>
-
-            <div className="admin-recent-activity">
-              {snapshot.logs.length === 0 ? (
-                <div className="admin-empty-state">
-                  Todavía no hay actividad registrada.
-                </div>
-              ) : (
-                snapshot.logs.slice(0, 10).map(log => (
-                  <article key={log.id}>
-                    <div>
-                      <strong>{actionCopy(log)}</strong>
-                      <span>{log.entity_type}</span>
-                    </div>
-
-                    <time>{formatDate(log.created_at)}</time>
-                  </article>
-                ))
-              )}
-            </div>
-          </section>
-        </div>
-      )}
+      </div>}
 
       {view === 'users' && (
         <div className="admin-content-view">
@@ -462,33 +339,33 @@ export default function AdminPage() {
                         changeRole(user, event.target.value)
                       }
                     >
-                      <option value="player">Player</option>
-                      <option value="admin">Admin</option>
-                      {isOwner && <option value="owner">Owner</option>}
+                      <option value="player">Jugador</option>
+                      <option value="admin">Administrador</option>
+                      {isOwner && <option value="owner">Propietario</option>}
                     </select>
                   </div>
 
                   <div>
-                    <span className={`admin-status ${user.status}`}>
-                      {user.status}
+                    <span className={`admin-status ${{ active: 'Activa', pending: 'Pendiente', suspended: 'Suspendida' }[user.status] || user.status}`}>
+                      {{ active: 'Activa', pending: 'Pendiente', suspended: 'Suspendida' }[user.status] || user.status}
                     </span>
                   </div>
 
                   <div className="admin-row-actions">
                     {user.status === 'active' && !isSelf && (
-                      <button type="button" onClick={() => suspend(user)}>
+                      <button type="button" disabled={workingId === user.id} onClick={() => suspend(user)}>
                         Suspender
                       </button>
                     )}
 
                     {user.status === 'suspended' && (
-                      <button type="button" onClick={() => reactivate(user)}>
+                      <button type="button" disabled={workingId === user.id} onClick={() => reactivate(user)}>
                         Reactivar
                       </button>
                     )}
 
                     {linkedPlayer && !isSelf && (
-                      <button type="button" onClick={() => unlink(user)}>
+                      <button type="button" disabled={workingId === `unlink-${user.id}`} onClick={() => unlink(user)}>
                         Desvincular
                       </button>
                     )}
@@ -515,7 +392,7 @@ export default function AdminPage() {
       {view === 'home' && isOwner && (
         <div className="admin-content-view">
           <AdminSectionHeader
-            title="Inicio"
+            title="Configuración web"
             description="Configuración de los elementos principales de la página pública."
             onBack={() => setView('overview')}
           />

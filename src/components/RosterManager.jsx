@@ -585,7 +585,7 @@ export default function RosterManager() {
           onClick={newPlayer}
           disabled={saving}
         >
-          + NUEVO JUGADOR
+          NUEVO JUGADOR
         </button>
       </div>
 
@@ -692,7 +692,7 @@ export default function RosterManager() {
                     to={`/players/${form.slug}`}
                     target="_blank"
                   >
-                    VER PERFIL ↗
+                    VER PERFIL
                   </Link>
                 )}
             </div>

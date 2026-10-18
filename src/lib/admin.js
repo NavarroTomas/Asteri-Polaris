@@ -20,7 +20,7 @@ export async function getAdminSnapshot() {
 
     supabase
       .from('vods')
-      .select('id, title, status, is_published'),
+      .select('id, slug, title, opponent, status, is_published, match_date, score_asteri, score_opponent, match_outcome'),
 
     supabase
       .from('clips')
@@ -122,4 +122,11 @@ export async function rejectPendingUser(userId) {
   )
 
   if (error) throw error
+}
+
+export async function getAdminMapResults() {
+  const { data, error } = await supabase.from('vod_maps')
+    .select('vod_id, map_name, score_asteri, score_opponent')
+  if (error) throw error
+  return data ?? []
 }

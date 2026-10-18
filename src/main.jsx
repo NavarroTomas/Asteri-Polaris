@@ -13,6 +13,7 @@ import './Spacious.css'
 import './Interactions.css'
 import './Backgrounds.css'
 import './DetailDesign.css'
+import './AdminDesign.css'
 import { initializeTheme, ThemeProvider } from './context/ThemeContext'
 
 initializeTheme()
