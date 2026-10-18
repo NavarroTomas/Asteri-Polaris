@@ -1,14 +1,14 @@
 const poses = {
-  welcome: ['01-saludando.png', 'La mascota saludando'],
-  contact: ['02-pulgar-arriba.png', 'La mascota con el pulgar arriba'],
-  team: ['03-brazos-cruzados.png', 'La mascota con los brazos cruzados'],
-  community: ['04-celebrando.png', 'La mascota celebrando'],
-  application: ['05-senalando.png', 'La mascota señalando'],
-  tournaments: ['06-corriendo.png', 'La mascota corriendo'],
-  history: ['07-sentado.png', 'La mascota sentada'],
-  media: ['08-sorprendido.png', 'La mascota sorprendida'],
-  about: ['09-saltando.png', 'La mascota saltando'],
-  matches: ['10-jugando-pc.png', 'La mascota jugando en la computadora'],
+  welcome: ['01-saludando.png', 'Cocoliche saludando'],
+  contact: ['02-pulgar-arriba.png', 'Cocoliche con el pulgar arriba'],
+  team: ['03-brazos-cruzados.png', 'Cocoliche con los brazos cruzados'],
+  community: ['04-celebrando.png', 'Cocoliche celebrando'],
+  application: ['05-senalando.png', 'Cocoliche señalando'],
+  tournaments: ['06-corriendo.png', 'Cocoliche corriendo'],
+  history: ['07-sentado.png', 'Cocoliche sentado'],
+  media: ['08-sorprendido.png', 'Cocoliche sorprendido'],
+  about: ['09-saltando.png', 'Cocoliche saltando'],
+  matches: ['10-jugando-pc.png', 'Cocoliche jugando en la computadora'],
 }
 const images = import.meta.glob('../assets/mascot/*.png', { eager: true, query: '?url', import: 'default' })
 
