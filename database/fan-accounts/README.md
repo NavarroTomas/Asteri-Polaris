@@ -1,35 +1,30 @@
-# Cuentas de hinchas: activación pendiente
+# Cuentas de hinchas: activadas
 
-Proyecto de destino: `ozhuzdsmmvfqgqpgvavj` (ASTERI). El conector disponible NO tiene acceso a este proyecto. Ningún SQL de esta carpeta fue ejecutado.
+Aplicado el 18 de octubre de 2026 en `ozhuzdsmmvfqgqpgvavj` (ASTERI Polaris), mediante el editor SQL de la sesión autorizada de Supabase.
 
-## Antes de aplicar
+## Instalación aplicada
 
-Conectar la cuenta de Supabase que administra ASTERI. Revisar el esquema real de `profiles`, `players`, `player_stats`, `player_configs`, los triggers de alta/perfil y las políticas existentes. Obtener un respaldo de esquema y verificar que:
+Se inspeccionaron columnas, restricciones, triggers, funciones y políticas reales. El rol es texto: no fue necesario extender un enum con `01-prepare.sql`. Se aplicó `02-install.sql` completo, dentro de una transacción.
 
-- Los roles actuales son `player`, `admin`, `owner` y los estados `active`, `pending`, `suspended`.
-- No existe un trigger posterior que reemplace `fan` por `player` en INSERT ni uno que impida cambios de rol autorizados por administradores.
-- Las políticas de jugadores, estadísticas y configuración exigen vínculo `players.user_id = auth.uid()` además de estado activo; ser hincha no debe dar acceso de edición a jugadores ajenos.
-- Los usuarios no pueden actualizar su propio rol/estado ni vincularse unilateralmente con una ficha por las tablas o RPC antiguas. Auditar también `set_member_role`, `approve_player_account`, `unlink_player_account` y la subida de archivos.
-- El SQL de creación de ficha coincide con los campos obligatorios reales y los triggers no crean ya estadísticas/configuración duplicadas.
+- Las altas nuevas usan `fan` y `active` desde el trigger de Auth, sin confiar en roles enviados en metadata.
+- Las preferencias son privadas, con RLS y escritura únicamente mediante RPC para el propio hincha activo.
+- Crear/vincular una ficha y habilitar el rol de jugador es una única operación transaccional, exclusiva de administración.
+- Las fichas nuevas son inactivas hasta que administración las completa y activa.
+- Volver a hincha desvincula la ficha sin borrarla.
+- `is_active_member`, `owns_player` y `current_player_id` conservan los permisos internos para jugadores/staff y excluyen hinchas.
+- Se quitaron los privilegios TRUNCATE, REFERENCES y TRIGGER de anon/authenticated sobre las cuatro tablas principales; se conservaron los accesos controlados por RLS.
+- No se convirtieron ni alteraron las 10 cuentas existentes.
 
-El esquema real no está disponible: estos controles son necesarios para integrar la propuesta, no son verificaciones completadas. No ejecutar a ciegas sobre producción.
+Respaldo de esquema y funciones anteriores en `.asteri-backups/2026-10-18-before-fan-accounts/`.
 
-## Instalación
+## Verificación ejecutada
 
-1. Ejecutar `01-prepare.sql` y confirmar esa transacción (PostgreSQL exige commit antes de usar un nuevo valor de enum).
-2. Una vez revisados los puntos anteriores, ejecutar `02-install.sql` completo, en una sola transacción.
-3. Verificar RLS/advisors y los escenarios de abajo antes de publicar el frontend.
+`03-verify.sql` pasó primero junto a la instalación en una transacción revertida y luego sobre la instalación definitiva. Los usuarios y fichas de prueba también se revirtieron: quedaron 0 cuentas de prueba.
 
-No se convierten cuentas existentes ni se eliminan fichas. Las fichas nuevas creadas desde Usuarios nacen inactivas para completarlas antes de mostrarlas en el plantel público.
+Probado: trigger de alta, metadata maliciosa, guardar nombre/favorito/presentación, aislamiento entre hinchas, permisos anónimos, contenido privado, bloqueo de autoasignación de rol, crear/vincular fichas, rechazo de slug duplicado/ficha ocupada sin cambios parciales, edición de estadísticas propias, bloqueo de edición ajena, vuelta a hincha conservando ficha y suspensión.
 
-## Verificación pendiente en la base correcta
+Comprobación adicional por la API pública usada por el frontend: `fan_accounts_ready=true` y lectura anónima de preferencias bloqueada.
 
-- Registro real confirmado: rol `fan`, estado `active`; metadata con `role=owner` debe ignorarse.
-- Hincha A guarda nombre, presentación y favorito; al recargar conserva la elección.
-- Hincha B y anon no leen preferencias de A ni pueden escribirlas directamente.
-- Hincha no puede ejecutar RPC administrativas, editar jugadores o cambiar rol/estado.
-- Administrador vincula ficha libre o crea una nueva: cuenta `player`, ficha vinculada y stats/config iniciales, todo atómico.
-- Slug repetido y ficha ocupada fallan sin dejar jugadores o roles a medias.
-- Suspensión bloquea edición de preferencias y fichas; cuenta existente de jugador mantiene acceso.
-- Volver a hincha desvincula la ficha sin borrarla. No se permite degradar owner/admin desde esta acción.
-- Confirmación de email activa y desactiva: registro muestra el mensaje adecuado y redirige correctamente.
+Las pruebas usan altas SQL transaccionales de Auth y no envían emails. El envío y confirmación de correo y la entrega de emails no se probaron con una cuenta real.
+
+Revisión de Security Advisor tras aplicar: 0 errores y 17 avisos. Los avisos corresponden al listado de dos buckets públicos ya existentes y a RPC SECURITY DEFINER accesibles a usuarios autenticados. Las RPC nuevas validan cuenta/estado/rol desde profiles (no metadata) y los ensayos de autorización y aislamiento pasaron. No se modificaron esos buckets ni se eliminaron verificaciones de autorización para silenciar el análisis.

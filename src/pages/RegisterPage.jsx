@@ -25,7 +25,7 @@ export default function RegisterPage() {
   const [sending, setSending] =
     useState(false)
   const [message, setMessage] = useState('')
-  const [registrationReady, setRegistrationReady] = useState(false)
+  const [registrationReady, setRegistrationReady] = useState(null)
   useEffect(() => {
     let alive = true
     supabase.rpc('fan_accounts_ready').then(({ data, error }) => { if (alive) setRegistrationReady(!error && data === true) })
@@ -286,7 +286,7 @@ export default function RegisterPage() {
           )}
 
           {message && <p className="asteri-auth-message" role="status">{message}</p>}
-          {!registrationReady && <p className="asteri-auth-note" role="status">El registro de hinchas está pendiente de activación. Intentá más tarde.</p>}
+          {registrationReady === null && <p className="asteri-auth-note" role="status">Comprobando disponibilidad del registro…</p>}{registrationReady === false && <p className="asteri-auth-note" role="status">El registro no está disponible en este momento. Intentá más tarde.</p>}
           <p className="asteri-auth-note">No necesitás aprobación para ser hincha. Es posible que debas confirmar tu email.</p>
 
           <button

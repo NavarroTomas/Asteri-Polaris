@@ -1,5 +1,5 @@
--- Apply only after part 01 is committed and the existing ASTERI schema,
--- triggers, policies and RPC authorization have been reviewed.
+-- Reviewed against ASTERI production schema on 2026-10-18. Apply transactionally.
+-- Existing accounts and published players are preserved.
 begin;
 
 -- Extend the role CHECK when profiles.role is text. Other checks stay intact.
@@ -17,15 +17,26 @@ alter table public.profiles add constraint profiles_supported_account_role check
 alter table public.profiles alter column role set default 'fan';
 alter table public.profiles alter column status set default 'active';
 
-create function public.asteri_new_account_is_fan() returns trigger language plpgsql security definer set search_path='' as $$
+-- The existing auth.users trigger calls this function. Roles never come from metadata.
+create or replace function public.handle_new_user() returns trigger language plpgsql security definer set search_path='' as $$
 begin
-  -- Ignore any role/status provided by a signup payload or metadata.
-  new.role := 'fan';
-  new.status := 'active';
+  insert into public.profiles(id,email,display_name,role,status)
+  values(new.id,new.email,left(coalesce(nullif(btrim(new.raw_user_meta_data->>'display_name'),''),nullif(btrim(new.raw_user_meta_data->>'name'),''),split_part(coalesce(new.email,'hincha'),'@',1)),50),'fan','active')
+  on conflict(id) do update set email=excluded.email,display_name=coalesce(public.profiles.display_name,excluded.display_name),updated_at=now();
   return new;
 end $$;
-create trigger zzzz_asteri_signup_fan before insert on public.profiles for each row execute function public.asteri_new_account_is_fan();
-revoke all on function public.asteri_new_account_is_fan() from public, anon, authenticated;
+
+-- Preserve team-only access to unpublished content and demos after adding fans.
+create or replace function public.is_active_member() returns boolean language sql stable security definer set search_path='' as $$
+  select exists(select 1 from public.profiles where id=(select auth.uid()) and status='active' and role in ('owner','admin','player'));
+$$;
+create or replace function public.owns_player(target_player_id uuid) returns boolean language sql stable security definer set search_path='' as $$
+  select exists(select 1 from public.players p join public.profiles pr on pr.id=p.user_id where p.id=target_player_id and p.user_id=(select auth.uid()) and pr.status='active' and pr.role='player');
+$$;
+create or replace function public.current_player_id() returns uuid language sql stable security definer set search_path='' as $$
+  select p.id from public.players p join public.profiles pr on pr.id=p.user_id where p.user_id=(select auth.uid()) and pr.status='active' and pr.role='player' limit 1;
+$$;
+revoke truncate,references,trigger on public.profiles,public.players,public.player_stats,public.player_configs from anon,authenticated;
 
 create table public.fan_preferences (
   user_id uuid primary key references public.profiles(id) on delete cascade,
