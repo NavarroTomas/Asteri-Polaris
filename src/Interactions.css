@@ -38,3 +38,7 @@
 .ap-quiet-cursor[data-active="true"] span::after { opacity: 1; transform: translate(-50%,-50%) rotate(-45deg); }
 .ap-quiet-cursor[data-active="true"]::after { opacity: 0; }
 .ap-quiet-cursor::after { top: 0; left: 0; }
+@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+ .ap-promotions .ap-promo { transition: transform .24s ease, box-shadow .24s ease; }
+ .ap-promotions .ap-promo:hover { transform: translateY(-4px); box-shadow: var(--card-hover-shadow); }
+}
