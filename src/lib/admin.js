@@ -130,3 +130,12 @@ export async function getAdminMapResults() {
   if (error) throw error
   return data ?? []
 }
+
+export async function assignPlayerAccount({ userId, playerId, nickname, slug }) {
+  const { error } = await supabase.rpc('admin_assign_player_account', { target_user_id: userId, target_player_id: playerId || null, new_nickname: nickname || null, new_slug: slug || null })
+  if (error) throw error
+}
+export async function makeFanAccount(userId) {
+  const { error } = await supabase.rpc('admin_make_fan_account', { target_user_id: userId })
+  if (error) throw error
+}

@@ -24,6 +24,13 @@ export default function RegisterPage() {
 
   const [sending, setSending] =
     useState(false)
+  const [message, setMessage] = useState('')
+  const [registrationReady, setRegistrationReady] = useState(false)
+  useEffect(() => {
+    let alive = true
+    supabase.rpc('fan_accounts_ready').then(({ data, error }) => { if (alive) setRegistrationReady(!error && data === true) })
+    return () => { alive = false }
+  }, [])
 
   const {
     loading,
@@ -97,6 +104,8 @@ export default function RegisterPage() {
       event.preventDefault()
 
       setError('')
+      setMessage('')
+      if (!registrationReady) { setError('El registro de hinchas todavía no está habilitado.'); return }
 
       if (
         form.password.length < 8
@@ -121,6 +130,7 @@ export default function RegisterPage() {
 
       try {
         const {
+          data: signUpData,
           error: signUpError,
         } =
           await supabase.auth.signUp({
@@ -139,6 +149,7 @@ export default function RegisterPage() {
         if (signUpError) {
           throw signUpError
         }
+        if (!signUpData.session) setMessage('Revisá tu email para confirmar la cuenta. Después podés iniciar sesión.')
       } catch (err) {
         setError(
           err.message ||
@@ -160,47 +171,9 @@ export default function RegisterPage() {
 
       <section className="asteri-register-layout">
         <div className="asteri-register-copy">
-          <span>
-            PLAYER ACCESS
-          </span>
-
-          <h1>
-            SOLICITÁ
-            <br />
-            ACCESO.
-          </h1>
-
-          <p>
-            Creá tu cuenta para acceder al sistema privado
-            de jugadores. El Owner revisará la solicitud y
-            la vinculará con tu perfil de ASTERI.
-          </p>
-
-          <div className="asteri-register-steps">
-            <article>
-              <strong>01</strong>
-              <div>
-                <span>CREÁ TU CUENTA</span>
-                <p>Usá tu nickname habitual y un email válido.</p>
-              </div>
-            </article>
-
-            <article>
-              <strong>02</strong>
-              <div>
-                <span>ESPERÁ LA APROBACIÓN</span>
-                <p>La cuenta queda pendiente hasta ser vinculada.</p>
-              </div>
-            </article>
-
-            <article>
-              <strong>03</strong>
-              <div>
-                <span>GESTIONÁ TU PERFIL</span>
-                <p>Una vez aprobado podés editar tus datos de jugador.</p>
-              </div>
-            </article>
-          </div>
+          <h1>Sumate a la hinchada</h1>
+          <p>Creá tu cuenta, elegí tu jugador favorito y acompañá al equipo.</p>
+          <p>Tu cuenta empieza como hincha. Si te sumás al plantel, el administrador habilita tu ficha de jugador.</p>
         </div>
 
         <form
@@ -312,16 +285,14 @@ export default function RegisterPage() {
             </p>
           )}
 
-          <p className="asteri-auth-note">
-            La cuenta se crea inmediatamente, pero el acceso
-            de jugador permanece pendiente hasta que el Owner
-            la apruebe.
-          </p>
+          {message && <p className="asteri-auth-message" role="status">{message}</p>}
+          {!registrationReady && <p className="asteri-auth-note" role="status">El registro de hinchas está pendiente de activación. Intentá más tarde.</p>}
+          <p className="asteri-auth-note">No necesitás aprobación para ser hincha. Es posible que debas confirmar tu email.</p>
 
           <button
             className="asteri-auth-submit"
             type="submit"
-            disabled={sending}
+            disabled={sending || !registrationReady}
           >
             {sending
               ? 'CREANDO…'

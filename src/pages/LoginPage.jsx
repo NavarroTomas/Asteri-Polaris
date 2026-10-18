@@ -183,7 +183,7 @@ export default function LoginPage() {
 
           <p>
             Acceso privado para
-            jugadores y administración
+            hinchas, jugadores y administración
             de ASTERI POLARIS.
           </p>
         </div>

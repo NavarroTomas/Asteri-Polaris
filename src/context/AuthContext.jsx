@@ -129,6 +129,7 @@ export function AuthProvider({ children }) {
     const isOwner = role === 'owner'
     const isAdmin = role === 'admin'
     const isPlayer = role === 'player'
+    const isFan = role === 'fan'
 
     const isPending = status === 'pending'
     const isActive = status === 'active'
@@ -154,6 +155,7 @@ export function AuthProvider({ children }) {
       isOwner,
       isAdmin,
       isPlayer,
+      isFan,
 
       isPending,
       isActive,

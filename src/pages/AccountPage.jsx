@@ -11,6 +11,7 @@ import {
   uploadPlayerClip,
   uploadPlayerImage,
 } from '../lib/playerAccount'
+import FanAccount from '../components/FanAccount'
 import './PlayerAccount.css'
 
 const TABS = [
@@ -81,6 +82,7 @@ export default function AccountPage() {
     loading: authLoading,
     signOut,
     isPending,
+    isFan,
     isActive,
     isOwner,
     isAdmin,
@@ -112,7 +114,7 @@ export default function AccountPage() {
   })
 
   const load = async () => {
-    if (!user?.id || !isActive || isOwner || isAdmin) {
+    if (!user?.id || !isActive || isOwner || isAdmin || isFan) {
       setLoading(false)
       return
     }
@@ -157,6 +159,7 @@ export default function AccountPage() {
     isActive,
     isOwner,
     isAdmin,
+    isFan,
   ])
 
   const profileForm = useMemo(
@@ -412,6 +415,8 @@ export default function AccountPage() {
       </main>
     )
   }
+
+  if (isFan && isActive) return <FanAccount />
 
   if (isPending) {
     return (

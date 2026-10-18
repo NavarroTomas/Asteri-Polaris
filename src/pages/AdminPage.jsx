@@ -3,6 +3,8 @@ import { Link, Navigate, useNavigate, useSearchParams } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import {
   approveAndLinkPlayer,
+  assignPlayerAccount,
+  makeFanAccount,
   getAdminSnapshot,
   rejectPendingUser,
   setUserRole,
@@ -13,6 +15,8 @@ import RosterManager from '../components/RosterManager'
 import AuditLogManager from '../components/AuditLogManager'
 import HomeSettingsManager from '../components/HomeSettingsManager'
 import AdminAnalytics from '../components/AdminAnalytics'
+import AdminPlayerAssignment from '../components/AdminPlayerAssignment'
+import '../components/FanAccount.css'
 import './AdminPage.css'
 
 function formatDate(value) {
@@ -63,6 +67,7 @@ export default function AdminPage() {
   const [workingId, setWorkingId] = useState(null)
   const [error, setError] = useState('')
   const [linkSelections, setLinkSelections] = useState({})
+  const [assigningUser, setAssigningUser] = useState(null)
 
   const load = async () => {
     setError('')
@@ -143,12 +148,13 @@ export default function AdminPage() {
   const unlink = user => {
     runAction(`unlink-${user.id}`, async () => {
       await unlinkPlayerByUserId(user.id)
-      await setUserStatus(user.id, 'pending')
+      await makeFanAccount(user.id)
     })
   }
 
   const changeRole = (user, role) => {
-    runAction(`role-${user.id}`, () => setUserRole(user.id, role))
+    if (role === 'player' && !playerByUserId.has(user.id)) { setAssigningUser(user); return }
+    runAction(`role-${user.id}`, () => role === 'fan' ? makeFanAccount(user.id) : setUserRole(user.id, role))
   }
 
   const logout = async () => {
@@ -305,6 +311,7 @@ export default function AdminPage() {
             onBack={() => setView('overview')}
           />
 
+          {assigningUser && <AdminPlayerAssignment key={assigningUser.id} user={assigningUser} players={freePlayers} busy={workingId === `assign-${assigningUser.id}`} onCancel={() => setAssigningUser(null)} onSave={values => runAction(`assign-${assigningUser.id}`, async () => { await assignPlayerAccount(values); setAssigningUser(null) })} />}
           <div className="admin-users-table">
             <div className="admin-users-head">
               <span>Usuario</span>
@@ -339,6 +346,7 @@ export default function AdminPage() {
                         changeRole(user, event.target.value)
                       }
                     >
+                      <option value="fan">Hincha</option>
                       <option value="player">Jugador</option>
                       <option value="admin">Administrador</option>
                       {isOwner && <option value="owner">Propietario</option>}
@@ -346,12 +354,13 @@ export default function AdminPage() {
                   </div>
 
                   <div>
-                    <span className={`admin-status ${{ active: 'Activa', pending: 'Pendiente', suspended: 'Suspendida' }[user.status] || user.status}`}>
+                    <span className={`admin-status ${user.status}`}>
                       {{ active: 'Activa', pending: 'Pendiente', suspended: 'Suspendida' }[user.status] || user.status}
                     </span>
                   </div>
 
                   <div className="admin-row-actions">
+                    {!isSelf && !linkedPlayer && !['owner','admin'].includes(user.role) && user.status !== 'suspended' && <button type="button" onClick={() => setAssigningUser(user)}>Crear o vincular jugador</button>}
                     {user.status === 'active' && !isSelf && (
                       <button type="button" disabled={workingId === user.id} onClick={() => suspend(user)}>
                         Suspender
@@ -366,7 +375,7 @@ export default function AdminPage() {
 
                     {linkedPlayer && !isSelf && (
                       <button type="button" disabled={workingId === `unlink-${user.id}`} onClick={() => unlink(user)}>
-                        Desvincular
+                        Pasar a hincha
                       </button>
                     )}
                   </div>

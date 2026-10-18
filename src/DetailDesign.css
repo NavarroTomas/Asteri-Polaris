@@ -164,3 +164,5 @@
   .pp-content .matches .section-shell { margin-inline: 0 !important; }
   .pp-content .calendar-day { width: auto !important; height: auto !important; }
 }
+.asteri-register-copy h1 { color: var(--color-text); font: 650 clamp(36px,5vw,60px)/1.1 'Bricolage Grotesque',sans-serif; letter-spacing: -.03em; }
+.asteri-register-copy p { color: var(--color-text-muted); font: 400 16px/1.75 Inter,sans-serif; }
