@@ -2,9 +2,9 @@ import { Link } from 'react-router-dom'
 import PortalPage, { CHANNELS } from '../components/PortalPage'
 import { APPLICATION_URL } from '../config/application'
 import { SOCIAL_LINKS } from '../config/socialLinks'
-import classic from '../assets/brand/polaris-classic.png'
-import star from '../assets/brand/polaris-star.png'
-import asteriA from '../assets/brand/asteri-a.png'
+import classic from '../assets/brand/polaris-classic.webp'
+import star from '../assets/brand/polaris-star.webp'
+import asteriA from '../assets/brand/asteri-a.webp'
 
 const eras = [
   { title: 'ASTERI POLARIS', logo: classic, text: 'El primer escudo nace de una idea simple: nunca dejar de mirar hacia arriba. La figura central representa los sueños, la ambición y la voluntad de seguir superándose; las estrellas simbolizan esas metas que solo se alcanzan con trabajo, perseverancia y la decisión de ir siempre un poco más lejos.' },

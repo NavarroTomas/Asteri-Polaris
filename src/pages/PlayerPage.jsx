@@ -1,3 +1,4 @@
+import { optimizedPlayerImage } from '../lib/optimizedPlayerImage'
 import { useEffect, useMemo, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import Header from '../components/Header'
@@ -210,7 +211,7 @@ export default function PlayerPage() {
 
             {player.image_url ? (
               <img
-                src={player.image_url}
+                src={optimizedPlayerImage(player.image_url)}
                 alt={player.nickname}
               />
             ) : (

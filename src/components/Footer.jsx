@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import wordmark from '../assets/brand/asteri-wordmark-wide.png'
+import wordmark from '../assets/brand/asteri-wordmark-wide.webp'
 import { SOCIAL_LINKS } from '../config/socialLinks'
 
 export default function Footer() {

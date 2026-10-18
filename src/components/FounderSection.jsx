@@ -161,7 +161,7 @@ export default function FounderSection() {
         <div className="founder-minimal-visual">
           <img
             ref={imageRef}
-            src="/players/Founder3.png"
+            src="/players/Founder3.webp"
             alt="Founder de ASTERI POLARIS"
           />
         </div>

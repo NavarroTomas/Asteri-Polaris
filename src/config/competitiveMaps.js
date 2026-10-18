@@ -3,43 +3,43 @@ export const ACTIVE_DUTY_MAPS = [
     id: 'ancient',
     name: 'Ancient',
     image:
-      'https://raw.githubusercontent.com/MurkyYT/cs2-map-icons/main/images/thumbs/de_ancient_1_png.png',
+      '/maps/de_ancient.webp',
   },
   {
     id: 'anubis',
     name: 'Anubis',
     image:
-      'https://raw.githubusercontent.com/MurkyYT/cs2-map-icons/main/images/thumbs/de_anubis_1_png.png',
+      '/maps/de_anubis.webp',
   },
   {
     id: 'cache',
     name: 'Cache',
     image:
-      'https://raw.githubusercontent.com/MurkyYT/cs2-map-icons/main/images/thumbs/de_cache_1_png.png',
+      '/maps/de_cache.webp',
   },
   {
     id: 'dust2',
     name: 'Dust II',
     image:
-      'https://raw.githubusercontent.com/MurkyYT/cs2-map-icons/main/images/thumbs/de_dust2_1_png.png',
+      '/maps/de_dust2.webp',
   },
   {
     id: 'inferno',
     name: 'Inferno',
     image:
-      'https://raw.githubusercontent.com/MurkyYT/cs2-map-icons/main/images/thumbs/de_inferno_1_png.png',
+      '/maps/de_inferno.webp',
   },
   {
     id: 'mirage',
     name: 'Mirage',
     image:
-      'https://raw.githubusercontent.com/MurkyYT/cs2-map-icons/main/images/thumbs/de_mirage_1_png.png',
+      '/maps/de_mirage.webp',
   },
   {
     id: 'nuke',
     name: 'Nuke',
     image:
-      'https://raw.githubusercontent.com/MurkyYT/cs2-map-icons/main/images/thumbs/de_nuke_1_png.png',
+      '/maps/de_nuke.webp',
   },
 ]
 

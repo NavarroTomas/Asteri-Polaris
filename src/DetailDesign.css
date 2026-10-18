@@ -141,3 +141,26 @@
 :is(.player-control-shell,.asteri-admin) :is(strong,b) { color: var(--color-text); }
 .asteri-admin :is(.admin-topbar,.admin-section-heading,.admin-panel,.admin-module-card,.admin-global-error) { background: var(--color-bg-secondary); border-color: var(--color-border); }
 :is(.player-control-shell,.asteri-admin) :is(.player-form,.admin-panel) label { font-size: 14px; line-height: 1.6; }
+
+/* Keep the embedded calendar within narrow phone screens. */
+@media (max-width: 700px) {
+  .pp-content .matches-minimal { min-height: 0; padding: 0 !important; }
+  .pp-content .matches-minimal-heading { display: none !important; }
+  .pp-content .matches .section-shell { width: 100% !important; margin-inline: 0; min-width: 0; }
+  .pp-content .matches-minimal-layout { grid-template-columns: minmax(0, 1fr) !important; }
+  .pp-content :is(.match-list-panel, .calendar-panel) { min-width: 0; max-width: 100%; }
+  .pp-content .match-list-row { grid-template-columns: 42px minmax(0, 1fr) auto !important; gap: 8px; }
+  .pp-content .match-list-opponent small { font-size: 10px !important; }
+  .pp-content .calendar-head { flex-wrap: wrap; gap: 12px; }
+  .pp-content .calendar-nav button { min-width: 44px; min-height: 44px; }
+}
+@media (max-width: 700px) {
+  html, body { min-width: 0; }
+  .pp-content .matches .section-shell { padding-inline: 0 !important; }
+  .pp-content .calendar-grid { grid-template-columns: repeat(7, minmax(0, 1fr)); }
+  .pp-content .calendar-day { width: auto; min-width: 0 !important; margin: 1px; padding-inline: 0; }
+}
+@media (max-width: 700px) {
+  .pp-content .matches .section-shell { margin-inline: 0 !important; }
+  .pp-content .calendar-day { width: auto !important; height: auto !important; }
+}

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import logo from '../assets/brand/asteri-a.png'
+import logo from '../assets/brand/asteri-a.webp'
 import './SiteIntroLoader.css'
 
 const INTRO_DURATION = 2350

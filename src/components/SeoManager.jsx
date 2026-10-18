@@ -14,7 +14,7 @@ const DEFAULT_DESCRIPTION =
   'ASTERI POLARIS es un equipo argentino de Counter-Strike 2. Plantel, partidos, VODs, estadísticas, configuraciones e historia del equipo.'
 
 const OG_IMAGE =
-  'https://raw.githubusercontent.com/NavarroTomas/Asteri-Polaris/main/src/assets/brand/asteri-wordmark-wide.png'
+  `${SITE_URL}/asteri-social.webp`
 
 const STATIC_META = {
   ...Object.fromEntries([

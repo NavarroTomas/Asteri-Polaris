@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
-import asteriA from '../assets/brand/asteri-a.png'
+import asteriA from '../assets/brand/asteri-a.webp'
 import { useAuth } from '../context/AuthContext'
 import './Portal.css'
 

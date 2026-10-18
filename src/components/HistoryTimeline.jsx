@@ -2,9 +2,9 @@ import { useEffect, useMemo, useRef } from 'react'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 
-import polarisClassic from '../assets/brand/polaris-classic.png'
-import polarisStar from '../assets/brand/polaris-star.png'
-import asteriA from '../assets/brand/asteri-a.png'
+import polarisClassic from '../assets/brand/polaris-classic.webp'
+import polarisStar from '../assets/brand/polaris-star.webp'
+import asteriA from '../assets/brand/asteri-a.webp'
 
 gsap.registerPlugin(ScrollTrigger)
 
