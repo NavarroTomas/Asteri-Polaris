@@ -2,11 +2,10 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { Link, Navigate, useNavigate, useSearchParams } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import {
-  approveAndLinkPlayer,
+  reviewFanRegistration,
   assignPlayerAccount,
   makeFanAccount,
   getAdminSnapshot,
-  rejectPendingUser,
   setUserRole,
   setUserStatus,
   unlinkPlayerByUserId,
@@ -49,7 +48,7 @@ export default function AdminPage() {
 
   const [params, setParams] = useSearchParams()
   const requestedView = params.get('section') || 'overview'
-  const allowedViews = ['overview', 'users', 'pending', 'roster', 'vods', 'activity', 'analytics', ...(isOwner ? ['home'] : [])]
+  const allowedViews = ['overview', 'users', 'roster', 'vods', 'activity', 'analytics', ...(isOwner ? ['home', 'pending'] : [])]
   const view = allowedViews.includes(requestedView) ? requestedView : 'overview'
   const setView = section => setParams(section === 'overview' ? {} : { section })
   const heading = useRef(null)
@@ -66,7 +65,6 @@ export default function AdminPage() {
   const [loading, setLoading] = useState(true)
   const [workingId, setWorkingId] = useState(null)
   const [error, setError] = useState('')
-  const [linkSelections, setLinkSelections] = useState({})
   const [assigningUser, setAssigningUser] = useState(null)
 
   const load = async () => {
@@ -90,7 +88,7 @@ export default function AdminPage() {
   }, [])
 
   const pendingUsers = useMemo(
-    () => snapshot.profiles.filter(user => user.status === 'pending'),
+    () => snapshot.profiles.filter(user => user.status === 'pending' && !user.owner_approved_at),
     [snapshot.profiles],
   )
 
@@ -122,19 +120,7 @@ export default function AdminPage() {
   }
 
   const approve = user => {
-    const playerId = linkSelections[user.id]
-
-    if (!playerId) {
-      setError('Elegí qué jugador corresponde a esta cuenta.')
-      return
-    }
-
-    runAction(user.id, () =>
-      approveAndLinkPlayer({
-        userId: user.id,
-        playerId,
-      }),
-    )
+    runAction(user.id, () => reviewFanRegistration(user.id, true))
   }
 
   const suspend = user => {
@@ -175,7 +161,7 @@ export default function AdminPage() {
     { id: 'roster', title: 'Plantel' },
     { id: 'vods', title: 'Partidos y VODs' },
     { id: 'users', title: 'Usuarios' },
-    { id: 'pending', title: 'Solicitudes' },
+    ...(isOwner ? [{ id: 'pending', title: 'Solicitudes' }] : []),
     ...(isOwner ? [{ id: 'home', title: 'Configuración web' }] : []),
     { id: 'activity', title: 'Actividad' },
   ]
@@ -233,7 +219,7 @@ export default function AdminPage() {
               <div>
                 <h2>Usuarios pendientes</h2>
                 <p>
-                  Aprobá una cuenta vinculándola con el jugador correspondiente.
+                  Aprobá las cuentas nuevas como hinchas. La ficha de jugador se asigna después, desde Usuarios.
                 </p>
               </div>
 
@@ -254,26 +240,6 @@ export default function AdminPage() {
                       <small>Registrado: {formatDate(user.created_at)}</small>
                     </div>
 
-                    <label>
-                      <span>Jugador</span>
-                      <select
-                        value={linkSelections[user.id] || ''}
-                        onChange={event =>
-                          setLinkSelections(current => ({
-                            ...current,
-                            [user.id]: event.target.value,
-                          }))
-                        }
-                      >
-                        <option value="">Seleccionar jugador</option>
-                        {freePlayers.map(player => (
-                          <option key={player.id} value={player.id}>
-                            {player.nickname}
-                          </option>
-                        ))}
-                      </select>
-                    </label>
-
                     <div className="admin-row-actions">
                       <button
                         type="button"
@@ -281,7 +247,7 @@ export default function AdminPage() {
                         disabled={workingId === user.id}
                         onClick={() => approve(user)}
                       >
-                        Aprobar
+                        Aprobar como hincha
                       </button>
 
                       <button
@@ -289,7 +255,7 @@ export default function AdminPage() {
                         disabled={workingId === user.id}
                         onClick={() =>
                           runAction(user.id, () =>
-                            rejectPendingUser(user.id),
+                            reviewFanRegistration(user.id, false),
                           )
                         }
                       >
@@ -339,6 +305,7 @@ export default function AdminPage() {
                       value={user.role}
                       disabled={
                         isSelf ||
+                        !user.owner_approved_at ||
                         workingId === `role-${user.id}` ||
                         (!isOwner && user.role === 'owner')
                       }
@@ -360,14 +327,15 @@ export default function AdminPage() {
                   </div>
 
                   <div className="admin-row-actions">
-                    {!isSelf && !linkedPlayer && !['owner','admin'].includes(user.role) && user.status !== 'suspended' && <button type="button" onClick={() => setAssigningUser(user)}>Crear o vincular jugador</button>}
+                    {user.status === 'pending' && !user.owner_approved_at && (isOwner ? <button type="button" onClick={() => setView('pending')}>Revisar solicitud</button> : <span>Pendiente del owner</span>)}
+                    {!isSelf && !linkedPlayer && !['owner','admin'].includes(user.role) && user.status === 'active' && !!user.owner_approved_at && <button type="button" onClick={() => setAssigningUser(user)}>Crear o vincular jugador</button>}
                     {user.status === 'active' && !isSelf && (
                       <button type="button" disabled={workingId === user.id} onClick={() => suspend(user)}>
                         Suspender
                       </button>
                     )}
 
-                    {user.status === 'suspended' && (
+                    {user.status === 'suspended' && (isOwner || !!user.owner_approved_at) && (
                       <button type="button" disabled={workingId === user.id} onClick={() => reactivate(user)}>
                         Reactivar
                       </button>

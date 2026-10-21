@@ -10,7 +10,7 @@ export async function getAdminSnapshot() {
   ] = await Promise.all([
     supabase
       .from('profiles')
-      .select('id, email, display_name, role, status, created_at, updated_at')
+      .select('id, email, display_name, role, status, owner_approved_at, created_at, updated_at')
       .order('created_at', { ascending: false }),
 
     supabase
@@ -137,5 +137,10 @@ export async function assignPlayerAccount({ userId, playerId, nickname, slug }) 
 }
 export async function makeFanAccount(userId) {
   const { error } = await supabase.rpc('admin_make_fan_account', { target_user_id: userId })
+  if (error) throw error
+}
+
+export async function reviewFanRegistration(userId, approve) {
+  const { error } = await supabase.rpc('review_fan_registration', { target_user_id: userId, approve })
   if (error) throw error
 }

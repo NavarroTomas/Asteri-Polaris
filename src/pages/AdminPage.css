@@ -245,7 +245,7 @@
 .admin-pending-row {
   min-height: 86px;
   display: grid;
-  grid-template-columns: minmax(220px, 1fr) minmax(220px, 320px) auto;
+  grid-template-columns: minmax(0, 1fr) auto;
   gap: 20px;
   align-items: center;
   border-bottom: 1px solid #1b201c;

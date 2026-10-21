@@ -149,7 +149,7 @@ export default function RegisterPage() {
         if (signUpError) {
           throw signUpError
         }
-        if (!signUpData.session) setMessage('Revisá tu email para confirmar la cuenta. Después podés iniciar sesión.')
+        if (!signUpData.session) setMessage('Solicitud creada. El owner debe aprobar tu cuenta antes de habilitar tu perfil.')
       } catch (err) {
         setError(
           err.message ||
@@ -173,7 +173,7 @@ export default function RegisterPage() {
         <div className="asteri-register-copy">
           <h1>Sumate a la hinchada</h1>
           <p>Creá tu cuenta, elegí tu jugador favorito y acompañá al equipo.</p>
-          <p>Tu cuenta empieza como hincha. Si te sumás al plantel, el administrador habilita tu ficha de jugador.</p>
+          <p>Tu cuenta queda pendiente hasta que el owner la apruebe. Después podés elegir tu jugador favorito y completar tu perfil de hincha.</p>
         </div>
 
         <form
@@ -287,7 +287,7 @@ export default function RegisterPage() {
 
           {message && <p className="asteri-auth-message" role="status">{message}</p>}
           {registrationReady === null && <p className="asteri-auth-note" role="status">Comprobando disponibilidad del registro…</p>}{registrationReady === false && <p className="asteri-auth-note" role="status">El registro no está disponible en este momento. Intentá más tarde.</p>}
-          <p className="asteri-auth-note">No necesitás aprobación para ser hincha. Es posible que debas confirmar tu email.</p>
+          <p className="asteri-auth-note">El owner revisa cada cuenta nueva. Por seguridad, se permite un registro cada 10 minutos desde la misma conexión. Se guarda una huella temporal de la IP, sin asociarla a tu perfil.</p>
 
           <button
             className="asteri-auth-submit"

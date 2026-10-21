@@ -82,6 +82,7 @@ export default function AccountPage() {
     loading: authLoading,
     signOut,
     isPending,
+    refreshProfile,
     isFan,
     isActive,
     isOwner,
@@ -431,17 +432,20 @@ export default function AccountPage() {
         </header>
 
         <section className="player-pending">
-          <span>PLAYER SYSTEM / PENDING</span>
-          <h1>CUENTA<br />PENDIENTE.</h1>
+
+          <h1>Cuenta pendiente</h1>
           <p>
-            El Owner todavía debe aprobar esta cuenta y vincularla con tu ficha
-            de jugador.
+            El owner todavía debe aprobar tu cuenta. Cuando la habilite, vas a poder
+            completar tu perfil de hincha y elegir tu jugador favorito.
           </p>
 
           <div>
             <small>EMAIL</small>
             <strong>{user?.email}</strong>
           </div>
+          <button type="button" className="player-save" disabled={saving} onClick={async () => { setSaving(true); try { await refreshProfile() } finally { setSaving(false) } }}>
+            {saving ? 'Consultando…' : 'Consultar aprobación'}
+          </button>
         </section>
       </main>
     )
