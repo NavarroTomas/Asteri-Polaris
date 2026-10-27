@@ -13,6 +13,7 @@ import {
 import RosterManager from '../components/RosterManager'
 import RosterGroupsManager from '../components/RosterGroupsManager'
 import AdminModuleIcon from '../components/AdminModuleIcon'
+import AdminSectionNav, { getAdminModules } from '../components/AdminSectionNav'
 import AuditLogManager from '../components/AuditLogManager'
 import HomeSettingsManager from '../components/HomeSettingsManager'
 import AdminAnalytics from '../components/AdminAnalytics'
@@ -158,16 +159,7 @@ export default function AdminPage() {
     )
   }
 
-  const modules = [
-    { id: 'analytics', title: 'Analítica' },
-    { id: 'rosters', title: 'Planteles' },
-    { id: 'roster', title: 'Jugadores' },
-    { id: 'vods', title: 'Partidos y VODs' },
-    { id: 'users', title: 'Usuarios' },
-    ...(isOwner ? [{ id: 'pending', title: 'Solicitudes' }] : []),
-    ...(isOwner ? [{ id: 'home', title: 'Configuración web' }] : []),
-    { id: 'activity', title: 'Actividad' },
-  ]
+  const modules = getAdminModules(isOwner)
 
   return (
     <main className="asteri-admin" ref={heading} tabIndex={-1}>
@@ -199,10 +191,7 @@ export default function AdminPage() {
 
       {error && <div className="admin-global-error" role="alert">{error}<button type="button" onClick={load} disabled={refreshing}>Reintentar</button></div>}
 
-      {view !== 'overview' && <nav className="admin-section-nav" aria-label="Secciones del panel">
-        <button type="button" onClick={() => setView('overview')}>Panel</button>
-        {modules.map(module => <button key={module.id} type="button" aria-current={view === module.id ? 'page' : undefined} onClick={() => setView(module.id)}>{module.title}</button>)}
-      </nav>}
+      <AdminSectionNav activeSection={view} isOwner={isOwner} />
       {view === 'overview' && (
         <div className="admin-dashboard">
           <section className="admin-dashboard-intro"><h1>Administración</h1></section>

@@ -22,9 +22,9 @@
 .asteri-admin .admin-module-grid { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: 20px; }
 .asteri-admin .admin-module-card { aspect-ratio: 1; min-height: 0; width: 100%; padding: 28px; border-radius: 14px; position: relative; display: flex; align-items: center; justify-content: flex-end; text-align: center; background: var(--color-bg-secondary); border-color: var(--color-border); box-shadow: 0 4px 16px rgb(0 0 0 / .035); transition: transform .2s ease, box-shadow .2s ease; }
 .asteri-admin .admin-module-card > span { color: var(--color-text); font: 650 clamp(20px,2.2vw,30px)/1.15 'Bricolage Grotesque',sans-serif; overflow-wrap: anywhere; }
-.asteri-admin .admin-section-nav { display: flex; flex-wrap: wrap; gap: 8px; padding-block: 24px 0; }
-.asteri-admin .admin-section-nav button { padding: 10px 16px; }
-.asteri-admin .admin-section-nav button[aria-current=page] { background: var(--color-primary); color: #042615; border-color: var(--color-primary); }
+:is(.asteri-admin, .vod-admin-page) .admin-section-nav { display: flex; flex-wrap: wrap; gap: 8px; padding-block: 24px 0; }
+:is(.asteri-admin, .vod-admin-page) .admin-section-nav button { padding: 10px 16px; }
+:is(.asteri-admin, .vod-admin-page) .admin-section-nav button[aria-current=page] { background: var(--color-primary); color: #042615; border-color: var(--color-primary); }
 .asteri-admin .admin-content-view { padding-top: 32px; }
 .asteri-admin :is(.admin-dashboard-section,.admin-users-table,.admin-settings-card,.admin-empty-state,.admin-pending-row,.admin-user-row,.admin-recent-activity article) { color: var(--color-text); background: var(--color-bg-secondary); border-color: var(--color-border); border-radius: 14px; }
 .asteri-admin :is(.admin-dashboard-section-head,.admin-users-head,.admin-person,.admin-row-actions,.admin-status,.admin-settings-card-head) { border-color: var(--color-border); }
@@ -132,15 +132,15 @@
 .asteri-admin .roster-manager-list > button small { font-size: 12px; }
 .asteri-admin .audit-heading { justify-content: flex-end; }
 @media (max-width:600px) {
-  .asteri-admin .admin-section-nav { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 8px; }
-  .asteri-admin .admin-section-nav button { flex: 0 0 auto; }
+  :is(.asteri-admin, .vod-admin-page) .admin-section-nav { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 8px; }
+  :is(.asteri-admin, .vod-admin-page) .admin-section-nav button { flex: 0 0 auto; }
 }
 .asteri-admin .roster-manager-editor-head > div > strong { font: 650 28px/1.2 'Bricolage Grotesque',sans-serif; }
 .asteri-admin :is(.roster-manager-file,.roster-manager-stat-grid) { background: var(--color-bg-secondary); border-color: var(--color-border); color: var(--color-text); }
 .vod-admin-page :is(.vod-map-picker,.vod-admin-clipform,.vod-filter-manager > aside,.vod-filter-manager > form,.vod-admin-grid .check) { background: var(--color-bg-secondary); color: var(--color-text); border-color: var(--color-border); }
 .vod-admin-page :is(.vod-admin-lineup button.selected,.vod-map-picker button.selected) { background: var(--color-bg); color: var(--color-text); border-color: var(--color-primary); }
 .vod-admin-page :is(.vod-admin-grid label > span,.vod-admin-clipform label > span) { font-size: 13px; color: var(--color-text-muted); }
-.asteri-admin .admin-section-nav { scrollbar-width: thin; scrollbar-color: var(--color-border) transparent; }
+:is(.asteri-admin, .vod-admin-page) .admin-section-nav { scrollbar-width: thin; scrollbar-color: var(--color-border) transparent; }
 
 .asteri-admin .admin-module-card > span { width: 100%; text-align: center; position: relative; }
 .asteri-admin .admin-module-icon { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: clamp(48px, 5vw, 76px); height: clamp(48px, 5vw, 76px); color: var(--color-primary); pointer-events: none; }

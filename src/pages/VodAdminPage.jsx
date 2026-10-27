@@ -22,6 +22,7 @@ import {
   SERIES_MAP_LIMITS,
   getCompetitiveMap,
 } from '../config/competitiveMaps'
+import AdminSectionNav from '../components/AdminSectionNav'
 import './VodAdminPage.css'
 
 const emptyClip = {
@@ -42,7 +43,7 @@ const emptyFilter = {
 }
 
 export default function VodAdminPage() {
-  const { user } = useAuth()
+  const { user, isOwner } = useAuth()
 
   const [vods, setVods] = useState([])
   const [players, setPlayers] = useState([])
@@ -439,6 +440,8 @@ export default function VodAdminPage() {
           </button>
         </div>
       </header>
+
+      <AdminSectionNav activeSection="vods" isOwner={isOwner} />
 
       <section className="vod-admin-heading">
         <h1>Partidos y VODs</h1>
