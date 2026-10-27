@@ -12,6 +12,7 @@ import {
 } from '../lib/admin'
 import RosterManager from '../components/RosterManager'
 import RosterGroupsManager from '../components/RosterGroupsManager'
+import AdminModuleIcon from '../components/AdminModuleIcon'
 import AuditLogManager from '../components/AuditLogManager'
 import HomeSettingsManager from '../components/HomeSettingsManager'
 import AdminAnalytics from '../components/AdminAnalytics'
@@ -206,7 +207,7 @@ export default function AdminPage() {
         <div className="admin-dashboard">
           <section className="admin-dashboard-intro"><h1>Administración</h1></section>
           <section className="admin-module-grid" aria-label="Secciones administrativas">
-            {modules.map(module => <button type="button" className="admin-module-card" key={module.id} onClick={() => setView(module.id)}><span>{module.title}</span></button>)}
+            {modules.map(module => <button type="button" className="admin-module-card" key={module.id} onClick={() => setView(module.id)}><AdminModuleIcon name={module.id} /><span>{module.title}</span></button>)}
           </section>
         </div>
       )}

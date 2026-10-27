@@ -20,7 +20,7 @@
 .asteri-admin .admin-dashboard { padding-block: 44px 80px; }
 .asteri-admin .admin-dashboard-intro { margin-bottom: 32px; }
 .asteri-admin .admin-module-grid { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: 20px; }
-.asteri-admin .admin-module-card { aspect-ratio: 1; min-height: 0; width: 100%; padding: 28px; border-radius: 14px; display: flex; align-items: flex-start; justify-content: flex-end; text-align: left; background: var(--color-bg-secondary); border-color: var(--color-border); box-shadow: 0 4px 16px rgb(0 0 0 / .035); transition: transform .2s ease, box-shadow .2s ease; }
+.asteri-admin .admin-module-card { aspect-ratio: 1; min-height: 0; width: 100%; padding: 28px; border-radius: 14px; position: relative; display: flex; align-items: center; justify-content: flex-end; text-align: center; background: var(--color-bg-secondary); border-color: var(--color-border); box-shadow: 0 4px 16px rgb(0 0 0 / .035); transition: transform .2s ease, box-shadow .2s ease; }
 .asteri-admin .admin-module-card > span { color: var(--color-text); font: 650 clamp(20px,2.2vw,30px)/1.15 'Bricolage Grotesque',sans-serif; overflow-wrap: anywhere; }
 .asteri-admin .admin-section-nav { display: flex; flex-wrap: wrap; gap: 8px; padding-block: 24px 0; }
 .asteri-admin .admin-section-nav button { padding: 10px 16px; }
@@ -141,3 +141,8 @@
 .vod-admin-page :is(.vod-admin-lineup button.selected,.vod-map-picker button.selected) { background: var(--color-bg); color: var(--color-text); border-color: var(--color-primary); }
 .vod-admin-page :is(.vod-admin-grid label > span,.vod-admin-clipform label > span) { font-size: 13px; color: var(--color-text-muted); }
 .asteri-admin .admin-section-nav { scrollbar-width: thin; scrollbar-color: var(--color-border) transparent; }
+
+.asteri-admin .admin-module-card > span { width: 100%; text-align: center; position: relative; }
+.asteri-admin .admin-module-icon { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: clamp(48px, 5vw, 76px); height: clamp(48px, 5vw, 76px); color: var(--color-primary); pointer-events: none; }
+@media(max-width: 600px) { .asteri-admin .admin-module-card > span { font-size: clamp(16px, 4.2vw, 22px); } .asteri-admin .admin-module-icon { width: 46px; height: 46px; } }
+@media(max-width: 380px) { .asteri-admin .admin-module-card { padding: 12px; } .asteri-admin .admin-module-card > span { font-size: 14px; } .asteri-admin .admin-module-icon { width: 36px; height: 36px; } }
