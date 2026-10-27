@@ -1,0 +1,12 @@
+.ap-home-calendar { margin-top: 40px; min-width: 0; }
+.ap-home-calendar .matches { padding-block: 0; }
+.ap-home-calendar .section-shell { width: 100%; margin-inline: 0; }
+.ap-home-calendar.pp-content .matches .matches-minimal-heading { display: flex; margin-bottom: 20px; }
+.ap-home-calendar .matches-minimal-heading h2 { font: 700 24px/1.2 'Bricolage Grotesque', sans-serif; letter-spacing: -.03em; }
+.ap-home-calendar.pp-content .matches .matches-minimal-layout { grid-template-columns: minmax(0, .85fr) minmax(0, 1fr); gap: 18px; }
+.ap-home-calendar .match-list { max-height: 530px; overflow-y: auto; }
+@media(max-width: 1050px) { .ap-home-calendar .matches-minimal-layout { grid-template-columns: minmax(0, 1fr); } .ap-home-calendar .match-list { max-height: 290px; } }
+
+.ap-home-calendar.pp-content .matches :is(.calendar-panel,.match-list-panel) { min-width: 0; }
+.ap-home-calendar.pp-content .matches :is(.calendar-grid,.calendar-weekdays) { grid-template-columns: repeat(7,minmax(0,1fr)); }
+.ap-home-calendar.pp-content .matches .calendar-day { min-width: 0; width: auto; height: auto; aspect-ratio: 1; margin: 2px; padding-inline: 0; }

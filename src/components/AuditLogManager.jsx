@@ -14,6 +14,8 @@ const ACTION_LABELS = {
   PROFILES_UPDATE: 'Cuenta actualizada',
   PROFILES_DELETE: 'Cuenta eliminada',
 
+  ROSTERS_INSERT: 'Plantel creado',
+  ROSTERS_UPDATE: 'Plantel actualizado',
   PLAYERS_INSERT: 'Jugador creado',
   PLAYERS_UPDATE: 'Jugador actualizado',
   PLAYERS_DELETE: 'Jugador eliminado',

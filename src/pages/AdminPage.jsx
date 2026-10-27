@@ -11,6 +11,7 @@ import {
   unlinkPlayerByUserId,
 } from '../lib/admin'
 import RosterManager from '../components/RosterManager'
+import RosterGroupsManager from '../components/RosterGroupsManager'
 import AuditLogManager from '../components/AuditLogManager'
 import HomeSettingsManager from '../components/HomeSettingsManager'
 import AdminAnalytics from '../components/AdminAnalytics'
@@ -48,7 +49,7 @@ export default function AdminPage() {
 
   const [params, setParams] = useSearchParams()
   const requestedView = params.get('section') || 'overview'
-  const allowedViews = ['overview', 'users', 'roster', 'vods', 'activity', 'analytics', ...(isOwner ? ['home', 'pending'] : [])]
+  const allowedViews = ['overview', 'users', 'rosters', 'roster', 'vods', 'activity', 'analytics', ...(isOwner ? ['home', 'pending'] : [])]
   const view = allowedViews.includes(requestedView) ? requestedView : 'overview'
   const setView = section => setParams(section === 'overview' ? {} : { section })
   const heading = useRef(null)
@@ -158,7 +159,8 @@ export default function AdminPage() {
 
   const modules = [
     { id: 'analytics', title: 'Analítica' },
-    { id: 'roster', title: 'Plantel' },
+    { id: 'rosters', title: 'Planteles' },
+    { id: 'roster', title: 'Jugadores' },
     { id: 'vods', title: 'Partidos y VODs' },
     { id: 'users', title: 'Usuarios' },
     ...(isOwner ? [{ id: 'pending', title: 'Solicitudes' }] : []),
@@ -354,10 +356,12 @@ export default function AdminPage() {
         </div>
       )}
 
+      {view === 'rosters' && <div className="admin-content-view"><AdminSectionHeader title="Planteles" description="Equipos por juego o categoría que aparecen en Equipo." onBack={() => setView('overview')} /><RosterGroupsManager /></div>}
+
       {view === 'roster' && (
         <div className="admin-content-view">
           <AdminSectionHeader
-            title="Plantel"
+            title="Jugadores"
             description="Jugadores, perfiles públicos, estadísticas y configuración."
             onBack={() => setView('overview')}
           />

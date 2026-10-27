@@ -10,7 +10,7 @@ export const CHANNELS = [
   ['IG', 'Instagram', 'Fotos y publicaciones', SOCIAL_LINKS.instagram],
   ['X', 'X / Twitter', 'Anuncios', SOCIAL_LINKS.x],
   ['DC', 'Discord', 'Conversaciones y partidas', SOCIAL_LINKS.discord],
-  ['F', 'FACEIT', 'Club de CS2', SOCIAL_LINKS.faceit],
+  ['F', 'FACEIT', 'Equipo de CS2', SOCIAL_LINKS.faceit],
 ]
 
 export function ChannelPanel() {

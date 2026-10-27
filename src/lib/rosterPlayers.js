@@ -178,6 +178,7 @@ export async function getRosterPlayers() {
     .from('players')
     .select(`
       id,
+      roster_id,
       slug,
       nickname,
       real_name,
@@ -242,6 +243,7 @@ export async function getRosterPlayers() {
     const fallback = fallbackForSlug(player.slug)
 
     return {
+      rosterId: player.roster_id,
       slug: player.slug,
       nickname: player.nickname || fallback?.nickname || 'PLAYER',
       name:

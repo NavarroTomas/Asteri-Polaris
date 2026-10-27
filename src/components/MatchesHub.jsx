@@ -99,7 +99,7 @@ function outcomeCopy(outcome) {
   return 'PRÓXIMO'
 }
 
-export default function MatchesHub() {
+export default function MatchesHub({ id = 'partidos', title = 'PARTIDOS.', showIntro = true }) {
   const [matches, setMatches] = useState([])
   const [filters, setFilters] = useState([])
   const [selectedFilter, setSelectedFilter] = useState('all')
@@ -243,17 +243,14 @@ export default function MatchesHub() {
   return (
     <section
       className="matches matches-minimal"
-      id="partidos"
+      id={id}
     >
       <div className="section-shell matches-minimal-heading">
         <div>
-          <h2>PARTIDOS.</h2>
+          <h2>{title}</h2>
         </div>
 
-        <p>
-          Resultados, VODs y calendario sincronizados
-          directamente desde los partidos cargados.
-        </p>
+        {showIntro && <p>Resultados, VODs y calendario de partidos.</p>}
       </div>
 
       <div className="section-shell matches-minimal-layout">

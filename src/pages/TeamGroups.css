@@ -1,0 +1,6 @@
+.pp-roster-navigation { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 28px; }
+.pp-roster-navigation a { padding: 12px 20px; border: 1px solid var(--color-border); border-radius: 999px; color: var(--color-text); background: var(--color-bg-secondary); text-decoration: none; }
+.pp-roster-navigation a:hover { box-shadow: 0 6px 18px -10px #0006; }
+.pp-roster-group { scroll-margin-top: 24px; margin-bottom: 36px; }
+.pp-roster-group .pp-team-heading p, .pp-roster-empty { color: var(--color-text-muted); line-height: 1.6; }
+.pp-roster-group .pp-team-heading p { max-width: 65ch; }

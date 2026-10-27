@@ -12,12 +12,14 @@ import SidebarPromotions from '../components/SidebarPromotions'
 import HomeExtras, { LatestMatch } from '../components/HomeExtras'
 import HomeIntroduction from '../components/HomeIntroduction'
 import HomeClips from '../components/HomeClips'
+import MatchesHub from '../components/MatchesHub'
+import './HomeCalendar.css'
 
 const channels = [
   ['IG', 'Instagram', 'Fotos y publicaciones', SOCIAL_LINKS.instagram],
   ['X', 'X / Twitter', 'Anuncios', SOCIAL_LINKS.x],
   ['DC', 'Discord', 'Conversaciones y partidas', SOCIAL_LINKS.discord],
-  ['F', 'FACEIT', 'Club de CS2', SOCIAL_LINKS.faceit],
+  ['F', 'FACEIT', 'Equipo de CS2', SOCIAL_LINKS.faceit],
 ]
 
 function MatchList({ matches, status, retry, replays }) {
@@ -79,6 +81,7 @@ export default function HomePage() {
             <div className="ap-section-heading"><h2 id="matches-title">PARTIDOS</h2></div>
             <div className="ap-match-panel"><div className="ap-tabs" role="group" aria-label="Mostrar partidos"><button aria-pressed={tab === 'upcoming'} onClick={() => setTab('upcoming')}>PRÓXIMOS PARTIDOS</button><button aria-pressed={tab === 'replays'} onClick={() => setTab('replays')}>ÚLTIMOS VODS</button></div><MatchList matches={tab === 'upcoming' ? upcoming : replays} status={status} retry={() => setAttempt(value => value + 1)} replays={tab === 'replays'} /><Link className="ap-calendar-link" to="/partidos">VER CALENDARIO COMPLETO Y RESULTADOS </Link></div>
           </section>
+          <div className="ap-home-calendar pp-content"><MatchesHub id="calendario" title="CALENDARIO" showIntro={false} /></div>
           <HomeClips fallbackVideoUrl={video} />
           <HomeIntroduction />
           <HomeExtras />

@@ -19,7 +19,7 @@ const eras = [
     period: 'SEGUNDO ESCUDO',
     title: 'ESTRELLA POLAR',
     logo: polarisStar,
-    text: 'La segunda identidad toma una representación directa de la Estrella Polar. Durante siglos fue una referencia para encontrar el rumbo incluso en la oscuridad; para ASTERI representa una dirección clara, una guía constante y una meta que nunca se deja de perseguir.',
+    text: 'El segundo escudo toma una representación directa de la Estrella Polar. Durante siglos fue una referencia para encontrar el rumbo incluso en la oscuridad; para ASTERI representa una dirección clara, una guía constante y una meta que nunca se deja de perseguir.',
   },
   {
     period: 'TERCER ESCUDO',

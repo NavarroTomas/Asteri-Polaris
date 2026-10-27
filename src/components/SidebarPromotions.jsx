@@ -1,9 +1,9 @@
 
 export default function SidebarPromotions() {
   return <div className="ap-promotions" aria-label="Espacios promocionales">
-    <article className="ap-promo ap-promo-dev" aria-label="NavarroDev">
+    <a className="ap-promo ap-promo-dev" href="https://navarro-portfolio-six.vercel.app" target="_blank" rel="noopener noreferrer" aria-label="Portfolio de NavarroDev (abre en otra pestaña)">
       <h2>NavarroDev</h2>
-    </article>
+    </a>
     <article className="ap-promo ap-promo-cocoliche" aria-label="Cocoliche, la mascota del equipo">
       <h2>Cocoliche</h2>
     </article>

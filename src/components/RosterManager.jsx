@@ -15,6 +15,7 @@ import {
   uploadRosterPlayerImage,
 } from '../lib/rosterAdmin'
 import './RosterManager.css'
+import { getRosters, DEFAULT_ROSTER_ID } from '../lib/rosterGroups'
 
 const EMPTY_STATS = {
   rating: '',
@@ -57,6 +58,7 @@ const EMPTY_CONFIG = {
 const EMPTY_PLAYER = {
   id: null,
   user_id: null,
+  roster_id: DEFAULT_ROSTER_ID,
   slug: '',
   nickname: '',
   real_name: '',
@@ -186,6 +188,7 @@ function fieldLabel(label, children) {
 
 export default function RosterManager() {
   const [players, setPlayers] = useState([])
+  const [rosters, setRosters] = useState([])
   const [selectedId, setSelectedId] =
     useState(null)
 
@@ -227,8 +230,8 @@ export default function RosterManager() {
     setError('')
 
     try {
-      const data =
-        await getRosterAdminData()
+      const [data, rosterRows] = await Promise.all([getRosterAdminData(), getRosters()])
+      setRosters(rosterRows)
 
       setPlayers(data)
 
@@ -823,6 +826,8 @@ export default function RosterManager() {
                       required
                     />,
                   )}
+
+                  {fieldLabel('Plantel', <select required disabled={saving} value={form.roster_id} onChange={event => set('roster_id', event.target.value)}>{rosters.map(roster => <option key={roster.id} value={roster.id}>{roster.name}{roster.is_active ? '' : ' (borrador)'}</option>)}</select>)}
 
                   {fieldLabel(
                     'NOMBRE REAL',

@@ -1,4 +1,5 @@
 import { supabase } from './supabase'
+import { DEFAULT_ROSTER_ID } from './rosterGroups'
 
 export function slugifyPlayer(value) {
   return String(value || '')
@@ -49,6 +50,7 @@ export async function getRosterAdminData() {
       .select(`
         id,
         user_id,
+        roster_id,
         slug,
         nickname,
         real_name,
@@ -135,6 +137,7 @@ export async function getRosterAdminData() {
 
 export async function createRosterPlayer(values) {
   const corePayload = {
+    roster_id: values.roster_id || DEFAULT_ROSTER_ID,
     slug: slugifyPlayer(values.slug || values.nickname),
     nickname: String(values.nickname || '').trim(),
     real_name: cleanText(values.real_name),
@@ -221,6 +224,7 @@ export async function saveRosterPlayer(
   values,
 ) {
   const playerPayload = {
+    roster_id: values.roster_id || DEFAULT_ROSTER_ID,
     slug: slugifyPlayer(values.slug),
     nickname: String(values.nickname || '').trim(),
     real_name: cleanText(values.real_name),

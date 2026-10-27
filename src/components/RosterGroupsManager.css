@@ -1,0 +1,17 @@
+.admin-roster-groups { color: var(--color-text); }
+.admin-roster-groups-head { display: flex; align-items: center; justify-content: space-between; gap: 24px; margin-bottom: 24px; }
+.admin-roster-groups p { color: var(--color-text-muted); line-height: 1.6; }
+.admin-roster-groups-layout { display: grid; grid-template-columns: minmax(200px, .6fr) minmax(0, 1.4fr); gap: 24px; align-items: start; }
+.admin-roster-groups-layout nav { display: grid; gap: 10px; }
+.admin-roster-groups button { min-height: 44px; padding: 12px 20px; border: 1px solid var(--color-border); border-radius: 12px; background: var(--color-bg-secondary); color: var(--color-text); cursor: pointer; }
+.admin-roster-groups button:focus-visible, .admin-roster-groups :is(input,textarea):focus-visible { outline: 2px solid var(--color-primary); outline-offset: 3px; }
+.admin-roster-groups-layout nav button { text-align: left; display: grid; gap: 7px; }
+.admin-roster-groups-layout nav button span { color: var(--color-text-muted); font-size: 13px; }
+.admin-roster-groups-layout nav button[aria-pressed=true] { border-color: var(--color-primary); }
+.admin-roster-groups-layout form { display: grid; gap: 18px; padding: 26px; border: 1px solid var(--color-border); background: var(--color-bg-secondary); border-radius: 18px; }
+.admin-roster-groups-layout h2, .admin-roster-groups-layout p { margin: 0; }
+.admin-roster-groups-layout label { display: grid; gap: 8px; }
+.admin-roster-groups-layout :is(input:not([type=checkbox]),textarea) { box-sizing: border-box; width: 100%; border: 1px solid var(--color-border); border-radius: 10px; padding: 12px; color: var(--color-text); background: var(--color-bg); font: inherit; }
+.admin-roster-groups-layout .admin-roster-published { display: flex; align-items: center; gap: 12px; }
+.admin-roster-groups button:disabled { opacity: .6; cursor: wait; }
+@media(max-width: 720px) { .admin-roster-groups-layout { grid-template-columns: minmax(0,1fr); } .admin-roster-groups-head { flex-direction: column; align-items: flex-start; } }
