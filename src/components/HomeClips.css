@@ -1,0 +1,12 @@
+.ap-clips-section { overflow: visible; }
+.ap-clips-section .ap-section-heading { gap: 20px; flex-wrap: wrap; }
+.ap-clips-stack .scroll-stack__inner { padding-inline: 0; }
+.ap-clips-stack .ap-clip-stack-card { height: auto; padding: 0; border-radius: 24px; overflow: hidden; background: var(--color-bg-secondary); color: var(--color-text); border: 1px solid var(--color-border); box-shadow: 0 12px 36px -18px #0005; }
+.ap-clip-stack-card h3 { margin: 0; min-height: 64px; display: flex; align-items: center; padding: 16px 24px; font: 700 clamp(19px, 2vw, 25px)/1.25 'Bricolage Grotesque', sans-serif; letter-spacing: -.025em; overflow-wrap: anywhere; }
+.ap-clip-player { width: 100%; aspect-ratio: 16 / 9; max-height: 58vh; background: #050706; display: grid; place-items: center; }
+.ap-clip-player video, .ap-clip-player iframe { display: block; width: 100%; height: 100%; aspect-ratio: 16 / 9; max-height: 58vh; border: 0; object-fit: contain; }
+.ap-clip-description { margin: 0; padding: 16px 24px; color: var(--color-text-muted); line-height: 1.6; }
+.ap-clip-external { padding: 14px 24px; border-radius: 999px; background: var(--color-primary); color: #050706; font-weight: 700; text-decoration: none; }
+.ap-clip-unavailable { color: #f4f7f4; padding: 24px; }
+.ap-clips-error { padding: 18px 0; color: var(--color-text-muted); }
+@media(max-width: 640px) { .ap-clips-stack .ap-clip-stack-card { border-radius: 18px; } .ap-clip-stack-card h3 { padding: 16px 18px; } .ap-clip-description { padding: 14px 18px; } }

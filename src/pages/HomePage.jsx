@@ -10,6 +10,8 @@ import './HomePage.css'
 import Mascot from '../components/Mascot'
 import SidebarPromotions from '../components/SidebarPromotions'
 import HomeExtras, { LatestMatch } from '../components/HomeExtras'
+import HomeIntroduction from '../components/HomeIntroduction'
+import HomeClips from '../components/HomeClips'
 
 const channels = [
   ['IG', 'Instagram', 'Fotos y publicaciones', SOCIAL_LINKS.instagram],
@@ -77,10 +79,8 @@ export default function HomePage() {
             <div className="ap-section-heading"><h2 id="matches-title">PARTIDOS</h2></div>
             <div className="ap-match-panel"><div className="ap-tabs" role="group" aria-label="Mostrar partidos"><button aria-pressed={tab === 'upcoming'} onClick={() => setTab('upcoming')}>PRÓXIMOS PARTIDOS</button><button aria-pressed={tab === 'replays'} onClick={() => setTab('replays')}>ÚLTIMOS VODS</button></div><MatchList matches={tab === 'upcoming' ? upcoming : replays} status={status} retry={() => setAttempt(value => value + 1)} replays={tab === 'replays'} /><Link className="ap-calendar-link" to="/partidos">VER CALENDARIO COMPLETO Y RESULTADOS </Link></div>
           </section>
-          <section className="ap-section" id="media" aria-labelledby="media-title">
-            <div className="ap-section-heading"><h2 id="media-title">VIDEOS</h2></div>
-            <div className="ap-media-card"><video key={video} src={video} controls playsInline preload="metadata" aria-label="Video de presentación de ASTERI" /><div><h3>Presentación</h3><p>Videos y grabaciones de partidas.</p><Link className="ap-card-link" to="/media">VER MULTIMEDIA</Link></div></div>
-          </section>
+          <HomeClips fallbackVideoUrl={video} />
+          <HomeIntroduction />
           <HomeExtras />
         </div>
         <aside className="ap-sidebar" id="comunidad" aria-label="Comunidad y canales oficiales">
