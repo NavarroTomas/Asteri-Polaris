@@ -62,7 +62,7 @@ end $test$;
 reset role;
 do $test$ begin
   update public.rosters set is_active=false where id=current_setting('asteri.roster.group')::uuid;
-  if has_table_privilege('authenticated','public.rosters','DELETE') then raise exception 'FAIL: destructive grant'; end if;
+  -- Staff deletion is covered by admin-delete-verify.sql.
 end $test$;
 set local role anon;
 do $test$ begin

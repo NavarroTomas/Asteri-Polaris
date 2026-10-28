@@ -6,6 +6,7 @@ import {
 import { Link } from 'react-router-dom'
 import {
   createRosterPlayer,
+  deleteRosterPlayer,
   getRosterAdminData,
   saveRosterPlayer,
   setRosterPlayerActive,
@@ -417,6 +418,21 @@ export default function RosterManager() {
     } finally {
       setSaving(false)
     }
+  }
+
+  const removePlayer = async () => {
+    if (!selectedPlayer || saving) return
+    if (!window.confirm('¿Eliminar definitivamente a ' + selectedPlayer.nickname + '? Se borrarán su ficha, estadísticas, configuración y participación en alineaciones. Los videos y la cuenta de usuario se conservan. Esta acción no se puede deshacer.')) return
+    setSaving(true)
+    setError('')
+    setMessage('')
+    try {
+      await deleteRosterPlayer(selectedPlayer.id)
+      setImageFile(null)
+      await load()
+      setMessage('Jugador eliminado.')
+    } catch (err) { setError(err.message || 'No se pudo eliminar el jugador.') }
+    finally { setSaving(false) }
   }
 
   const toggleActive = async () => {
@@ -1317,6 +1333,7 @@ export default function RosterManager() {
             </div>
 
             <div className="roster-manager-actions">
+              {selectedId && <button type="button" className="deactivate" disabled={saving} onClick={removePlayer}>ELIMINAR JUGADOR</button>}
               <button
                 className="save"
                 disabled={saving}

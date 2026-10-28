@@ -538,3 +538,9 @@ export async function unlinkRosterAccount(
 
   if (error) throw error
 }
+
+export async function deleteRosterPlayer(id) {
+  const { data, error } = await supabase.from('players').delete().eq('id', id).select('id').single()
+  if (error) throw error
+  if (!data) throw new Error('No se pudo eliminar el jugador. Revisá tus permisos.')
+}

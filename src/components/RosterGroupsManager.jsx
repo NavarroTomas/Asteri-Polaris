@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { getRosters, saveRoster } from '../lib/rosterGroups'
+import { getRosters, saveRoster, deleteRoster, DEFAULT_ROSTER_ID } from '../lib/rosterGroups'
 import './RosterGroupsManager.css'
 
 const empty = { name: '', game: 'Counter-Strike 2', description: '', sort_order: 0, is_active: false }
@@ -30,6 +30,18 @@ export default function RosterGroupsManager() {
     } catch (err) { setError(err.code === '23505' ? 'Ya existe un plantel con ese nombre y juego.' : err.message || 'No se pudo guardar el plantel.') }
     finally { setSaving(false) }
   }
+  const remove = async () => {
+    if (!form.id || saving) return
+    if (!window.confirm('¿Eliminar definitivamente el plantel ' + form.name + '? Debe estar vacío. Esta acción no se puede deshacer.')) return
+    setSaving(true); setError(''); setMessage('')
+    try {
+      await deleteRoster(form.id)
+      setForm({ ...empty })
+      setRosters(await getRosters())
+      setMessage('Plantel eliminado.')
+    } catch (err) { setError(err.message || 'No se pudo eliminar el plantel.') }
+    finally { setSaving(false) }
+  }
   return <section className="admin-roster-groups">
     <div className="admin-roster-groups-head"><p>Creá planteles por juego o categoría. Después asigná sus jugadores desde la sección Jugadores.</p><button type="button" disabled={saving} onClick={() => { setForm({ ...empty, sort_order: Math.max(0, ...rosters.map(roster => roster.sort_order)) + 1 }); setMessage(''); setError('') }}>Nuevo plantel</button></div>
     {error && <p role="alert">{error} <button type="button" disabled={loading || saving} onClick={() => setAttempt(value => value + 1)}>Reintentar</button></p>}
@@ -44,6 +56,8 @@ export default function RosterGroupsManager() {
         <label className="admin-roster-published"><input type="checkbox" disabled={saving} checked={form.is_active} onChange={event => set('is_active', event.target.checked)} />Mostrar en Equipo</label>
         <p>Al ocultar un plantel, sus jugadores conservan sus fichas y enlaces.</p>
         <button type="submit" disabled={saving}>{saving ? 'Guardando…' : 'Guardar plantel'}</button>
+        {form.id && form.id !== DEFAULT_ROSTER_ID && <button type="button" disabled={saving} onClick={remove}>Eliminar plantel</button>}
+        {form.id === DEFAULT_ROSTER_ID && <p>El plantel principal se conserva como destino predeterminado. Podés ocultarlo de Equipo.</p>}
       </form>
     </div>}
   </section>
