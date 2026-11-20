@@ -28,7 +28,6 @@ import RouteScrollManager from './components/RouteScrollManager'
 import SeoManager from './components/SeoManager'
 import AnalyticsTracker from './components/AnalyticsTracker'
 import RosterInteractionEnhancer from './components/RosterInteractionEnhancer'
-import MatchTerminologySync from './components/MatchTerminologySync'
 
 export default function App() {
   return (
@@ -42,7 +41,6 @@ export default function App() {
       <QuietCursor />
 
       <RosterInteractionEnhancer />
-      <MatchTerminologySync />
 
       <Routes>
         <Route path="/" element={<HomePage />} />

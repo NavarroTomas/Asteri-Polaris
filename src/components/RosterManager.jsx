@@ -1080,6 +1080,8 @@ export default function RosterManager() {
 
                       <input
                         type="number"
+                        readOnly={key==='maps'}
+                        title={key==='maps'?'Se calcula desde las formaciones y resultados de los partidos.':undefined}
                         step="any"
                         value={
                           form.stats[

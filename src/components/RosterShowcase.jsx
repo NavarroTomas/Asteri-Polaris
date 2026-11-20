@@ -750,7 +750,7 @@ export default function RosterShowcase() {
           <div className="selected-player-stats">
             <div>
               <strong>{player.stats.maps}</strong>
-              <span>MATCHES JUGADOS</span>
+              <span>MAPAS JUGADOS</span>
             </div>
             <div>
               <strong>{player.age}</strong>

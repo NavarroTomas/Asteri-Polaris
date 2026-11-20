@@ -138,7 +138,7 @@ export default function PlayerPage() {
       normalizedName(player.nickname)
 
   const primaryStats = [
-    ['MATCHES JUGADOS', valueOrDash(stats.maps)],
+    ['MAPAS JUGADOS', valueOrDash(stats.maps)],
     ['EDAD', valueOrDash(player.age)],
     ['POSICIÓN', valueOrDash(player.player_role)],
   ]

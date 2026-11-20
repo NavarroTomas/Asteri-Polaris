@@ -147,7 +147,7 @@ export async function getVodDetail(id) {
 
     supabase
       .from('vod_maps')
-      .select('*,map_lineup:vod_map_players(player_id)')
+      .select('*,map_lineup:vod_map_players(player_id,lineup_order)')
       .eq('vod_id', id)
       .order('map_order'),
   ])
@@ -551,7 +551,7 @@ export async function getPublicVod(slug) {
 
       supabase
         .from('vod_maps')
-        .select('*,map_lineup:vod_map_players(player_id)')
+        .select('*,map_lineup:vod_map_players(player_id,lineup_order)')
         .eq(
           'vod_id',
           vod.data.id,
@@ -619,7 +619,7 @@ export async function getPublicVod(slug) {
 
   return {
     vod: vod.data,
-    maps: maps.data || [],
+    maps: (maps.data || []).map(map => ({...map, lineup:(map.map_lineup || []).map(member=>({...member,player:byId.get(member.player_id)||null})).sort((a,b)=>a.lineup_order-b.lineup_order)})),
 
     lineup:
       (lineup.data || []).map(

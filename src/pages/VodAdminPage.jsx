@@ -1,3 +1,4 @@
+import MapLineupEditor from '../components/MapLineupEditor'
 import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
@@ -11,10 +12,7 @@ import {
   listCalendarFilters,
   listVodsAndPlayers,
   saveCalendarFilter,
-  saveLineup,
-  saveVod,
   saveVodStructure,
-  saveVodMaps,
   slugifyVod,
   toggleClip,
 } from '../lib/vods'
@@ -53,6 +51,10 @@ export default function VodAdminPage() {
 
   const [selected, setSelected] = useState(null)
   const [form, setForm] = useState(emptyVod)
+  const [loadedDetailId, setLoadedDetailId] = useState(null)
+  const [loadingDetail, setLoadingDetail] = useState(false)
+  const [detailAttempt, setDetailAttempt] = useState(0)
+  const editorReady = selected === loadedDetailId && !loadingDetail
   const [lineup, setLineup] = useState([])
   const [tournaments,setTournaments] = useState([])
   useEffect(()=>{let alive=true;listTournaments().then(data=>{if(alive)setTournaments(data)}).catch(error=>{if(alive)setErr(error.message)});return()=>{alive=false}},[])
@@ -102,43 +104,23 @@ export default function VodAdminPage() {
   }, [])
 
   useEffect(() => {
-    if (!selected) {
-      setForm(emptyVod)
-      setLineup([])
-      setClips([])
-      setMapRows([])
-      return
-    }
-
-    getVodDetail(selected)
-      .then(data => {
-        setForm({
-          ...emptyVod,
-          ...data.vod,
-          result_type:'series',
-          series_format:data.vod.series_format||'bo1',
-          calendar_filter_id:
-            data.vod.calendar_filter_id || '',
-          match_outcome:
-            data.vod.match_outcome || 'auto',
-        })
-
-        setLineup(
-          data.lineup.map(item => item.player_id),
-        )
-
-        setClips(data.clips || [])
-        setMapRows(
-          ((data.maps?.length ? data.maps : data.vod.map_name ? [{map_name:data.vod.map_name,score_asteri:data.vod.score_asteri,score_opponent:data.vod.score_opponent}] : [])).map(item => ({
-            player_ids:item.map_lineup?.map(member=>member.player_id) || data.lineup.map(member=>member.player_id),
-            map_name: item.map_name,
-            score_asteri: item.score_asteri ?? '',
-            score_opponent: item.score_opponent ?? '',
-          })),
-        )
-      })
-      .catch(error => setErr(error.message))
-  }, [selected])
+    let alive = true
+    setLoadedDetailId(null)
+    setLoadingDetail(Boolean(selected))
+    setForm(emptyVod); setLineup([]); setClips([]); setMapRows([]); setClip(emptyClip); setClipFile(null)
+    if (!selected) return () => { alive = false }
+    setErr('')
+    getVodDetail(selected).then(data => {
+      if (!alive) return
+      setForm({ ...emptyVod, ...data.vod, result_type:'series', series_format:data.vod.series_format || 'bo1', calendar_filter_id:data.vod.calendar_filter_id || '', match_outcome:data.vod.match_outcome || 'auto' })
+      setLineup(data.lineup.map(item => item.player_id))
+      setClips(data.clips || [])
+      const maps = data.maps?.length ? data.maps : data.vod.map_name ? [{map_name:data.vod.map_name,score_asteri:data.vod.score_asteri,score_opponent:data.vod.score_opponent}] : []
+      setMapRows(maps.map(item => ({ player_ids:item.map_lineup?.map(member=>member.player_id) || data.lineup.map(member=>member.player_id), map_name:item.map_name,score_asteri:item.score_asteri ?? '',score_opponent:item.score_opponent ?? '' })))
+      setLoadedDetailId(selected)
+    }).catch(error => { if (alive) setErr(error.message) }).finally(() => { if (alive) setLoadingDetail(false) })
+    return () => { alive = false }
+  }, [selected, detailAttempt])
 
   useEffect(() => {
     if (!selectedFilter) {
@@ -238,6 +220,7 @@ export default function VodAdminPage() {
   }
 
   const newVod = () => {
+    if(busy)return
     setSelected(null)
     setForm(emptyVod)
     setLineup([])
@@ -249,7 +232,7 @@ export default function VodAdminPage() {
 
   async function submit(event) {
     event.preventDefault()
-    if(busy)return
+    if(busy || !editorReady)return
     setBusy(true);setErr('');setMsg('')
     try {
       if(!form.opponent.trim()||!form.match_date)throw new Error('Completá rival y fecha.')
@@ -282,6 +265,7 @@ export default function VodAdminPage() {
   }
 
   async function addNewClip(event) {
+    if(busy || !editorReady) { event.preventDefault(); return }
     event.preventDefault()
 
     if (!selected) {
@@ -317,6 +301,19 @@ export default function VodAdminPage() {
     }
   }
 
+  const changeClipPublication = async currentClip => {
+    if (busy || !editorReady) return
+    setBusy(true);setErr('')
+    try { const updated=await toggleClip(currentClip);setClips(items=>items.map(item=>item.id===updated.id?updated:item)) }
+    catch(error){setErr(error.message)} finally{setBusy(false)}
+  }
+  const removeSavedClip = async currentClip => {
+    if (busy || !editorReady || !window.confirm('¿Eliminar clip?')) return
+    setBusy(true);setErr('')
+    try { await deleteClip(currentClip);setClips(items=>items.filter(item=>item.id!==currentClip.id)) }
+    catch(error){setErr(error.message)} finally{setBusy(false)}
+  }
+
   return (
     <main className="vod-admin-page">
       <header className="vod-admin-top">
@@ -336,6 +333,7 @@ export default function VodAdminPage() {
 
           <button
             type="button"
+            disabled={busy}
             onClick={newVod}
           >
             Nuevo VOD
@@ -470,8 +468,6 @@ export default function VodAdminPage() {
                 <span>Activo</span>
               </label>
             </div>
-
-            <section className="vod-map-lineups"><h2>Formación por mapa</h2>{!mapRows.length&&<p>Elegí los mapas de la serie para asignar sus jugadores.</p>}{mapRows.length>0&&<button type="button" disabled={busy||lineup.length>5} onClick={()=>setMapRows(rows=>rows.map(row=>({...row,player_ids:[...lineup]})))}>Aplicar formación base a todos los mapas</button>}{mapRows.map((row,index)=><fieldset key={row.map_name} disabled={busy}><legend>{getCompetitiveMap(row.map_name)?.name||row.map_name}</legend><div className="vod-admin-lineup">{players.map(player=><button type="button" key={player.id} aria-pressed={(row.player_ids||[]).includes(player.id)} className={(row.player_ids||[]).includes(player.id)?'selected':''} onClick={()=>{const ids=row.player_ids||[];if(!ids.includes(player.id)&&ids.length>=5){setErr('Elegí hasta cinco jugadores por mapa.');return}setMapRows(rows=>rows.map((item,i)=>i===index?{...item,player_ids:ids.includes(player.id)?ids.filter(id=>id!==player.id):[...ids,player.id]}:item))}}>{player.nickname}</button>)}</div></fieldset>)}</section>
             <div className="vod-admin-actions">
               <button
                 className="save"
@@ -535,7 +531,8 @@ export default function VodAdminPage() {
                     ? 'active'
                     : ''
                 }
-                onClick={() => setSelected(vod.id)}
+                disabled={busy}
+                onClick={() => { if(!busy) setSelected(vod.id) }}
               >
                 <small>
                   {vod.match_date || 'SIN FECHA'} ·{' '}
@@ -552,7 +549,10 @@ export default function VodAdminPage() {
         </aside>
 
         <section className="vod-admin-editor">
-          <form onSubmit={submit}>
+          {loadingDetail && <p role="status">Cargando el partido seleccionado…</p>}
+          {selected && !loadingDetail && !editorReady && <button type="button" disabled={busy} onClick={()=>setDetailAttempt(value=>value+1)}>Reintentar carga del partido</button>}
+          <form onSubmit={submit} aria-busy={loadingDetail}>
+            <fieldset className="vod-editor-fields" disabled={busy || !editorReady}>
             <div className="vod-admin-editorbar">
               <strong>
                 {selected
@@ -1070,6 +1070,7 @@ export default function VodAdminPage() {
               </div>
             </div>
 
+            <MapLineupEditor maps={mapRows} players={players} baseLineup={lineup} disabled={busy || !editorReady} onChange={setMapRows} onError={setErr} />
             <div className="vod-admin-actions">
               <button
                 className="save"
@@ -1114,6 +1115,7 @@ export default function VodAdminPage() {
                 </button>
               )}
             </div>
+            </fieldset>
           </form>
 
           <div className="vod-admin-section">
@@ -1269,24 +1271,8 @@ export default function VodAdminPage() {
 
                         <button
                           type="button"
-                          onClick={async () => {
-                            try {
-                              const updated =
-                                await toggleClip(
-                                  currentClip,
-                                )
-
-                              setClips(currentClips =>
-                                currentClips.map(item =>
-                                  item.id === updated.id
-                                    ? updated
-                                    : item,
-                                ),
-                              )
-                            } catch (error) {
-                              setErr(error.message)
-                            }
-                          }}
+                          disabled={busy || !editorReady}
+                          onClick={() => changeClipPublication(currentClip)}
                         >
                           {currentClip.is_published
                             ? 'OCULTAR'
@@ -1295,31 +1281,8 @@ export default function VodAdminPage() {
 
                         <button
                           type="button"
-                          onClick={async () => {
-                            if (
-                              !confirm(
-                                '¿Eliminar clip?',
-                              )
-                            ) {
-                              return
-                            }
-
-                            try {
-                              await deleteClip(
-                                currentClip,
-                              )
-
-                              setClips(currentClips =>
-                                currentClips.filter(
-                                  item =>
-                                    item.id !==
-                                    currentClip.id,
-                                ),
-                              )
-                            } catch (error) {
-                              setErr(error.message)
-                            }
-                          }}
+                          disabled={busy || !editorReady}
+                          onClick={() => removeSavedClip(currentClip)}
                         >
                           ELIMINAR
                         </button>

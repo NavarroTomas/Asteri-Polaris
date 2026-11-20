@@ -191,6 +191,7 @@ export async function createRosterPlayer(values) {
         .from('player_stats')
         .insert({
           player_id: player.id,
+          maps: 0,
         }),
 
       supabase
@@ -263,7 +264,6 @@ export async function saveRosterPlayer(
     kd: nullableNumber(values.stats?.kd),
     hs_percentage:
       nullableNumber(values.stats?.hs_percentage),
-    maps: nullableInteger(values.stats?.maps),
     adr: nullableNumber(values.stats?.adr),
     kast: nullableNumber(values.stats?.kast),
     impact: nullableNumber(values.stats?.impact),

@@ -243,7 +243,6 @@ export default function AccountPage() {
         rating: cleanNumber(stats.rating),
         kd: cleanNumber(stats.kd),
         hs_percentage: cleanNumber(stats.hs_percentage),
-        maps: cleanNumber(stats.maps),
         adr: cleanNumber(stats.adr),
         kast: cleanNumber(stats.kast),
         impact: cleanNumber(stats.impact),
@@ -656,6 +655,7 @@ export default function AccountPage() {
               <h2>NÚMEROS.</h2>
             </div>
 
+            <p id="automatic-maps-note">Los mapas jugados se calculan desde las formaciones y resultados de los partidos.</p>
             <div className="player-form-grid stats-grid">
               {[
                 ['rating', 'RATING'],
@@ -676,6 +676,8 @@ export default function AccountPage() {
                   <input
                     type="number"
                     step="any"
+                    readOnly={field==='maps'}
+                    aria-describedby={field==='maps'?'automatic-maps-note':undefined}
                     value={stats[field] ?? ''}
                     onChange={e => changeStats(field, e.target.value)}
                   />

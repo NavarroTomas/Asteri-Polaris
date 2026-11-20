@@ -698,3 +698,7 @@
 }
 
 .vod-map-lineups{margin:32px 0}.vod-map-lineups fieldset{border:1px solid var(--color-border);border-radius:14px;padding:18px;margin:20px 0}.vod-map-lineups legend{padding:0 10px;font-weight:650}.vod-map-lineups button{padding:10px 14px}
+
+.vod-editor-fields{border:0;margin:0;padding:0;min-width:0}.vod-editor-fields:disabled{opacity:.65}
+
+.vod-map-lineups fieldset{min-width:0}.vod-map-lineups .vod-admin-lineup{grid-template-columns:repeat(auto-fit,minmax(min(140px,100%),1fr))}.vod-map-lineups button,.vod-admin-list button{min-width:0;overflow-wrap:anywhere}.vod-admin-grid>label{min-width:0}

@@ -192,11 +192,11 @@ export default function VodPage() {
     vod.status ===
     'played'
 
-  const hasSeriesMaps =
-    vod.result_type === 'series' && maps.length > 0
+  const hasRecordedMaps =
+    maps.length > 0
 
-  const watchIndex = hasSeriesMaps ? '04' : '03'
-  const clipsIndex = hasSeriesMaps ? '05' : '04'
+  const watchIndex = hasRecordedMaps ? '04' : '03'
+  const clipsIndex = hasRecordedMaps ? '05' : '04'
 
   return (
     <div className="vod-page">
@@ -339,7 +339,7 @@ export default function VodPage() {
           </div>
         </section>
 
-        {hasSeriesMaps && (
+        {hasRecordedMaps && (
           <section className="vod-section">
 
             <div>
@@ -372,7 +372,6 @@ export default function VodPage() {
                         <small>MAPA {index + 1}</small>
                         <strong>{map.name}</strong>
                       </div>
-
                       <div className="vod-series-map-score">
                         <small>RESULTADO</small>
                         <strong>
@@ -381,6 +380,9 @@ export default function VodPage() {
                             : '—'}
                         </strong>
                       </div>
+
+
+                      {item.lineup?.length>0&&<div className="vod-map-formation" aria-label={'Formación de '+map.name}><span>Formación</span><div>{item.lineup.map(member=>member.player?<Link key={member.player_id} to={'/players/'+member.player.slug}>{member.player.nickname}</Link>:null)}</div></div>}
                     </article>
                   )
                 })}

@@ -1,3 +1,4 @@
+import { compareMatchesNewestFirst } from '../lib/matchOrdering'
 import { useEffect, useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import Header from '../components/Header'
@@ -52,8 +53,8 @@ export default function HomePage() {
   }, [attempt])
   const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Argentina/Buenos_Aires', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date())
   const upcoming = matches.filter(match => match.status === 'PRÓXIMO' && match.dateISO >= today && match.slug).slice(0, 3)
-  const replays = matches.filter(match => match.status === 'JUGADO' && match.slug).sort((a, b) => b.dateISO.localeCompare(a.dateISO)).slice(0, 3)
-  const latestMatch = matches.filter(match => match.status === 'JUGADO').sort((a,b) => b.dateISO.localeCompare(a.dateISO) || b.time.localeCompare(a.time))[0]
+  const replays = matches.filter(match => match.status === 'JUGADO' && match.slug).sort(compareMatchesNewestFirst).slice(0, 3)
+  const latestMatch = matches.filter(match => match.status === 'JUGADO').sort(compareMatchesNewestFirst)[0]
   return <div className="ap-home" id="inicio">
     <Header />
     <main className="ap-home-main" id="contenido" tabIndex={-1}>
