@@ -1,3 +1,5 @@
+import FaceitStats from '../components/FaceitStats'
+import SocialIcon from '../components/SocialIcon'
 import { optimizedPlayerImage } from '../lib/optimizedPlayerImage'
 import { useEffect, useMemo, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
@@ -196,11 +198,13 @@ export default function PlayerPage() {
                 {socials.map(([label, url]) => (
                   <a
                     key={label}
+                    aria-label={label}
+                    title={label}
                     href={url}
                     target="_blank"
                     rel="noreferrer"
                   >
-                    {label}
+                    <SocialIcon name={label} />
                   </a>
                 ))}
               </div>
@@ -231,6 +235,7 @@ export default function PlayerPage() {
           ))}
         </section>
 
+        <FaceitStats playerId={player.id}/>
         <section className="public-player-section story-section">
 
           <div className="public-player-story">

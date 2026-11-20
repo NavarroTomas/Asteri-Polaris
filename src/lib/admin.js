@@ -144,3 +144,5 @@ export async function reviewFanRegistration(userId, approve) {
   const { error } = await supabase.rpc('review_fan_registration', { target_user_id: userId, approve })
   if (error) throw error
 }
+
+export async function deleteUserAccount(id) { const {error}=await supabase.rpc('admin_delete_user',{target_user_id:id});if(error)throw error }

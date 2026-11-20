@@ -3,15 +3,14 @@ import { Link, useLocation, useNavigate } from 'react-router-dom'
 import Header from '../components/Header'
 import PortalFooter from '../components/PortalFooter'
 import { SOCIAL_LINKS } from '../config/socialLinks'
-import { APPLICATION_URL } from '../config/application'
+
 import { getHomeMatches } from '../lib/homeMatches'
-import { getSiteSettings, DEFAULT_SITE_SETTINGS } from '../lib/siteSettings'
+
 import './HomePage.css'
 import Mascot from '../components/Mascot'
 import SidebarPromotions from '../components/SidebarPromotions'
 import HomeExtras, { LatestMatch } from '../components/HomeExtras'
 import HomeIntroduction from '../components/HomeIntroduction'
-import HomeClips from '../components/HomeClips'
 import MatchesHub from '../components/MatchesHub'
 import './HomeCalendar.css'
 
@@ -38,24 +37,19 @@ export default function HomePage() {
   const navigate = useNavigate()
   useEffect(() => {
     if (hash === '#plantel') navigate('/equipo', { replace: true })
+    if (hash === '#media') navigate('/media', { replace: true })
     if (hash === '#historia') navigate('/historia', { replace: true })
   }, [hash, navigate])
   const [matches, setMatches] = useState([])
   const [status, setStatus] = useState('loading')
   const [attempt, setAttempt] = useState(0)
   const [tab, setTab] = useState('upcoming')
-  const [video, setVideo] = useState(import.meta.env.VITE_HERO_VIDEO_URL || DEFAULT_SITE_SETTINGS.hero_video_url)
   useEffect(() => {
     let alive = true
     setStatus('loading')
     getHomeMatches().then(data => { if (alive) { setMatches(data); setStatus('ready') } }).catch(() => { if (alive) setStatus('error') })
     return () => { alive = false }
   }, [attempt])
-  useEffect(() => {
-    let alive = true
-    getSiteSettings().then(settings => { if (alive) setVideo(settings.hero_video_url) }).catch(() => {})
-    return () => { alive = false }
-  }, [])
   const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Argentina/Buenos_Aires', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date())
   const upcoming = matches.filter(match => match.status === 'PRÓXIMO' && match.dateISO >= today && match.slug).slice(0, 3)
   const replays = matches.filter(match => match.status === 'JUGADO' && match.slug).sort((a, b) => b.dateISO.localeCompare(a.dateISO)).slice(0, 3)
@@ -66,7 +60,7 @@ export default function HomePage() {
       <div className="ap-home-grid">
         <div className="ap-main-column">
           <section className="ap-recruit" id="postulate" aria-labelledby="recruit-title">
-            <div className="ap-recruit-copy"><h1 id="recruit-title">Sumate al plantel</h1><p>Contanos sobre tu experiencia y compartí tu perfil con el staff.</p><a className="ap-button" href={APPLICATION_URL} target="_blank" rel="noreferrer">ABRIR FORMULARIO</a><small>Se abre en una nueva pestaña.</small></div>
+            <div className="ap-recruit-copy"><h1 id="recruit-title">Sumate al plantel</h1><p>Contanos sobre tu experiencia y compartí tu perfil con el staff.</p><Link className="ap-button" to="/postulaciones">VER CONVOCATORIAS</Link></div>
             <div className="ap-mascot-stage"><Mascot pose="welcome" priority /></div>
           </section>
           <section className="ap-section" id="novedades" aria-labelledby="updates-title">
@@ -82,7 +76,7 @@ export default function HomePage() {
             <div className="ap-match-panel"><div className="ap-tabs" role="group" aria-label="Mostrar partidos"><button aria-pressed={tab === 'upcoming'} onClick={() => setTab('upcoming')}>PRÓXIMOS PARTIDOS</button><button aria-pressed={tab === 'replays'} onClick={() => setTab('replays')}>ÚLTIMOS VODS</button></div><MatchList matches={tab === 'upcoming' ? upcoming : replays} status={status} retry={() => setAttempt(value => value + 1)} replays={tab === 'replays'} /><Link className="ap-calendar-link" to="/partidos">VER CALENDARIO COMPLETO Y RESULTADOS </Link></div>
           </section>
           <div className="ap-home-calendar pp-content"><MatchesHub id="calendario" title="CALENDARIO" showIntro={false} /></div>
-          <HomeClips fallbackVideoUrl={video} />
+
           <HomeIntroduction />
           <HomeExtras />
         </div>

@@ -1,8 +1,9 @@
+import { uploadSiteMedia } from '../lib/contentAdmin'
 import { useEffect, useState } from 'react'
 import { getRosters, saveRoster, deleteRoster, DEFAULT_ROSTER_ID } from '../lib/rosterGroups'
 import './RosterGroupsManager.css'
 
-const empty = { name: '', game: 'Counter-Strike 2', description: '', sort_order: 0, is_active: false }
+const empty = { name: '', game: 'Counter-Strike 2', description: '', game_logo_url:'', sort_order: 0, is_active: false }
 
 export default function RosterGroupsManager() {
   const [rosters, setRosters] = useState([])
@@ -51,6 +52,8 @@ export default function RosterGroupsManager() {
       <form onSubmit={submit}><h2>{form.id ? 'Editar plantel' : 'Nuevo plantel'}</h2>
         <label>Nombre<input required minLength={2} maxLength={80} disabled={saving} value={form.name} onChange={event => set('name', event.target.value)} placeholder="Academia" /></label>
         <label>Juego<input required minLength={2} maxLength={80} disabled={saving} value={form.game} onChange={event => set('game', event.target.value)} /></label>
+        <label>Subir logo del juego<input type="file" accept="image/webp,image/png,image/jpeg" disabled={saving} onChange={async event=>{const file=event.target.files?.[0];if(!file)return;setSaving(true);setError('');try{set('game_logo_url',await uploadSiteMedia(file))}catch(err){setError(err.message)}finally{setSaving(false);event.target.value=''}}}/></label>
+        <label>Logo del juego (URL)<input type="url" value={form.game_logo_url||''} disabled={saving} onChange={event=>set('game_logo_url',event.target.value)} placeholder="https://…"/></label>
         <label>Descripción<textarea maxLength={500} rows={3} disabled={saving} value={form.description} onChange={event => set('description', event.target.value)} /></label>
         <label>Orden en Equipo<input type="number" required min={0} max={100000} step={1} disabled={saving} value={form.sort_order} onChange={event => set('sort_order', event.target.value)} /></label>
         <label className="admin-roster-published"><input type="checkbox" disabled={saving} checked={form.is_active} onChange={event => set('is_active', event.target.checked)} />Mostrar en Equipo</label>

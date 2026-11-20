@@ -1,3 +1,4 @@
+import PresentationVideoManager from './PresentationVideoManager'
 import { useEffect, useState } from 'react'
 import AnimationDiagnostics from './AnimationDiagnostics'
 import {
@@ -110,6 +111,7 @@ export default function HomeSettingsManager() {
 
   return (
     <div className="admin-home-settings">
+      <PresentationVideoManager />
       <section className="admin-settings-card">
         <div className="admin-settings-card-head">
           <div>

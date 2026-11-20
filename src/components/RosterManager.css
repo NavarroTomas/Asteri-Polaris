@@ -103,7 +103,7 @@
   font: 700 14px/1 'Barlow Condensed', Inter, sans-serif;
 }
 
-.roster-manager-list > button {
+.roster-manager-list .roster-player-button {
   width: 100%;
   min-height: 72px;
   display: grid;
@@ -119,12 +119,12 @@
   cursor: pointer;
 }
 
-.roster-manager-list > button:hover,
-.roster-manager-list > button.active {
+.roster-manager-list .roster-player-button:hover,
+.roster-manager-list .roster-player-button.active {
   background: #101411;
 }
 
-.roster-manager-list > button.active {
+.roster-manager-list .roster-player-button.active {
   box-shadow: inset 2px 0 0 #00d96e;
 }
 
@@ -133,37 +133,37 @@
   font: 400 26px/.8 Anton, Impact, sans-serif;
 }
 
-.roster-manager-list > button > div {
+.roster-manager-list .roster-player-button > div {
   min-width: 0;
 }
 
-.roster-manager-list > button strong,
-.roster-manager-list > button small {
+.roster-manager-list .roster-player-button strong,
+.roster-manager-list .roster-player-button small {
   display: block;
 }
 
-.roster-manager-list > button strong {
+.roster-manager-list .roster-player-button strong {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
   font: 700 16px/1 'Barlow Condensed', Inter, sans-serif;
 }
 
-.roster-manager-list > button small {
+.roster-manager-list .roster-player-button small {
   margin-top: 5px;
   color: #69746d;
   font: 700 7px/1 Inter, sans-serif;
   letter-spacing: .09em;
 }
 
-.roster-manager-list > button i {
+.roster-manager-list .roster-player-button i {
   color: #68736c;
   font: 700 7px/1 Inter, sans-serif;
   font-style: normal;
   letter-spacing: .08em;
 }
 
-.roster-manager-list > button i.online {
+.roster-manager-list .roster-player-button i.online {
   color: #00d96e;
 }
 

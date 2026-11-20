@@ -1,3 +1,4 @@
+import { FaceitPlayerImport } from './FaceitConnection'
 import {
   useEffect,
   useMemo,
@@ -16,6 +17,7 @@ import {
   uploadRosterPlayerImage,
 } from '../lib/rosterAdmin'
 import './RosterManager.css'
+import { matchesPersonSearch } from '../lib/adminSearch'
 import { getRosters, DEFAULT_ROSTER_ID } from '../lib/rosterGroups'
 
 const EMPTY_STATS = {
@@ -190,6 +192,9 @@ function fieldLabel(label, children) {
 export default function RosterManager() {
   const [players, setPlayers] = useState([])
   const [rosters, setRosters] = useState([])
+  const [playerSearch, setPlayerSearch] = useState('')
+  const [rosterFilter, setRosterFilter] = useState('all')
+  const visiblePlayers = players.filter(player => matchesPersonSearch(player, playerSearch) && (rosterFilter === 'all' || player.roster_id === rosterFilter)).sort((a,b)=>rosters.findIndex(roster=>roster.id===a.roster_id)-rosters.findIndex(roster=>roster.id===b.roster_id))
   const [selectedId, setSelectedId] =
     useState(null)
 
@@ -620,6 +625,7 @@ export default function RosterManager() {
 
       <div className="roster-manager-layout">
         <aside className="roster-manager-list">
+          <div className="admin-player-filters"><label>Buscar jugadores<input type="search" placeholder="Nickname o nombre" value={playerSearch} onChange={event => setPlayerSearch(event.target.value)} /></label><label>Plantel<select value={rosterFilter} onChange={event => setRosterFilter(event.target.value)}><option value="all">Todos los planteles</option>{rosters.map(roster => <option key={roster.id} value={roster.id}>{roster.name}</option>)}</select></label></div>
           <div className="roster-manager-list-head">
             <span>
               JUGADORES
@@ -632,20 +638,22 @@ export default function RosterManager() {
             </strong>
           </div>
 
-          {players.length === 0 ? (
+          {visiblePlayers.length === 0 ? (
             <div className="roster-manager-state">
-              NO HAY JUGADORES.
+              No hay jugadores que coincidan.
             </div>
           ) : (
-            players.map((player) => (
+            visiblePlayers.map((player,index) => (
+              <div key={player.id} className="roster-player-group-item">
+              {(index===0||visiblePlayers[index-1].roster_id!==player.roster_id)&&<h3 className="roster-player-group-title">{rosters.find(roster=>roster.id===player.roster_id)?.name||'Sin plantel'}</h3>}
               <button
                 type="button"
                 key={player.id}
                 className={
                   selectedId ===
                   player.id
-                    ? 'active'
-                    : ''
+                    ? 'roster-player-button active'
+                    : 'roster-player-button'
                 }
                 onClick={() =>
                   selectPlayer(player)
@@ -668,8 +676,7 @@ export default function RosterManager() {
                   </strong>
 
                   <small>
-                    {player.player_role ||
-                      'PLAYER'}
+                    {rosters.find(roster => roster.id === player.roster_id)?.name || 'Sin plantel'} · {player.player_role || 'Jugador'}
                   </small>
                 </div>
 
@@ -685,6 +692,7 @@ export default function RosterManager() {
                     : 'OFF'}
                 </i>
               </button>
+            </div>
             ))
           )}
         </aside>
@@ -1363,6 +1371,7 @@ export default function RosterManager() {
               )}
             </div>
           </form>
+          {selectedId&&<FaceitPlayerImport key={selectedId} playerId={selectedId}/>}
         </section>
       </div>
     </div>

@@ -1,3 +1,4 @@
+import { SiteImage } from '../components/SiteMedia'
 import { optimizedPlayerImage } from '../lib/optimizedPlayerImage'
 import { useEffect, useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
@@ -27,7 +28,7 @@ export default function TeamPage() {
       {rosters.map(roster => {
         const members = players.filter(player => player.rosterId === roster.id)
         return <section key={roster.id} className="pp-team-feature pp-roster-group" id={'roster-' + roster.id} aria-labelledby={'title-' + roster.id}>
-          <div className="pp-team-heading"><div><h2 id={'title-' + roster.id}>{roster.name}</h2>{roster.name !== roster.game && <p>{roster.game}</p>}{roster.description && <p>{roster.description}</p>}</div><Link className="ap-button" to="/historia">NUESTRA HISTORIA</Link></div>
+          <div className="pp-team-heading"><div>{roster.game_logo_url&&<SiteImage className="roster-game-logo" src={roster.game_logo_url} alt={roster.game} loading="lazy"/>}<h2 id={'title-' + roster.id}>{roster.name}</h2>{roster.name !== roster.game && <p>{roster.game}</p>}{roster.description && <p>{roster.description}</p>}</div><Link className="ap-button" to="/historia">NUESTRA HISTORIA</Link></div>
           <div className="pp-team-socials">{CHANNELS.map(([icon, name, , href]) => <a key={name} href={href} target="_blank" rel="noreferrer">{name}</a>)}</div>
           {members.length ? <div className="pp-roster">{members.map(player => <Link key={player.slug} className="pp-player" to={'/players/' + player.slug}><div className="pp-player-photo"><img src={optimizedPlayerImage(player.image) || asteriA} alt={player.nickname} loading="lazy" /></div><div className="pp-player-copy"><h3>{player.nickname}</h3>{player.name && <p>{player.name}</p>}<div><span>{player.age !== '—' ? player.age + ' años' : 'ASTERI'}</span><b>{player.role}</b></div><small>VER FICHA DEL JUGADOR</small></div></Link>)}</div> : <p className="pp-roster-empty">Los jugadores de este plantel se anunciarán próximamente.</p>}
         </section>

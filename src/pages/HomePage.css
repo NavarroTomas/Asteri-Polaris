@@ -143,3 +143,5 @@
 .ap-calendar-link { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #2b3930; padding: 18px 24px; color: #01d069; font: 700 9px/1.5 'Inter', sans-serif; letter-spacing: .03em; }
 .ap-calendar-link:hover { background: #19271e; }
 @media (max-width: 360px) { .ap-recruit h2 { font-size: 46px; } .ap-recruit-copy { padding: 28px 22px; } }
+
+.ap-promo :is(p,span){position:relative;z-index:1;margin:12px 0 0;font-size:15px;color:inherit}.ap-promo>span{font-size:12px}.ap-promo-cocoliche{color:#062819;text-decoration:none}.ap-promo-cocoliche h2{transition:transform .25s}.ap-promo-cocoliche:hover h2{transform:translateY(-4px)}@media(prefers-reduced-motion:reduce){.ap-promo-cocoliche h2{transition:none}}

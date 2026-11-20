@@ -1,8 +1,10 @@
+import GalleryManager from '../components/GalleryManager'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Link, Navigate, useNavigate, useSearchParams } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import {
   reviewFanRegistration,
+  deleteUserAccount,
   assignPlayerAccount,
   makeFanAccount,
   getAdminSnapshot,
@@ -11,6 +13,7 @@ import {
   unlinkPlayerByUserId,
 } from '../lib/admin'
 import RosterManager from '../components/RosterManager'
+import ContentManager from '../components/ContentManager'
 import RosterGroupsManager from '../components/RosterGroupsManager'
 import AdminModuleIcon from '../components/AdminModuleIcon'
 import AdminSectionNav, { getAdminModules } from '../components/AdminSectionNav'
@@ -20,6 +23,7 @@ import AdminAnalytics from '../components/AdminAnalytics'
 import AdminPlayerAssignment from '../components/AdminPlayerAssignment'
 import '../components/FanAccount.css'
 import './AdminPage.css'
+import { matchesPersonSearch } from '../lib/adminSearch'
 
 function formatDate(value) {
   if (!value) return '—'
@@ -51,7 +55,7 @@ export default function AdminPage() {
 
   const [params, setParams] = useSearchParams()
   const requestedView = params.get('section') || 'overview'
-  const allowedViews = ['overview', 'users', 'rosters', 'roster', 'vods', 'activity', 'analytics', ...(isOwner ? ['home', 'pending'] : [])]
+  const allowedViews = ['overview', 'gallery', 'tournaments', 'applications', 'users', 'rosters', 'roster', 'vods', 'activity', 'analytics', ...(isOwner ? ['home', 'pending'] : [])]
   const view = allowedViews.includes(requestedView) ? requestedView : 'overview'
   const setView = section => setParams(section === 'overview' ? {} : { section })
   const heading = useRef(null)
@@ -69,6 +73,7 @@ export default function AdminPage() {
   const [workingId, setWorkingId] = useState(null)
   const [error, setError] = useState('')
   const [assigningUser, setAssigningUser] = useState(null)
+  const [userSearch, setUserSearch] = useState('')
 
   const load = async () => {
     setError('')
@@ -233,6 +238,7 @@ export default function AdminPage() {
                     </div>
 
                     <div className="admin-row-actions">
+                    {isOwner&&!isSelf&&user.role!=='owner'&&<button type="button" disabled={workingId==='delete-'+user.id} onClick={()=>{if(window.confirm('¿Eliminar definitivamente la cuenta de '+(user.display_name||user.email)+'? Se cerrará su acceso y se eliminará su cuenta. Las fichas de jugadores y los partidos se conservan. No se puede deshacer.'))runAction('delete-'+user.id,()=>deleteUserAccount(user.id))}}>Eliminar cuenta</button>}
                       <button
                         type="button"
                         className="primary"
@@ -270,6 +276,7 @@ export default function AdminPage() {
           />
 
           {assigningUser && <AdminPlayerAssignment key={assigningUser.id} user={assigningUser} players={freePlayers} busy={workingId === `assign-${assigningUser.id}`} onCancel={() => setAssigningUser(null)} onSave={values => runAction(`assign-${assigningUser.id}`, async () => { await assignPlayerAccount(values); setAssigningUser(null) })} />}
+          <label className="admin-search-field">Buscar usuarios<input type="search" value={userSearch} onChange={event => setUserSearch(event.target.value)} placeholder="Nombre o email" /></label>
           <div className="admin-users-table">
             <div className="admin-users-head">
               <span>Usuario</span>
@@ -279,7 +286,7 @@ export default function AdminPage() {
               <span>Acciones</span>
             </div>
 
-            {snapshot.profiles.map(user => {
+            {snapshot.profiles.filter(user => matchesPersonSearch(user, userSearch)).map(user => {
               const linkedPlayer = playerByUserId.get(user.id)
               const isSelf = user.id === profile?.id
 
@@ -343,9 +350,12 @@ export default function AdminPage() {
               )
             })}
           </div>
+          {!snapshot.profiles.some(user => matchesPersonSearch(user, userSearch)) && <p role="status">No hay usuarios que coincidan con la búsqueda.</p>}
         </div>
       )}
 
+      {view === 'gallery' && <div className="admin-content-view"><AdminSectionHeader title="Media" onBack={()=>setView('overview')}/><GalleryManager /></div>}
+      {['tournaments','applications'].includes(view) && <div className="admin-content-view"><AdminSectionHeader title={view==='tournaments'?'Torneos':'Postulaciones'} onBack={()=>setView('overview')}/><ContentManager key={view} type={view}/></div>}
       {view === 'rosters' && <div className="admin-content-view"><AdminSectionHeader title="Planteles" description="Equipos por juego o categoría que aparecen en Equipo." onBack={() => setView('overview')} /><RosterGroupsManager /></div>}
 
       {view === 'roster' && (

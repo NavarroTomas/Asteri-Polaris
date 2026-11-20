@@ -696,3 +696,5 @@
     grid-column: 1 / -1;
   }
 }
+
+.vod-map-lineups{margin:32px 0}.vod-map-lineups fieldset{border:1px solid var(--color-border);border-radius:14px;padding:18px;margin:20px 0}.vod-map-lineups legend{padding:0 10px;font-weight:650}.vod-map-lineups button{padding:10px 14px}

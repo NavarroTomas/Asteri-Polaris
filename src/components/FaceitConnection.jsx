@@ -1,0 +1,16 @@
+import { useState } from 'react'
+import { supabase } from '../lib/supabase'
+async function queryFaceit(params){
+ const {data:{session}}=await supabase.auth.getSession()
+ const response=await fetch('/api/faceit?'+new URLSearchParams(params),{headers:{Authorization:'Bearer '+(session?.access_token||'')}})
+ if(!response.headers.get('content-type')?.includes('application/json'))throw new Error('La conexión FACEIT se activa en la versión publicada cuando se configure la clave de servidor.')
+ const data=await response.json();if(!response.ok)throw new Error(data.error||'No pudimos conectar con FACEIT.');return data
+}
+export function FaceitTournamentImport({onImport,disabled}){
+ const [id,setId]=useState(''),[busy,setBusy]=useState(false),[error,setError]=useState('')
+ return <details className="faceit-connection"><summary>Importar torneo desde FACEIT</summary><p>La carga manual siempre está disponible. Para importar se necesita una clave FACEIT de servidor.</p><label>ID del campeonato<input value={id} onChange={e=>setId(e.target.value)} disabled={busy||disabled}/></label><button type="button" disabled={busy||disabled||!id.trim()} onClick={async()=>{setBusy(true);setError('');try{const data=await queryFaceit({type:'championship',id:id.trim()});if(!data.starts_at)throw new Error('FACEIT no devolvió fecha de inicio. Cargá el torneo manualmente.');onImport({title:data.name||'',game:data.game==='cs2'?'Counter-Strike 2':data.game||'',description:data.description||'',starts_on:new Date(data.starts_at*1000).toISOString().slice(0,10),ends_on:'',cover_url:data.cover_url||'',external_url:data.url||'',faceit_id:data.id,is_published:false})}catch(err){setError(err.message)}finally{setBusy(false)}}}>{busy?'Consultando…':'Traer torneo para revisar'}</button>{error&&<p role="alert">{error}</p>}</details>
+}
+export function FaceitPlayerImport({playerId}){
+ const [nickname,setNickname]=useState(''),[busy,setBusy]=useState(false),[error,setError]=useState(''),[preview,setPreview]=useState(null),[message,setMessage]=useState('')
+ return <section className="faceit-connection"><h2>Estadísticas FACEIT</h2><p>Se guardan aparte de las estadísticas del equipo. La conexión queda pendiente de configurar la clave de servidor.</p><label>Nickname de FACEIT<input value={nickname} onChange={e=>{setNickname(e.target.value);setPreview(null);setMessage('')}} disabled={busy}/></label><button type="button" disabled={busy||!nickname.trim()} onClick={async()=>{setBusy(true);setError('');setMessage('');try{setPreview(await queryFaceit({type:'player',nickname:nickname.trim()}))}catch(err){setError(err.message)}finally{setBusy(false)}}}>Consultar FACEIT</button>{error&&<p role="alert">{error}</p>}{message&&<p role="status">{message}</p>}{preview&&<div><p>{preview.nickname} · Nivel {preview.level??'—'} · ELO {preview.elo??'—'}</p><button type="button" disabled={busy} onClick={async()=>{setBusy(true);setError('');try{const {error}=await supabase.from('player_faceit_stats').upsert({player_id:playerId,faceit_player_id:preview.player_id,nickname:preview.nickname,elo:preview.elo,level:preview.level,lifetime:preview.lifetime,synced_at:preview.synced_at});if(error)throw error;setMessage('Estadísticas FACEIT guardadas en el perfil.')}catch(err){setError(err.message)}finally{setBusy(false)}}}>Guardar en el perfil</button></div>}</section>
+}

@@ -25,7 +25,7 @@ export function CommunityPage() {
 }
 
 export function ContactPage() {
-  return <PortalPage title="CONTACTO" intro="Consultas y contacto con el equipo."><div className="pp-contact-card"><h2>Escribinos</h2><p>Consultas generales y propuestas.</p><a className="pp-contact-email" href="mailto:nachoalvarezcs2@gmail.com">nachoalvarezcs2@gmail.com </a></div><div className="pp-link-grid"><Link className="pp-link-card" to="/inscripcion"><h2>QUIERO POSTULARME </h2><p>Conocé cómo enviar tu perfil al staff.</p></Link><Link className="pp-link-card" to="/comunidad"><h2>BUSCO LA COMUNIDAD </h2><p>Encontrá nuestros canales oficiales.</p></Link></div></PortalPage>
+  return <PortalPage title="CONTACTO" intro="Consultas y contacto con el equipo."><div className="pp-contact-card"><h2>Escribinos</h2><p>Consultas generales y propuestas.</p><a className="pp-contact-email" href="mailto:nachoalvarezcs2@gmail.com">nachoalvarezcs2@gmail.com </a></div><div className="pp-link-grid"><Link className="pp-link-card" to="/postulaciones"><h2>QUIERO POSTULARME </h2><p>Conocé cómo enviar tu perfil al staff.</p></Link><Link className="pp-link-card" to="/comunidad"><h2>BUSCO LA COMUNIDAD </h2><p>Encontrá nuestros canales oficiales.</p></Link></div></PortalPage>
 }
 
 export function ApplicationPage() {

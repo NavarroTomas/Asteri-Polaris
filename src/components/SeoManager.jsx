@@ -24,6 +24,7 @@ const STATIC_META = {
     ['/historia', 'Nuestra historia', 'La evolución de los escudos y la identidad de ASTERI POLARIS.'],
     ['/comunidad', 'Comunidad', 'Los canales oficiales y la comunidad de ASTERI POLARIS.'],
     ['/contacto', 'Contacto', 'Contactá al equipo de ASTERI POLARIS.'],
+    ['/postulaciones', 'Postulaciones', 'Convocatorias abiertas para los juegos y áreas de ASTERI POLARIS.'],
     ['/inscripcion', 'Inscripción', 'Cómo postularte al equipo de ASTERI POLARIS.'],
     ['/calendario', 'Calendario', 'Calendario mensual de partidos y resultados de ASTERI POLARIS.'],
   ].map(([path, title, description]) => [path, { title: `${title} — ${SITE_NAME}`, description, index: true, type: 'website' }])),

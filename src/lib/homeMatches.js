@@ -1,5 +1,6 @@
 import { supabase } from './supabase'
 import { getVodDownloadHref } from './vodLinks'
+import { listTournaments } from './contentAdmin'
 
 export const MATCH_OUTCOME_COLORS = {
   win: '#00d96e',
@@ -104,6 +105,9 @@ function mapVod(vod) {
 
   return {
     id: vod.id,
+    tournamentId: vod.tournament_id || null,
+    tournamentTitle: vod.tournament?.title || null,
+    isTournament: Boolean(vod.tournament_id) || /^torneo$/i.test(vod.calendar_filter?.name || ''),
     slug: vod.slug,
     dateISO: vod.match_date,
     date: formatDateShort(vod.match_date),
@@ -138,6 +142,8 @@ export async function getHomeCalendarData() {
     .from('vods')
     .select(`
       id,
+      tournament_id,
+      tournament:tournaments(title),
       slug,
       opponent,
       competition,
@@ -167,21 +173,18 @@ export async function getHomeCalendarData() {
 
   if (error) throw error
 
-  const matches = (data ?? []).map(mapVod)
+  const [tournaments, categoryResult] = await Promise.all([listTournaments(true),supabase.from('calendar_filters').select('id,name,color,is_active,sort_order').eq('is_active',true).order('sort_order').order('name')])
+  if(categoryResult.error) throw categoryResult.error
+  const filters = categoryResult.data || []
+  const tournamentFilter = filters.find(filter=>/^torneo$/i.test(filter.name)) || null
+  const today = new Intl.DateTimeFormat('en-CA',{timeZone:'America/Argentina/Buenos_Aires',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date())
+  const matches = [...(data ?? []).map(mapVod), ...tournaments.map(item => ({
+    id: 'event-' + item.id, tournamentId:item.id, tournamentTitle:item.title, isTournament:true, isEvent:true,
+    slug:'', dateISO:item.starts_on, date:formatDateShort(item.starts_on), time:'—', opponent:item.title,
+    competition:item.game, status:(item.ends_on||item.starts_on)<today?'FINALIZADO':item.starts_on<=today?'EN CURSO':'PRÓXIMO', score:'', resultLabel:'TORNEO', outcome:'upcoming',
+    outcomeColor:MATCH_OUTCOME_COLORS.upcoming, filter:tournamentFilter, vod:'/torneos#tournament-' + item.id, youtube:'', downloadUrl:''
+  }))]
 
-  const filters = [
-    ...new Map(
-      matches
-        .map(match => match.filter)
-        .filter(Boolean)
-        .map(filter => [filter.id, filter]),
-    ).values(),
-  ].sort(
-    (a, b) =>
-      Number(a.sort_order || 0) -
-        Number(b.sort_order || 0) ||
-      String(a.name).localeCompare(String(b.name)),
-  )
 
   return {
     matches,

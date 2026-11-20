@@ -13,6 +13,7 @@ import {
   saveCalendarFilter,
   saveLineup,
   saveVod,
+  saveVodStructure,
   saveVodMaps,
   slugifyVod,
   toggleClip,
@@ -24,6 +25,7 @@ import {
 } from '../config/competitiveMaps'
 import AdminSectionNav from '../components/AdminSectionNav'
 import './VodAdminPage.css'
+import { listTournaments } from '../lib/contentAdmin'
 
 const emptyClip = {
   title: '',
@@ -52,6 +54,8 @@ export default function VodAdminPage() {
   const [selected, setSelected] = useState(null)
   const [form, setForm] = useState(emptyVod)
   const [lineup, setLineup] = useState([])
+  const [tournaments,setTournaments] = useState([])
+  useEffect(()=>{let alive=true;listTournaments().then(data=>{if(alive)setTournaments(data)}).catch(error=>{if(alive)setErr(error.message)});return()=>{alive=false}},[])
   const [clips, setClips] = useState([])
   const [mapRows, setMapRows] = useState([])
 
@@ -111,6 +115,8 @@ export default function VodAdminPage() {
         setForm({
           ...emptyVod,
           ...data.vod,
+          result_type:'series',
+          series_format:data.vod.series_format||'bo1',
           calendar_filter_id:
             data.vod.calendar_filter_id || '',
           match_outcome:
@@ -123,7 +129,8 @@ export default function VodAdminPage() {
 
         setClips(data.clips || [])
         setMapRows(
-          (data.maps || []).map(item => ({
+          ((data.maps?.length ? data.maps : data.vod.map_name ? [{map_name:data.vod.map_name,score_asteri:data.vod.score_asteri,score_opponent:data.vod.score_opponent}] : [])).map(item => ({
+            player_ids:item.map_lineup?.map(member=>member.player_id) || data.lineup.map(member=>member.player_id),
             map_name: item.map_name,
             score_asteri: item.score_asteri ?? '',
             score_opponent: item.score_opponent ?? '',
@@ -151,6 +158,7 @@ export default function VodAdminPage() {
     setForm(currentForm => ({
       ...currentForm,
       [key]: value,
+      ...(key==='opponent'&&(!currentForm.title||currentForm.title==='ASTERI vs '+currentForm.opponent)?{title:'ASTERI vs '+value}:{}) ,
     }))
     setMsg('')
     setErr('')
@@ -196,6 +204,7 @@ export default function VodAdminPage() {
         ...currentRows,
         {
           map_name: mapId,
+          player_ids:[...lineup],
           score_asteri: '',
           score_opponent: '',
         },
@@ -240,120 +249,13 @@ export default function VodAdminPage() {
 
   async function submit(event) {
     event.preventDefault()
-    setBusy(true)
-    setErr('')
-    setMsg('')
-
+    if(busy)return
+    setBusy(true);setErr('');setMsg('')
     try {
-      if (
-        !form.title.trim() ||
-        !form.opponent.trim() ||
-        !form.match_date
-      ) {
-        throw new Error(
-          'Completá título, rival y fecha.',
-        )
-      }
-
-      let scoreA = form.score_asteri
-      let scoreB = form.score_opponent
-
-      if (form.result_type === 'series') {
-        const limit =
-          SERIES_MAP_LIMITS[
-            form.series_format || 'bo1'
-          ] || 1
-
-        if (mapRows.length > limit) {
-          throw new Error(
-            `${String(
-              form.series_format || 'bo1',
-            ).toUpperCase()} permite hasta ${limit} mapas.`,
-          )
-        }
-
-        if (
-          form.status === 'played' &&
-          mapRows.length === 0
-        ) {
-          throw new Error(
-            'Seleccioná al menos un mapa jugado.',
-          )
-        }
-
-        if (form.status === 'played') {
-          const incomplete = mapRows.some(
-            row =>
-              row.score_asteri === '' ||
-              row.score_asteri == null ||
-              row.score_opponent === '' ||
-              row.score_opponent == null,
-          )
-
-          if (incomplete) {
-            throw new Error(
-              'Completá el resultado de cada mapa jugado.',
-            )
-          }
-        }
-
-        const completed = mapRows.filter(
-          row =>
-            row.score_asteri !== '' &&
-            row.score_opponent !== '',
-        )
-
-        scoreA = completed.filter(
-          row =>
-            Number(row.score_asteri) >
-            Number(row.score_opponent),
-        ).length
-
-        scoreB = completed.filter(
-          row =>
-            Number(row.score_opponent) >
-            Number(row.score_asteri),
-        ).length
-      }
-
-      const saved = await saveVod(
-        selected,
-        {
-          ...form,
-          score_asteri: scoreA,
-          score_opponent: scoreB,
-          slug:
-            form.slug ||
-            slugifyVod(
-              `${form.opponent}-${form.match_date}`,
-            ),
-        },
-        user.id,
-      )
-
-      await saveVodMaps(
-        saved.id,
-        form.result_type === 'series'
-          ? mapRows
-          : [],
-      )
-
-      // La base de datos recalcula MATCHES de cada jugador
-      // automáticamente al guardar este lineup.
-      await saveLineup(saved.id, lineup)
-
-      await refresh()
-      setSelected(saved.id)
-      setMsg(
-        selected
-          ? 'VOD actualizada.'
-          : 'VOD creada.',
-      )
-    } catch (error) {
-      setErr(error.message)
-    } finally {
-      setBusy(false)
-    }
+      if(!form.opponent.trim()||!form.match_date)throw new Error('Completá rival y fecha.')
+      const id=await saveVodStructure(selected,form,mapRows)
+      await refresh();setSelected(id);setMsg(selected?'Partido actualizado.':'Partido creado.')
+    }catch(error){setErr(error.message)}finally{setBusy(false)}
   }
 
   async function submitFilter(event) {
@@ -569,6 +471,7 @@ export default function VodAdminPage() {
               </label>
             </div>
 
+            <section className="vod-map-lineups"><h2>Formación por mapa</h2>{!mapRows.length&&<p>Elegí los mapas de la serie para asignar sus jugadores.</p>}{mapRows.length>0&&<button type="button" disabled={busy||lineup.length>5} onClick={()=>setMapRows(rows=>rows.map(row=>({...row,player_ids:[...lineup]})))}>Aplicar formación base a todos los mapas</button>}{mapRows.map((row,index)=><fieldset key={row.map_name} disabled={busy}><legend>{getCompetitiveMap(row.map_name)?.name||row.map_name}</legend><div className="vod-admin-lineup">{players.map(player=><button type="button" key={player.id} aria-pressed={(row.player_ids||[]).includes(player.id)} className={(row.player_ids||[]).includes(player.id)?'selected':''} onClick={()=>{const ids=row.player_ids||[];if(!ids.includes(player.id)&&ids.length>=5){setErr('Elegí hasta cinco jugadores por mapa.');return}setMapRows(rows=>rows.map((item,i)=>i===index?{...item,player_ids:ids.includes(player.id)?ids.filter(id=>id!==player.id):[...ids,player.id]}:item))}}>{player.nickname}</button>)}</div></fieldset>)}</section>
             <div className="vod-admin-actions">
               <button
                 className="save"
@@ -669,6 +572,7 @@ export default function VodAdminPage() {
             </div>
 
             <div className="vod-admin-grid">
+              <label><span>Torneo (opcional)</span><select value={form.tournament_id||''} onChange={e=>set('tournament_id',e.target.value)}><option value="">Sin torneo</option>{tournaments.map(item=><option key={item.id} value={item.id}>{item.title}</option>)}</select></label>
               <label className="wide">
                 <span>Título</span>
                 <input
@@ -815,34 +719,6 @@ export default function VodAdminPage() {
                   </option>
                   <option value="draw">
                     EMPATE
-                  </option>
-                </select>
-              </label>
-
-              <label>
-                <span>Tipo de resultado</span>
-                <select
-                  value={
-                    form.result_type || 'rounds'
-                  }
-                  onChange={event =>
-                    set(
-                      'result_type',
-                      event.target.value,
-                    )
-                  }
-                >
-                  <option value="rounds">
-                    MATCH
-                  </option>
-                  <option value="series">
-                    SERIE / MAPAS
-                  </option>
-                  <option value="elimination">
-                    ELIMINACIÓN
-                  </option>
-                  <option value="custom">
-                    PERSONALIZADO
                   </option>
                 </select>
               </label>
@@ -1160,12 +1036,9 @@ export default function VodAdminPage() {
             <div className="vod-admin-section">
               <div className="vod-admin-section-head">
                 <div>
-                  <span>Lineup</span>
+                  <span>Formación base</span>
                   <small>
-                    Cada jugador seleccionado suma
-                    automáticamente 1 MATCH en sus
-                    estadísticas. Si lo quitás, se
-                    recalcula.
+                    Elegí una base para los mapas nuevos. Solo cuentan los mapas con resultado de partidos jugados. Ajustá cada formación debajo.
                   </small>
                 </div>
 

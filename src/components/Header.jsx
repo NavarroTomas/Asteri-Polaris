@@ -4,7 +4,7 @@ import asteriA from '../assets/brand/asteri-a.webp'
 import { useAuth } from '../context/AuthContext'
 import './Portal.css'
 
-const navigation = [['INICIO', '/'], ['PARTIDOS', '/partidos'], ['TORNEOS', '/torneos'], ['EQUIPO', '/equipo'], ['MEDIA', '/media']]
+const navigation = [['INICIO', '/'], ['PARTIDOS', '/partidos'], ['TORNEOS', '/torneos'], ['EQUIPO', '/equipo'], ['MEDIA', '/media'], ['POSTULACIONES', '/postulaciones']]
 const organization = [['Nosotros', '/nosotros'], ['Historia', '/historia'], ['Comunidad', '/comunidad'], ['Contacto', '/contacto']]
 export default function Header() {
   const { loading, isAuthenticated } = useAuth()
@@ -45,7 +45,7 @@ export default function Header() {
       </nav>
       <div className="ap-nav-actions">
         {!loading && <Link className="ap-account" to={isAuthenticated ? '/account' : '/login'}>{isAuthenticated ? 'Mi cuenta' : 'Ingresar'}</Link>}
-        <Link className="ap-button ap-button-small" to="/inscripcion" onClick={close}>INSCRIBITE </Link>
+        <Link className="ap-button ap-button-small" to="/postulaciones" onClick={close}>INSCRIBITE </Link>
         <button ref={toggle} className="ap-menu" type="button" aria-controls="ap-navigation" aria-expanded={open} aria-label={open ? 'Cerrar menú' : 'Abrir menú'} onClick={() => setOpen(value => !value)}>{open ? 'Cerrar' : 'Menú'}</button>
       </div>
     </div>

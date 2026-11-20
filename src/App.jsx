@@ -1,5 +1,6 @@
 import { Route, Routes } from 'react-router-dom'
 import ThemeToggle from './components/ThemeToggle'
+import CocolicheHelp from './components/CocolicheHelp'
 import QuietCursor from './components/QuietCursor'
 import PageEntrance from './components/PageEntrance'
 import HomePage from './pages/HomePage'
@@ -7,6 +8,7 @@ import TeamPage from './pages/TeamPage'
 import MatchesPage from './pages/MatchesPage'
 import CalendarPage from './pages/CalendarPage'
 import TournamentsPage from './pages/TournamentsPage'
+import ApplicationsPage from './pages/ApplicationsPage'
 import MediaPage from './pages/MediaPage'
 import { AboutPage, HistoryPage, CommunityPage, ContactPage, ApplicationPage } from './pages/OrganizationPages'
 import LoginPage from './pages/LoginPage'
@@ -36,6 +38,7 @@ export default function App() {
       <RouteScrollManager />
       <PageEntrance />
       <ThemeToggle />
+      <CocolicheHelp />
       <QuietCursor />
 
       <RosterInteractionEnhancer />
@@ -52,7 +55,8 @@ export default function App() {
         <Route path="/historia" element={<HistoryPage />} />
         <Route path="/comunidad" element={<CommunityPage />} />
         <Route path="/contacto" element={<ContactPage />} />
-        <Route path="/inscripcion" element={<ApplicationPage />} />
+        <Route path="/inscripcion" element={<ApplicationsPage />} />
+        <Route path="/postulaciones" element={<ApplicationsPage />} />
 
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />

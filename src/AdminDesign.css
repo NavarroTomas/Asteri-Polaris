@@ -126,10 +126,10 @@
 .asteri-admin .roster-manager-editor-head h2 { font: 650 28px/1.2 'Bricolage Grotesque',sans-serif; }
 .asteri-admin :is(.roster-manager-field > span,.audit-toolbar label > span) { font: 500 13px/1.5 Inter,sans-serif; letter-spacing: 0; color: var(--color-text-muted); }
 .asteri-admin .roster-manager-list-head strong { display: none; }
-.asteri-admin .roster-manager-list > button { display: flex; gap: 14px; padding: 16px; }
-.asteri-admin .roster-manager-list > button > div { min-width: 0; flex: 1; }
-.asteri-admin .roster-manager-list > button strong { font: 600 16px/1.4 Inter,sans-serif; }
-.asteri-admin .roster-manager-list > button small { font-size: 12px; }
+.asteri-admin .roster-manager-list .roster-player-button { display: flex; gap: 14px; padding: 16px; }
+.asteri-admin .roster-manager-list .roster-player-button > div { min-width: 0; flex: 1; }
+.asteri-admin .roster-manager-list .roster-player-button strong { font: 600 16px/1.4 Inter,sans-serif; }
+.asteri-admin .roster-manager-list .roster-player-button small { font-size: 12px; }
 .asteri-admin .audit-heading { justify-content: flex-end; }
 @media (max-width:600px) {
   :is(.asteri-admin, .vod-admin-page) .admin-section-nav { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 8px; }
@@ -146,3 +146,12 @@
 .asteri-admin .admin-module-icon { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: clamp(48px, 5vw, 76px); height: clamp(48px, 5vw, 76px); color: var(--color-primary); pointer-events: none; }
 @media(max-width: 600px) { .asteri-admin .admin-module-card > span { font-size: clamp(16px, 4.2vw, 22px); } .asteri-admin .admin-module-icon { width: 46px; height: 46px; } }
 @media(max-width: 380px) { .asteri-admin .admin-module-card { padding: 12px; } .asteri-admin .admin-module-card > span { font-size: 14px; } .asteri-admin .admin-module-icon { width: 36px; height: 36px; } }
+
+.admin-search-field, .admin-player-filters label { display:grid; gap:8px; font-size:14px; color:var(--color-text-muted); }
+.asteri-admin .admin-search-field { margin-bottom:24px; max-width:540px; }
+.admin-search-field input, .admin-player-filters :is(input,select) { width:100%; padding:10px 12px; }
+.admin-player-filters { display:grid; gap:16px; padding:20px; border-bottom:1px solid var(--color-border); }
+
+.faceit-connection{margin:28px 0;padding:22px;border:1px solid var(--color-border);border-radius:16px;background:var(--color-bg-secondary)}.faceit-connection label{display:grid;gap:8px;margin:16px 0;max-width:500px}.faceit-connection input{padding:12px;width:100%}.faceit-connection button{padding:10px 16px}.faceit-connection summary{cursor:pointer;font-weight:650}
+
+.roster-player-group-title{font-size:14px!important;padding:16px 18px;margin:0;background:var(--color-bg);color:var(--color-text-muted)!important;border-block:1px solid var(--color-border);letter-spacing:0!important}.roster-player-group-item .roster-player-button{width:100%;text-align:left}

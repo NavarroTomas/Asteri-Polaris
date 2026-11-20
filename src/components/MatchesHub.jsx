@@ -5,6 +5,7 @@ import {
   MATCH_OUTCOME_COLORS,
 } from '../lib/homeMatches'
 import './AsteriTypography.css'
+import { compareMatchesNewestFirst } from '../lib/matchOrdering'
 
 const MONTHS = [
   'ENERO',
@@ -140,7 +141,7 @@ export default function MatchesHub({ id = 'partidos', title = 'PARTIDOS.', showI
               )
             })
             .map(match => match.dateISO)
-            .sort()[0] || null
+            .sort().at(-1) || null
 
         setSelectedDateISO(firstDate)
       } catch (error) {
@@ -314,7 +315,7 @@ export default function MatchesHub({ id = 'partidos', title = 'PARTIDOS.', showI
                 </div>
               )}
 
-            {visibleMatches.map(match => (
+            {[...visibleMatches].sort(compareMatchesNewestFirst).map(match => (
               <button
                 type="button"
                 key={match.id}
@@ -332,14 +333,14 @@ export default function MatchesHub({ id = 'partidos', title = 'PARTIDOS.', showI
 
                 <div className="match-list-opponent">
                   <small>
-                    {match.competition}
+                    {match.isTournament && <span className="calendar-tournament-badge">Torneo</span>} {match.competition}
                     {match.filter?.name
                       ? ` · ${String(match.filter.name).toUpperCase()}`
                       : ''}
                   </small>
 
                   <strong>
-                    ASTERI <em>VS</em> {match.opponent}
+                    {match.isEvent ? match.opponent : <>ASTERI <em>VS</em> {match.opponent}</>}
                   </strong>
                 </div>
 
@@ -444,7 +445,7 @@ export default function MatchesHub({ id = 'partidos', title = 'PARTIDOS.', showI
                               match.outcomeColor,
                           }}
                         >
-                          ★
+                          {match.isTournament ? 'T' : '•'}
                         </span>
                       ))}
 
@@ -494,8 +495,7 @@ export default function MatchesHub({ id = 'partidos', title = 'PARTIDOS.', showI
                           </small>
 
                           <strong>
-                            ASTERI <em>VS</em>{' '}
-                            {match.opponent}
+                            {match.isEvent ? match.opponent : <>ASTERI <em>VS</em> {match.opponent}</>}
                           </strong>
                         </div>
 

@@ -1,4 +1,7 @@
 const paths = {
+  gallery: <><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8" cy="8" r="2"/><path d="m3 18 6-6 4 4 4-7 4 9"/></>,
+  tournaments: <><path d="M8 3h8v8a4 4 0 0 1-8 0V3Zm0 2H3v4a4 4 0 0 0 5 4m8-8h5v4a4 4 0 0 1-5 4M12 15v6m-4 0h8"/></>,
+  applications: <><rect x="4" y="3" width="16" height="18" rx="3"/><path d="M8 8h8m-8 4h8m-8 4h4"/></>,
   analytics: <><path d="M4 4v16h16" /><path d="M8 15v-4m5 4V7m5 8V4" /></>,
   rosters: <><path d="m12 3 8 3v6c0 5-8 9-8 9s-8-4-8-9V6l8-3Z" /><path d="M8 12h8m-4-4v8" /></>,
   roster: <><path d="m8 4-5 3 3 5 2-1v9h8v-9l2 1 3-5-5-3" /><path d="M8 4a4 4 0 0 0 8 0M10 15h4" /></>,

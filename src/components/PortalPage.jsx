@@ -30,6 +30,6 @@ export function PageState({ status, retry, empty, children }) {
 
 export default function PortalPage({ title, intro, children, aside = true }) {
   const { pathname } = useLocation()
-  const pose = { '/partidos': 'matches', '/torneos': 'tournaments', '/equipo': 'team', '/nosotros': 'about', '/comunidad': 'community', '/contacto': 'contact', '/inscripcion': 'application' }[pathname.replace(/\/$/, '')]
+  const pose = { '/partidos': 'matches', '/torneos': 'tournaments', '/equipo': 'team', '/nosotros': 'about', '/comunidad': 'community', '/contacto': 'contact', '/inscripcion': 'application', '/postulaciones':'application' }[pathname.replace(/\/$/, '')]
   return <div className="pp-page"><Header /><main id="contenido" tabIndex={-1} className="pp-shell"><div className={aside ? 'pp-layout' : 'pp-layout pp-layout-wide'}><div className="pp-content"><div className={pose ? 'pp-heading pp-heading-with-mascot' : 'pp-heading'}><div><h1>{title}</h1>{intro && <p>{intro}</p>}</div>{pose && <Mascot pose={pose} priority />}</div>{children}</div>{aside && <aside className="pp-aside" aria-label="Canales y comunidad"><PageAside /></aside>}</div></main><PortalFooter /></div>
 }

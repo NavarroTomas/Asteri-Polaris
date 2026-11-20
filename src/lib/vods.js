@@ -5,6 +5,7 @@ export const emptyVod = {
   title: '',
   opponent: '',
   competition: '',
+  tournament_id: '',
   match_date: '',
   match_time: '',
   map_name: '',
@@ -13,7 +14,7 @@ export const emptyVod = {
   status: 'upcoming',
   match_outcome: 'auto',
   calendar_filter_id: '',
-  result_type: 'rounds',
+  result_type: 'series',
   series_format: 'bo1',
   result_label: '',
   youtube_url: '',
@@ -146,7 +147,7 @@ export async function getVodDetail(id) {
 
     supabase
       .from('vod_maps')
-      .select('*')
+      .select('*,map_lineup:vod_map_players(player_id)')
       .eq('vod_id', id)
       .order('map_order'),
   ])
@@ -187,6 +188,8 @@ export async function saveVod(id, form, userId) {
 
     title: form.title.trim(),
     opponent: form.opponent.trim(),
+
+    tournament_id: form.tournament_id || null,
 
     competition:
       cleanText(form.competition),
@@ -548,7 +551,7 @@ export async function getPublicVod(slug) {
 
       supabase
         .from('vod_maps')
-        .select('*')
+        .select('*,map_lineup:vod_map_players(player_id)')
         .eq(
           'vod_id',
           vod.data.id,
@@ -644,4 +647,11 @@ export async function getPublicVod(slug) {
         }),
       ),
   }
+}
+
+export async function saveVodStructure(id, form, maps) {
+  const payload={...form,title:form.title?.trim()||'ASTERI vs '+form.opponent,slug:form.slug||slugifyVod(form.opponent+'-'+form.match_date),match_time:form.match_time||null,calendar_filter_id:form.calendar_filter_id||null,tournament_id:form.tournament_id||null,score_asteri:null,score_opponent:null}
+  const {data,error}=await supabase.rpc('save_vod_structure',{target_vod_id:id||null,match_form:payload,map_entries:maps.map(map=>({...map,player_ids:[...new Set(map.player_ids||[])]}))})
+  if(error)throw error
+  return data
 }

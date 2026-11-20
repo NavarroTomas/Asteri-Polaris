@@ -4,3 +4,5 @@
 .pp-roster-group { scroll-margin-top: 24px; margin-bottom: 36px; }
 .pp-roster-group .pp-team-heading p, .pp-roster-empty { color: var(--color-text-muted); line-height: 1.6; }
 .pp-roster-group .pp-team-heading p { max-width: 65ch; }
+
+.roster-game-logo{display:block;width:112px;height:72px;object-fit:contain;object-position:left center;margin-bottom:18px}
