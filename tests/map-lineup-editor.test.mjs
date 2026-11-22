@@ -43,7 +43,7 @@ function buttons(element, found = []) {
 test('map formation controls render and change the selected map without touching the others', async t => {
   const server = await createServer({
     root: fileURLToPath(new URL('..', import.meta.url)), configFile: false, envDir: false, cacheDir: 'node_modules/.vite-qa-map-lineup', logLevel: 'error',
-    plugins: [react()], server: { middlewareMode: true, hmr: false, watch: null },
+    plugins: [react()], server: { middlewareMode: true, hmr: false, ws: false, watch: null },
     optimizeDeps: { noDiscovery: true, include: [] }, appType: 'custom',
   })
   try {

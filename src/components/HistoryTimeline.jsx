@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef } from 'react'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 
-import polarisClassic from '../assets/brand/polaris-classic.webp'
+import polarisClassic from '../assets/brand/cs2.svg'
 import polarisStar from '../assets/brand/polaris-star.webp'
 import asteriA from '../assets/brand/asteri-a.webp'
 
@@ -10,19 +10,19 @@ gsap.registerPlugin(ScrollTrigger)
 
 const eras = [
   {
-    period: 'PRIMER ESCUDO',
+    period: 'COUNTER-STRIKE 2',
     title: 'ASTERI POLARIS',
     logo: polarisClassic,
-    text: 'El primer escudo nace de una idea simple: nunca dejar de mirar hacia arriba. La figura central representa los sueños, la ambición y la voluntad de seguir superándose; las estrellas simbolizan esas metas que solo se alcanzan con trabajo, perseverancia y la decisión de ir siempre un poco más lejos.',
+    text: 'ASTERI POLARIS comenzó en Counter-Strike 2, reuniendo jugadores con ganas de competir y crecer como equipo. Desde Argentina, el proyecto fue construyendo su lugar a través de las partidas, los entrenamientos y la comunidad.',
   },
   {
-    period: 'SEGUNDO ESCUDO',
+    period: 'ESTRELLA POLAR',
     title: 'ESTRELLA POLAR',
     logo: polarisStar,
-    text: 'El segundo escudo toma una representación directa de la Estrella Polar. Durante siglos fue una referencia para encontrar el rumbo incluso en la oscuridad; para ASTERI representa una dirección clara, una guía constante y una meta que nunca se deja de perseguir.',
+    text: 'Esta etapa toma como símbolo la Estrella Polar. Durante siglos fue una referencia para encontrar el rumbo incluso en la oscuridad; para ASTERI representa una dirección clara, una guía constante y una meta que nunca se deja de perseguir.',
   },
   {
-    period: 'TERCER ESCUDO',
+    period: 'ASTERI ACTUAL',
     title: 'ASTERI',
     logo: asteriA,
     text: 'El escudo actual representa la evolución de ASTERI sin borrar su origen. Conserva los valores que dieron forma a Polaris y los transforma en una identidad más moderna, competitiva y reconocible: un símbolo propio para afrontar cada nuevo desafío.',
@@ -358,7 +358,7 @@ export default function HistoryTimeline() {
               <img
                 src={era.logo}
                 alt=""
-                className="history-scroll-mobile-logo"
+                className={'history-scroll-mobile-logo'+(era.logo===polarisClassic?' history-game-logo':'')}
                 aria-hidden="true"
               />
 
@@ -383,7 +383,7 @@ export default function HistoryTimeline() {
         >
           <div className="history-scroll-logo-sticky">
             <span className="history-logo-kicker">
-              ESCUDOS / EVOLUCIÓN
+              NUESTRA HISTORIA
             </span>
 
             <div className="history-scroll-logo-stage">
@@ -395,7 +395,7 @@ export default function HistoryTimeline() {
                   }}
                   src={era.logo}
                   alt=""
-                  className="history-scroll-logo"
+                  className={'history-scroll-logo'+(era.logo===polarisClassic?' history-game-logo':'')}
                 />
               ))}
             </div>

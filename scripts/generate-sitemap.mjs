@@ -76,14 +76,17 @@ const urls = [
 ]
 
 try {
-  const [players, vods] = await Promise.all([
+  const [players, vods, tournaments] = await Promise.all([
     supabasePublicQuery(
       'players?select=slug,updated_at&is_active=eq.true&order=sort_order.asc',
     ),
     supabasePublicQuery(
       'vods?select=slug,updated_at&is_published=eq.true&order=match_date.desc',
     ),
+    supabasePublicQuery('tournaments?select=id&is_published=eq.true'),
   ])
+
+  for (const tournament of tournaments) urls.push({loc: `${siteUrl}/torneos/${encodePathSegment(tournament.id)}`,lastmod:today,changefreq:'weekly',priority:'0.7'})
 
   for (const player of players) {
     if (!player?.slug) continue

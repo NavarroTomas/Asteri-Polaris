@@ -7,6 +7,7 @@ import HomePage from './pages/HomePage'
 import TeamPage from './pages/TeamPage'
 import MatchesPage from './pages/MatchesPage'
 import CalendarPage from './pages/CalendarPage'
+import TournamentPage from './pages/TournamentPage'
 import TournamentsPage from './pages/TournamentsPage'
 import ApplicationsPage from './pages/ApplicationsPage'
 import MediaPage from './pages/MediaPage'
@@ -48,6 +49,7 @@ export default function App() {
         <Route path="/partidos" element={<MatchesPage />} />
         <Route path="/calendario" element={<CalendarPage />} />
         <Route path="/torneos" element={<TournamentsPage />} />
+        <Route path="/torneos/:id" element={<TournamentPage />} />
         <Route path="/media" element={<MediaPage />} />
         <Route path="/nosotros" element={<AboutPage />} />
         <Route path="/historia" element={<HistoryPage />} />

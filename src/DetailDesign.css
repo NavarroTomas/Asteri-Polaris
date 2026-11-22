@@ -166,3 +166,5 @@
 }
 .asteri-register-copy h1 { color: var(--color-text); font: 650 clamp(36px,5vw,60px)/1.1 'Bricolage Grotesque',sans-serif; letter-spacing: -.03em; }
 .asteri-register-copy p { color: var(--color-text-muted); font: 400 16px/1.75 Inter,sans-serif; }
+
+.public-player-page .public-player-socials a{width:60px;height:60px;min-height:60px;padding:0;flex:0 0 60px;display:inline-flex;align-items:center;justify-content:center}.public-player-page .public-player-socials svg{width:32px;height:32px;flex-shrink:0}

@@ -55,3 +55,10 @@ export async function resolveSiteMediaUrl(value) {
   if(error) throw error
   return data.signedUrl
 }
+
+export async function getPublishedTournament(id) {
+  if(!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id || '')) return null
+  const {data,error}=await supabase.from('tournaments').select('*').eq('id',id).eq('is_published',true).maybeSingle()
+  if(error)throw error
+  return data
+}

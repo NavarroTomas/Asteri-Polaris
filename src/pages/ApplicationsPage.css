@@ -3,3 +3,5 @@
 .opening-form{scroll-margin-top:130px}.opening-form h2:focus{outline:none}.openings-grid button:disabled{opacity:.6;cursor:wait}
 
 .openings-grid :is(h2,p),.opening-form h2{overflow-wrap:anywhere;min-width:0}
+
+.opening-card{display:block;padding:28px;border:1px solid var(--color-border);border-radius:20px;background:var(--color-bg-secondary);color:var(--color-text);text-decoration:none;transition:transform .2s,box-shadow .2s}.opening-card:focus-visible{outline:2px solid var(--color-primary);outline-offset:4px}@media(hover:hover) and (prefers-reduced-motion:no-preference){.opening-card:hover{transform:translateY(-4px);box-shadow:var(--card-hover-shadow)}}@media(max-width:650px){.opening-card{padding:20px}}

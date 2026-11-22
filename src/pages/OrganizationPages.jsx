@@ -2,18 +2,18 @@ import { Link } from 'react-router-dom'
 import PortalPage, { CHANNELS } from '../components/PortalPage'
 import { APPLICATION_URL } from '../config/application'
 import { SOCIAL_LINKS } from '../config/socialLinks'
-import classic from '../assets/brand/polaris-classic.webp'
+import classic from '../assets/brand/cs2.svg'
 import star from '../assets/brand/polaris-star.webp'
 import asteriA from '../assets/brand/asteri-a.webp'
 
 const eras = [
-  { title: 'ASTERI POLARIS', logo: classic, text: 'El primer escudo nace de una idea simple: nunca dejar de mirar hacia arriba. La figura central representa los sueños, la ambición y la voluntad de seguir superándose; las estrellas simbolizan esas metas que solo se alcanzan con trabajo, perseverancia y la decisión de ir siempre un poco más lejos.' },
-  { title: 'ESTRELLA POLAR', logo: star, text: 'El segundo escudo toma una representación directa de la Estrella Polar. Durante siglos fue una referencia para encontrar el rumbo incluso en la oscuridad; para ASTERI representa una dirección clara, una guía constante y una meta que nunca se deja de perseguir.' },
+  { title: 'ASTERI POLARIS', logo: classic, text: 'ASTERI POLARIS comenzó en Counter-Strike 2, reuniendo jugadores con ganas de competir y crecer como equipo. Desde Argentina, el proyecto fue construyendo su lugar a través de las partidas, los entrenamientos y la comunidad.' },
+  { title: 'ESTRELLA POLAR', logo: star, text: 'Esta etapa toma como símbolo la Estrella Polar. Durante siglos fue una referencia para encontrar el rumbo incluso en la oscuridad; para ASTERI representa una dirección clara, una guía constante y una meta que nunca se deja de perseguir.' },
   { title: 'ASTERI', logo: asteriA, text: 'El escudo actual representa la evolución de ASTERI sin borrar su origen. Conserva los valores que dieron forma a Polaris y los transforma en una identidad más moderna, competitiva y reconocible: un símbolo propio para afrontar cada nuevo desafío.' },
 ]
 
 export function HistoryPage() {
-  return <PortalPage title="NUESTRA HISTORIA" intro="Los escudos y la evolución de ASTERI POLARIS."><div className="pp-history" id="historia">{eras.map(era => <article key={era.title} className="pp-history-card"><div><img src={era.logo} alt={`Escudo ${era.title}`} /></div><div><h2>{era.title}</h2><p>{era.text}</p></div></article>)}</div><blockquote className="pp-quote"><p>“Creé ASTERI POLARIS para construir un proyecto competitivo que pudiera crecer y mantenerse en el tiempo. Más allá de los torneos, la idea siempre fue formar una base sólida, desarrollar jugadores y evolucionar sin perder nuestra identidad.”</p><cite>Fundador</cite></blockquote></PortalPage>
+  return <PortalPage title="NUESTRA HISTORIA" intro="Los comienzos y la evolución de ASTERI POLARIS."><div className="pp-history" id="historia">{eras.map(era => <article key={era.title} className="pp-history-card"><div><img className={era.logo === classic ? 'history-game-logo' : undefined} src={era.logo} alt={era.logo === classic ? 'Counter-Strike 2' : era.title} /></div><div><h2>{era.title}</h2><p>{era.text}</p></div></article>)}</div><blockquote className="pp-quote"><p>“Creé ASTERI POLARIS para construir un proyecto competitivo que pudiera crecer y mantenerse en el tiempo. Más allá de los torneos, la idea siempre fue formar una base sólida, desarrollar jugadores y evolucionar sin perder nuestra identidad.”</p><cite>Fundador</cite></blockquote></PortalPage>
 }
 
 export function AboutPage() {

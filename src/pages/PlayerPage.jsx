@@ -204,7 +204,7 @@ export default function PlayerPage() {
                     target="_blank"
                     rel="noreferrer"
                   >
-                    <SocialIcon name={label} />
+                    <SocialIcon size={32} name={label} />
                   </a>
                 ))}
               </div>

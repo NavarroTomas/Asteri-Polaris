@@ -4,7 +4,7 @@
 begin;
 
 do $setup$
-declare staff uuid; p uuid; v uuid; c uuid;
+declare staff uuid; p uuid; v uuid; c uuid; m uuid;
 begin
   select id into strict staff from public.profiles where role='owner' and status='active' limit 1;
   perform set_config('request.jwt.claims',jsonb_build_object('sub',staff,'role','authenticated')::text,true);
@@ -17,6 +17,8 @@ begin
     values('QA delete linked player','qa-delete-'||gen_random_uuid(),'QA opponent',current_date,
       'played',false,staff,'mirage',13,8,'rounds') returning id into v;
   insert into public.vod_players(vod_id,player_id,lineup_order) values(v,p,1);
+  insert into public.vod_maps(vod_id,map_order,map_name,score_asteri,score_opponent) values(v,1,'mirage',13,8) returning id into m;
+  insert into public.vod_map_players(map_id,player_id,lineup_order) values(m,p,1);
   if not exists(select 1 from public.player_stats where player_id=p and maps=1) then
     raise exception 'FAIL: fixture participation did not recalculate maps';
   end if;
@@ -65,6 +67,7 @@ begin
   if exists(select 1 from public.player_stats where player_id=p) then raise exception 'FAIL: stats remain or were recreated'; end if;
   if exists(select 1 from public.player_configs where player_id=p) then raise exception 'FAIL: config remains'; end if;
   if exists(select 1 from public.vod_players where player_id=p) then raise exception 'FAIL: lineup remains'; end if;
+  if exists(select 1 from public.vod_map_players where player_id=p) then raise exception 'FAIL: map lineup remains'; end if;
   if not exists(select 1 from public.vods where id=current_setting('asteri.qa_delete.vod')::uuid) then raise exception 'FAIL: VOD was removed'; end if;
   if not exists(select 1 from public.clips where id=current_setting('asteri.qa_delete.clip')::uuid and player_id is null and vod_id=current_setting('asteri.qa_delete.vod')::uuid) then raise exception 'FAIL: clip removed or player reference not cleared'; end if;
 end $delete$;

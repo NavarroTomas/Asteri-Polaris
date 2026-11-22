@@ -21,7 +21,7 @@ const STATIC_META = {
     ['/torneos', 'Torneos', 'Las competencias y participaciones publicadas de ASTERI POLARIS.'],
     ['/media', 'Media', 'Videos del equipo y VODs publicados de ASTERI POLARIS.'],
     ['/nosotros', 'Nosotros', 'Conocé el proyecto argentino de Counter-Strike 2 ASTERI POLARIS.'],
-    ['/historia', 'Nuestra historia', 'La evolución de los escudos y la identidad de ASTERI POLARIS.'],
+    ['/historia', 'Nuestra historia', 'Los comienzos y la evolución de ASTERI POLARIS.'],
     ['/comunidad', 'Comunidad', 'Los canales oficiales y la comunidad de ASTERI POLARIS.'],
     ['/contacto', 'Contacto', 'Contactá al equipo de ASTERI POLARIS.'],
     ['/postulaciones', 'Postulaciones', 'Convocatorias abiertas para los juegos y áreas de ASTERI POLARIS.'],
@@ -194,6 +194,8 @@ function resolveMeta(pathname) {
       index: false,
     }
   }
+
+  if (/^\/torneos\/[^/]+$/.test(pathname)) return { title: `Torneo — ${SITE_NAME}`, description: 'Fechas, información y partidos del torneo de ASTERI POLARIS.', index: true }
 
   const playerMatch =
     pathname.match(

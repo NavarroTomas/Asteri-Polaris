@@ -1,4 +1,4 @@
-.ap-quiet-cursor { position: fixed; top: 0; left: 0; width: 0; height: 0; pointer-events: none; z-index: 1000; }
+.ap-quiet-cursor { position: fixed; top: 0; left: 0; width: 0; height: 0; pointer-events: none; z-index: 10000; }
 .ap-quiet-cursor[hidden] { display: none; }
 .ap-quiet-cursor span { display: block; width: 18px; height: 18px; border: 1px solid var(--color-primary); border-radius: 50%; opacity: .3; transform: translate(-50%, -50%); transition: width .22s ease, height .22s ease, opacity .22s ease; }
 .ap-quiet-cursor[data-active="true"] span { width: 30px; height: 30px; opacity: .45; }
@@ -42,3 +42,5 @@
  .ap-promotions .ap-promo { transition: transform .24s ease, box-shadow .24s ease; }
  .ap-promotions .ap-promo:hover { transform: translateY(-4px); box-shadow: var(--card-hover-shadow); }
 }
+
+.history-game-logo{filter:brightness(0) invert(1)}[data-theme="light"] .history-game-logo{filter:brightness(0)}

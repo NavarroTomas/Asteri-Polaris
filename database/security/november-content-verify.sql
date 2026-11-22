@@ -8,9 +8,9 @@ begin
   perform set_config('request.jwt.claims',jsonb_build_object('sub',staff,'role','authenticated')::text,true);
   insert into public.tournaments(title,starts_on,is_published) values('QA published '||suffix,current_date,true) returning id into t;
   insert into public.tournaments(title,starts_on,is_published) values('QA draft '||suffix,current_date,false) returning id into d;
-  insert into public.application_openings(title,area,questions,is_open) values('QA open '||suffix,'QA','["Question"]',true) returning id into o;
+  insert into public.application_openings(title,area,questions,is_open,google_form_url) values('QA open '||suffix,'QA','["Question"]',true,'https://forms.gle/QAForm123') returning id into o;
   insert into public.application_openings(title,area,is_open) values('QA closed '||suffix,'QA',false) returning id into closed;
-  insert into public.application_openings(title,area,is_open,closes_on) values('QA expired '||suffix,'QA',true,(now() at time zone 'America/Argentina/Buenos_Aires')::date-1) returning id into expired;
+  insert into public.application_openings(title,area,is_open,closes_on,google_form_url) values('QA expired '||suffix,'QA',true,(now() at time zone 'America/Argentina/Buenos_Aires')::date-1,'https://forms.gle/QAForm123') returning id into expired;
   insert into public.media_posts(title,kind,media_url,is_published) values('QA photo '||suffix,'image','https://example.invalid/photo.webp',true) returning id into m;
   insert into public.media_posts(title,kind,media_url,is_published) values('QA private '||suffix,'image','https://example.invalid/draft.webp',false);
   perform set_config('asteri.qa_content.staff',staff::text,true);

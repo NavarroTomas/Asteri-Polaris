@@ -202,3 +202,5 @@ a.pp-match-row:hover { border-color: #01d069; background: #193123; }
  .pp-community-grid h2 { font-size: 19px; }
  .pp-application .ap-button { padding-inline: 14px; gap: 12px; font-size: 10px; }
 }
+
+.pp-history-card .history-game-logo{filter:brightness(0) invert(1);width:100%;max-width:170px}[data-theme="light"] .pp-history-card .history-game-logo{filter:brightness(0)}

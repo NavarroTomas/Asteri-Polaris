@@ -182,7 +182,7 @@ export async function getHomeCalendarData() {
     id: 'event-' + item.id, tournamentId:item.id, tournamentTitle:item.title, isTournament:true, isEvent:true,
     slug:'', dateISO:item.starts_on, date:formatDateShort(item.starts_on), time:'—', opponent:item.title,
     competition:item.game, status:(item.ends_on||item.starts_on)<today?'FINALIZADO':item.starts_on<=today?'EN CURSO':'PRÓXIMO', score:'', resultLabel:'TORNEO', outcome:'upcoming',
-    outcomeColor:MATCH_OUTCOME_COLORS.upcoming, filter:tournamentFilter, vod:'/torneos#tournament-' + item.id, youtube:'', downloadUrl:''
+    outcomeColor:MATCH_OUTCOME_COLORS.upcoming, filter:tournamentFilter, vod:'/torneos/' + item.id, youtube:'', downloadUrl:''
   }))]
 
 
