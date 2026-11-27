@@ -1,3 +1,4 @@
+import MatchRosterBadge from '../components/MatchRosterBadge'
 import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import PortalPage, { PageState } from '../components/PortalPage'
@@ -19,7 +20,7 @@ export function TournamentContent({item,matches=[],matchStatus='ready',retry=()=
    {item.page_body&&<div className="tournament-body">{item.page_body.split(/\n\s*\n/).filter(Boolean).map((paragraph,index)=><p key={index}>{paragraph}</p>)}</div>}
    {(rules||official)&&<div className="tournament-links">{official&&<a className="ap-button" href={official} target="_blank" rel="noopener noreferrer">Sitio oficial</a>}{rules&&<a className="ap-button ap-button-outline" href={rules} target="_blank" rel="noopener noreferrer">Reglamento</a>}</div>}
   </div>
-  <section className="tournament-games"><h2>Partidos</h2><PageState status={matchStatus} retry={retry} empty={!games.length?'Los partidos se anunciarán próximamente.':null}><ul>{games.map(match=><li key={match.id}><Link to={match.vod}><span>{match.date} · {match.time}</span><strong>vs {match.opponent}</strong><span>{match.score||match.status}</span></Link></li>)}</ul></PageState></section>
+  <section className="tournament-games"><h2>Partidos</h2><PageState status={matchStatus} retry={retry} empty={!games.length?'Los partidos se anunciarán próximamente.':null}><ul>{games.map(match=><li key={match.id}><Link to={match.vod}><span>{match.date} · {match.time}</span><strong><MatchRosterBadge match={match}/> vs {match.opponent}</strong><span>{match.score||match.status}</span></Link></li>)}</ul></PageState></section>
  </article>
 }
 export default function TournamentPage(){

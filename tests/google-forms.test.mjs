@@ -37,3 +37,12 @@ test('only open, unexpired calls with a valid Google form appear publicly', () =
   assert.deepEqual(availableOpenings(items, '2026-11-22').map(item => item.id), ['no-deadline', 'today', 'future'])
   assert.deepEqual(items, before)
 })
+
+test('responder URLs support both direct and account-scoped Google Forms paths', () => {
+  for (const value of [
+    'https://docs.google.com/forms/d/QAForm123/viewform',
+    'https://docs.google.com/forms/u/0/d/e/QAForm123/viewform?usp=sf_link',
+    'https://docs.google.com/forms/u/2/d/QAForm123/viewform/',
+  ]) assert.equal(normalizeGoogleFormUrl(value), value)
+  assert.equal(normalizeGoogleFormUrl('https://docs.google.com/forms/d/QAForm123/edit'), '')
+})

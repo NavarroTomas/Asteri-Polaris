@@ -23,7 +23,7 @@ export async function saveRoster(form) {
 export async function deleteRoster(id) {
   if (id === DEFAULT_ROSTER_ID) throw new Error('El plantel principal se conserva como destino predeterminado.')
   const { data, error } = await supabase.from('rosters').delete().eq('id', id).select('id').single()
-  if (error?.code === '23503') throw new Error('Este plantel tiene jugadores. Movelos a otro plantel o eliminá sus fichas antes de eliminarlo.')
+  if (error?.code === '23503') throw new Error('Este plantel tiene jugadores o partidos asociados. Conservá el historial desactivándolo en lugar de eliminarlo.')
   if (error) throw error
   if (!data) throw new Error('No se pudo eliminar el plantel. Revisá tus permisos.')
 }

@@ -1,4 +1,5 @@
 import { supabase } from './supabase'
+import { buildOpeningPayload } from './openingForms'
 
 export async function listTournaments(publicOnly = false) {
   let query = supabase.from('tournaments').select('*').order('starts_on', { ascending: false })
@@ -15,10 +16,15 @@ export async function listOpenings(publicOnly = false) {
   return data || []
 }
 export async function saveContent(table, form) {
-  const { id, created_at, ...payload } = form
+  const clean=table==='application_openings'?buildOpeningPayload(form):form
+  const { id, created_at, ...payload } = clean
   const query = id ? supabase.from(table).update(payload).eq('id', id) : supabase.from(table).insert(payload)
   const { data, error } = await query.select().single()
-  if (error) throw error
+  if (error) {
+    if(error.code==='42501')throw new Error('Tu cuenta no tiene permiso para guardar este contenido. Ingresá con una cuenta administradora activa.')
+    if(table==='application_openings'&&error.code==='23514')throw new Error('Revisá el título, el juego o área y el enlace para responder de Google Forms.')
+    throw error
+  }
   return data
 }
 export async function deleteContent(table, id) {

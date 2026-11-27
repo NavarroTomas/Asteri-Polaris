@@ -1,3 +1,4 @@
+import MatchRosterBadge from '../components/MatchRosterBadge'
 import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import Header from '../components/Header'
@@ -224,7 +225,7 @@ export default function VodPage() {
               {vod.title}
             </p>
 
-            <div className="vod-meta">
+            <MatchRosterBadge match={{rosterId:vod.roster_id,rosterLabel:vod.roster_label}}/><div className="vod-meta">
               <b>
                 {vod.result_type === 'series'
                   ? maps.length

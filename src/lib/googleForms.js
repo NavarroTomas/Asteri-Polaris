@@ -3,7 +3,7 @@ export function normalizeGoogleFormUrl(value) {
   try {
     const url = new URL(value.trim())
     if (url.protocol !== 'https:' || url.username || url.password || url.port) return ''
-    const valid = url.hostname === 'docs.google.com' ? /^\/forms\/.+/.test(url.pathname) : url.hostname === 'forms.gle' && /^\/[^/]+/.test(url.pathname)
+    const valid = url.hostname === 'docs.google.com' ? /^\/forms\/(?:u\/\d+\/)?d\/(?:e\/)?[^/]+\/viewform\/?$/.test(url.pathname) : url.hostname === 'forms.gle' && /^\/[^/]+/.test(url.pathname)
     return valid ? url.href : ''
   } catch { return '' }
 }

@@ -6,6 +6,7 @@ export const emptyVod = {
   opponent: '',
   competition: '',
   tournament_id: '',
+  roster_id: '',
   match_date: '',
   match_time: '',
   map_name: '',
@@ -190,6 +191,7 @@ export async function saveVod(id, form, userId) {
     opponent: form.opponent.trim(),
 
     tournament_id: form.tournament_id || null,
+    roster_id: form.roster_id || null,
 
     competition:
       cleanText(form.competition),
@@ -650,7 +652,7 @@ export async function getPublicVod(slug) {
 }
 
 export async function saveVodStructure(id, form, maps) {
-  const payload={...form,title:form.title?.trim()||'ASTERI vs '+form.opponent,slug:form.slug||slugifyVod(form.opponent+'-'+form.match_date),match_time:form.match_time||null,calendar_filter_id:form.calendar_filter_id||null,tournament_id:form.tournament_id||null,score_asteri:null,score_opponent:null}
+  const payload={...form,title:form.title?.trim()||'ASTERI vs '+form.opponent,slug:form.slug||slugifyVod(form.opponent+'-'+form.match_date),match_time:form.match_time||null,calendar_filter_id:form.calendar_filter_id||null,tournament_id:form.tournament_id||null,roster_id:form.roster_id||null,score_asteri:null,score_opponent:null}
   const {data,error}=await supabase.rpc('save_vod_structure',{target_vod_id:id||null,match_form:payload,map_entries:maps.map(map=>({...map,player_ids:[...new Set(map.player_ids||[])]}))})
   if(error)throw error
   return data

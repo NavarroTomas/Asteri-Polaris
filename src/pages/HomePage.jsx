@@ -1,3 +1,4 @@
+import MatchRosterBadge from '../components/MatchRosterBadge'
 import { compareMatchesNewestFirst } from '../lib/matchOrdering'
 import { useEffect, useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
@@ -29,7 +30,7 @@ function MatchList({ matches, status, retry, replays }) {
   return <div className="ap-match-list">{matches.map(match => <Link className="ap-match" key={match.id} to={match.vod}>
     <span className="ap-match-date"><strong>{match.date}</strong><small>{replays ? 'FINALIZADO' : match.time === '—' ? 'Hora a confirmar' : `${match.time} h · ARG`}</small></span>
     <span className="ap-match-teams"><b>ASTERI</b><em>{replays ? match.score || 'vs' : 'vs'}</em><b>{match.opponent}</b></span>
-    <span className="ap-match-meta">{match.competition}<small>{replays ? 'Ver VOD ' : 'Ver partido '}</small></span>
+    <span className="ap-match-meta"><MatchRosterBadge match={match}/>{match.competition}<small>{replays ? 'Ver VOD ' : 'Ver partido '}</small></span>
   </Link>)}</div>
 }
 

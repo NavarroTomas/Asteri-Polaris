@@ -1,3 +1,5 @@
+import MatchRosterBadge from './MatchRosterBadge'
+import { filterCalendarMatches, rosterOptions, matchRosterLabel } from '../lib/matchRosters'
 import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import {
@@ -104,6 +106,8 @@ export default function MatchesHub({ id = 'partidos', title = 'PARTIDOS.', showI
   const [matches, setMatches] = useState([])
   const [filters, setFilters] = useState([])
   const [selectedFilter, setSelectedFilter] = useState('all')
+  const [selectedRoster,setSelectedRoster]=useState('all')
+  const rosterChoices=useMemo(()=>rosterOptions(matches),[matches])
 
   const [viewDate, setViewDate] = useState(() => {
     const now = new Date()
@@ -162,17 +166,7 @@ export default function MatchesHub({ id = 'partidos', title = 'PARTIDOS.', showI
     }
   }, [])
 
-  const visibleMatches = useMemo(() => {
-    if (selectedFilter === 'all') return matches
-
-    if (selectedFilter === 'none') {
-      return matches.filter(match => !match.filter)
-    }
-
-    return matches.filter(
-      match => match.filter?.id === selectedFilter,
-    )
-  }, [matches, selectedFilter])
+  const visibleMatches=useMemo(()=>filterCalendarMatches(matches,selectedFilter,selectedRoster),[matches,selectedFilter,selectedRoster])
 
   const year = viewDate.getFullYear()
   const month = viewDate.getMonth()
@@ -267,12 +261,12 @@ export default function MatchesHub({ id = 'partidos', title = 'PARTIDOS.', showI
 
           {filters.length > 0 && (
             <div className="calendar-filter-control">
-              <label htmlFor="calendar-filter">
+              <label htmlFor={id+'-category'}>
                 FILTRAR
               </label>
 
               <select
-                id="calendar-filter"
+                id={id+'-category'}
                 value={selectedFilter}
                 onChange={event => {
                   setSelectedFilter(event.target.value)
@@ -294,6 +288,7 @@ export default function MatchesHub({ id = 'partidos', title = 'PARTIDOS.', showI
             </div>
           )}
 
+          <div className="calendar-roster-control"><label htmlFor={id+'-roster'}>PLANTEL</label><select id={id+'-roster'} value={selectedRoster} onChange={event=>{setSelectedRoster(event.target.value);setSelectedDateISO(null)}}><option value="all">Todos los planteles y eventos</option>{rosterChoices.map(roster=><option key={roster.id} value={roster.id}>{roster.name}</option>)}</select></div>
           <div className="match-list">
             {loading && (
               <div className="matches-data-state">
@@ -331,7 +326,7 @@ export default function MatchesHub({ id = 'partidos', title = 'PARTIDOS.', showI
                   <span>{match.time}</span>
                 </div>
 
-                <div className="match-list-opponent">
+                <div className="match-list-opponent"><MatchRosterBadge match={match}/>
                   <small>
                     {match.isTournament && <span className="calendar-tournament-badge">Torneo</span>} {match.competition}
                     {match.filter?.name
@@ -437,7 +432,7 @@ export default function MatchesHub({ id = 'partidos', title = 'PARTIDOS.', showI
                       {dayMatches.slice(0, 4).map(match => (
                         <span
                           key={match.id}
-                          title={`${match.opponent} · ${outcomeCopy(
+                          title={`${match.isEvent ? 'Torneo' : matchRosterLabel(match)} · ${match.opponent} · ${outcomeCopy(
                             match.outcome,
                           )}`}
                           style={{
@@ -484,7 +479,7 @@ export default function MatchesHub({ id = 'partidos', title = 'PARTIDOS.', showI
                   <div className="calendar-day-matches">
                     {selectedMatches.map(match => (
                       <article key={match.id}>
-                        <div className="calendar-date-match-copy">
+                        <div className="calendar-date-match-copy"><MatchRosterBadge match={match}/>
                           <small>
                             {match.competition}
                             {match.filter?.name

@@ -99,12 +99,14 @@ function resultMeta(vod) {
   }
 }
 
-function mapVod(vod) {
+export function mapVod(vod) {
   const result = resultMeta(vod)
   const outcome = resolveOutcome(vod)
 
   return {
     id: vod.id,
+    rosterId: vod.roster_id || null,
+    rosterLabel: vod.roster_label || '',
     tournamentId: vod.tournament_id || null,
     tournamentTitle: vod.tournament?.title || null,
     isTournament: Boolean(vod.tournament_id) || /^torneo$/i.test(vod.calendar_filter?.name || ''),
@@ -142,6 +144,8 @@ export async function getHomeCalendarData() {
     .from('vods')
     .select(`
       id,
+      roster_id,
+      roster_label,
       tournament_id,
       tournament:tournaments(title),
       slug,

@@ -238,7 +238,7 @@ export default function AdminPage() {
                     </div>
 
                     <div className="admin-row-actions">
-                    {isOwner&&!isSelf&&user.role!=='owner'&&<button type="button" disabled={workingId==='delete-'+user.id} onClick={()=>{if(window.confirm('¿Eliminar definitivamente la cuenta de '+(user.display_name||user.email)+'? Se cerrará su acceso y se eliminará su cuenta. Las fichas de jugadores y los partidos se conservan. No se puede deshacer.'))runAction('delete-'+user.id,()=>deleteUserAccount(user.id))}}>Eliminar cuenta</button>}
+                    {isOwner&&user.id!==profile?.id&&user.role!=='owner'&&<button type="button" disabled={workingId==='delete-'+user.id} onClick={()=>{if(window.confirm('¿Eliminar definitivamente la cuenta de '+(user.display_name||user.email)+'? Se cerrará su acceso y se eliminará su cuenta. Las fichas de jugadores y los partidos se conservan. No se puede deshacer.'))runAction('delete-'+user.id,()=>deleteUserAccount(user.id))}}>Eliminar cuenta</button>}
                       <button
                         type="button"
                         className="primary"

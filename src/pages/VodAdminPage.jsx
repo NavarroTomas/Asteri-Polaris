@@ -1,3 +1,4 @@
+import { getRosters } from '../lib/rosterGroups'
 import MapLineupEditor from '../components/MapLineupEditor'
 import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
@@ -56,6 +57,11 @@ export default function VodAdminPage() {
   const [detailAttempt, setDetailAttempt] = useState(0)
   const editorReady = selected === loadedDetailId && !loadingDetail
   const [lineup, setLineup] = useState([])
+  const [rosters,setRosters] = useState([])
+  const [rostersReady,setRostersReady] = useState(false)
+  const [rostersError,setRostersError] = useState('')
+  const [rostersAttempt,setRostersAttempt] = useState(0)
+  useEffect(()=>{let alive=true;setRostersError('');setRostersReady(false);getRosters().then(data=>{if(alive){setRosters(data);setRostersReady(true)}}).catch(error=>{if(alive)setRostersError(error.message)});return()=>{alive=false}},[rostersAttempt])
   const [tournaments,setTournaments] = useState([])
   useEffect(()=>{let alive=true;listTournaments().then(data=>{if(alive)setTournaments(data)}).catch(error=>{if(alive)setErr(error.message)});return()=>{alive=false}},[])
   const [clips, setClips] = useState([])
@@ -112,7 +118,7 @@ export default function VodAdminPage() {
     setErr('')
     getVodDetail(selected).then(data => {
       if (!alive) return
-      setForm({ ...emptyVod, ...data.vod, result_type:'series', series_format:data.vod.series_format || 'bo1', calendar_filter_id:data.vod.calendar_filter_id || '', match_outcome:data.vod.match_outcome || 'auto' })
+      setForm({ ...emptyVod, ...data.vod, result_type:'series', series_format:data.vod.series_format || 'bo1', roster_id:data.vod.roster_id || '', calendar_filter_id:data.vod.calendar_filter_id || '', match_outcome:data.vod.match_outcome || 'auto' })
       setLineup(data.lineup.map(item => item.player_id))
       setClips(data.clips || [])
       const maps = data.maps?.length ? data.maps : data.vod.map_name ? [{map_name:data.vod.map_name,score_asteri:data.vod.score_asteri,score_opponent:data.vod.score_opponent}] : []
@@ -232,6 +238,7 @@ export default function VodAdminPage() {
 
   async function submit(event) {
     event.preventDefault()
+    if(!rostersReady || !form.roster_id){setErr('Seleccioná el plantel que juega este partido.');return}
     if(busy || !editorReady)return
     setBusy(true);setErr('');setMsg('')
     try {
@@ -542,7 +549,7 @@ export default function VodAdminPage() {
                 </small>
 
                 <strong>{vod.title}</strong>
-                <span>vs {vod.opponent}</span>
+                <span>vs {vod.opponent}</span><small>{vod.roster_label || 'Plantel sin asignar'}</small>
               </button>
             ))
           )}
@@ -572,7 +579,7 @@ export default function VodAdminPage() {
             </div>
 
             <div className="vod-admin-grid">
-              <label><span>Torneo (opcional)</span><select value={form.tournament_id||''} onChange={e=>set('tournament_id',e.target.value)}><option value="">Sin torneo</option>{tournaments.map(item=><option key={item.id} value={item.id}>{item.title}</option>)}</select></label>
+              <label><span>Plantel que juega</span><select required value={form.roster_id||''} disabled={!rostersReady} onChange={e=>set('roster_id',e.target.value)}><option value="">Seleccioná un plantel</option>{rosters.map(item=><option key={item.id} value={item.id}>{item.name}{item.is_active?'':' (archivado)'}</option>)}</select>{rostersError&&<span role="alert">No pudimos cargar los planteles. <button type="button" onClick={()=>setRostersAttempt(value=>value+1)}>Reintentar planteles</button></span>}<small>El plantel identifica al partido. Las formaciones por mapa se mantienen independientes.</small></label><label><span>Torneo (opcional)</span><select value={form.tournament_id||''} onChange={e=>set('tournament_id',e.target.value)}><option value="">Sin torneo</option>{tournaments.map(item=><option key={item.id} value={item.id}>{item.title}</option>)}</select></label>
               <label className="wide">
                 <span>Título</span>
                 <input
