@@ -1,0 +1,43 @@
+/* A readable calendar in both the home embed and the full calendar page. */
+.pp-content .matches.matches-minimal :is(.calendar-filter-control,.calendar-roster-control) {
+  background:var(--color-bg-secondary);border-color:var(--color-border);padding:16px 18px;
+}
+.pp-content .matches.matches-minimal :is(.calendar-filter-control,.calendar-roster-control) label {
+  font:600 14px/1.4 'Inter',sans-serif;letter-spacing:0;color:var(--color-text);
+}
+.pp-content .matches.matches-minimal :is(.calendar-filter-control,.calendar-roster-control) select {
+  height:auto;min-height:48px;padding:11px 14px;border-radius:12px;
+  font:500 16px/1.5 'Inter',sans-serif;letter-spacing:0;
+  color:var(--color-text);background:var(--color-bg-secondary);border-color:var(--color-border);
+}
+.pp-content .matches.matches-minimal :is(.calendar-filter-control,.calendar-roster-control) option {
+  font:500 16px/1.5 'Inter',sans-serif;color:var(--color-text);background:var(--color-bg-secondary);
+}
+.pp-content .matches.matches-minimal .match-list {background:var(--color-bg-secondary);scroll-behavior:auto;}
+.pp-content .matches.matches-minimal .match-list-title span {font:600 14px/1.5 'Inter',sans-serif;letter-spacing:0;}
+.pp-content .matches.matches-minimal .match-list-row {background:var(--color-bg-secondary);padding:16px;gap:12px;}
+.pp-content .matches.matches-minimal .match-list-row.active {background:var(--color-bg);}
+.pp-content .matches.matches-minimal :is(.match-list-date,.match-list-opponent,.match-list-score) {font-family:'Inter',sans-serif;letter-spacing:0;}
+.pp-content .matches.matches-minimal .match-list-opponent strong {font:650 19px/1.4 'Inter',sans-serif;letter-spacing:0;color:var(--color-text);}
+.pp-content .matches.matches-minimal .match-list-date strong {font:650 18px/1.4 'Inter',sans-serif;}
+.pp-content .matches.matches-minimal :is(.match-list-date span,.match-list-opponent small,.match-list-score small) {font:500 14px/1.5 'Inter',sans-serif;letter-spacing:0;}
+.pp-content .matches.matches-minimal .match-list-score strong {font:650 20px/1.3 'Inter',sans-serif;}
+.pp-content .matches.matches-minimal .match-roster-badge {font:600 14px/1.45 'Inter',sans-serif;letter-spacing:0;align-self:start;}
+.pp-content .matches.matches-minimal .calendar-tournament-badge {font:600 13px/1.4 'Inter',sans-serif;}
+.pp-content .matches.matches-minimal .calendar-day-matches small {font:500 14px/1.5 'Inter',sans-serif;letter-spacing:0;}
+.pp-content .matches.matches-minimal .calendar-date-match-copy strong {font:650 20px/1.4 'Inter',sans-serif;overflow-wrap:anywhere;}
+.pp-content .matches.matches-minimal .calendar-date-match-result strong {font:650 20px/1.3 'Inter',sans-serif;}
+.pp-content .matches.matches-minimal .calendar-date-match-actions a {font:600 14px/1.4 'Inter',sans-serif;min-height:44px;padding:10px 14px;}
+.pp-content .matches.matches-minimal :is(.calendar-weekdays span,.calendar-result-key span,.calendar-empty-copy,.matches-data-state) {font:500 14px/1.5 'Inter',sans-serif;letter-spacing:0;}
+.pp-content .matches.matches-minimal .calendar-day-number {font:600 16px/1.3 'Inter',sans-serif;}
+@media(max-width:700px){
+ .pp-content .matches.matches-minimal .match-list-row{grid-template-columns:52px minmax(0,1fr) auto;gap:10px;padding:16px 12px;}
+ .pp-content .matches.matches-minimal .match-list-opponent strong{font-size:18px;}
+ .pp-content .matches.matches-minimal .calendar-weekdays span{font-size:12px;}
+ .pp-content .matches.matches-minimal .calendar-day-number{font-size:14px;}
+}
+@media(max-width:520px){
+ .pp-content .matches.matches-minimal .match-list-row{grid-template-columns:52px minmax(0,1fr);}
+ .pp-content .matches.matches-minimal :is(.calendar-filter-control,.calendar-roster-control){padding:14px;}
+}
+.pp-content .matches.matches-minimal .calendar-day.active{background:var(--color-bg-secondary)}.pp-content .matches.matches-minimal .calendar-day.active .calendar-day-number{color:var(--color-text)}

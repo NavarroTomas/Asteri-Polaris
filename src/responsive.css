@@ -388,20 +388,20 @@ body {
 
   .match-list-row {
     min-height: 76px !important;
-    grid-template-columns: 58px minmax(0, 1fr) auto !important;
+    grid-template-columns: 58px minmax(0, 1fr) auto;
     padding: 10px 12px !important;
   }
 
   .match-list-date strong {
-    font-size: 14px !important;
+    font-size: 18px;
   }
 
   .match-list-opponent small {
-    font-size: 7px !important;
+    font-size: 14px;
   }
 
   .match-list-opponent strong {
-    font-size: 14px !important;
+    font-size: 18px;
     overflow-wrap: anywhere;
   }
 
@@ -789,7 +789,7 @@ body {
   }
 
   .match-list-row {
-    grid-template-columns: 52px minmax(0, 1fr) auto !important;
+    grid-template-columns: 52px minmax(0, 1fr) auto;
     padding-inline: 10px !important;
   }
 

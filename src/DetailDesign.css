@@ -149,8 +149,8 @@
   .pp-content .matches .section-shell { width: 100% !important; margin-inline: 0; min-width: 0; }
   .pp-content .matches-minimal-layout { grid-template-columns: minmax(0, 1fr) !important; }
   .pp-content :is(.match-list-panel, .calendar-panel) { min-width: 0; max-width: 100%; }
-  .pp-content .match-list-row { grid-template-columns: 42px minmax(0, 1fr) auto !important; gap: 8px; }
-  .pp-content .match-list-opponent small { font-size: 10px !important; }
+  .pp-content .match-list-row { grid-template-columns: 52px minmax(0, 1fr) auto; gap: 8px; }
+  .pp-content .match-list-opponent small { font-size: 14px; }
   .pp-content .calendar-head { flex-wrap: wrap; gap: 12px; }
   .pp-content .calendar-nav button { min-width: 44px; min-height: 44px; }
 }

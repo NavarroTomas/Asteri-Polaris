@@ -1,12 +1,14 @@
 import MatchRosterBadge from './MatchRosterBadge'
 import { filterCalendarMatches, rosterOptions, matchRosterLabel } from '../lib/matchRosters'
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import {
   getHomeCalendarData,
   MATCH_OUTCOME_COLORS,
 } from '../lib/homeMatches'
 import './AsteriTypography.css'
+import './MatchesHubRefinement.css'
+import { scrollMatchListToDate } from '../lib/calendarListScroll'
 import { compareMatchesNewestFirst } from '../lib/matchOrdering'
 
 const MONTHS = [
@@ -103,6 +105,7 @@ function outcomeCopy(outcome) {
 }
 
 export default function MatchesHub({ id = 'partidos', title = 'PARTIDOS.', showIntro = true }) {
+  const matchList=useRef(null)
   const [matches, setMatches] = useState([])
   const [filters, setFilters] = useState([])
   const [selectedFilter, setSelectedFilter] = useState('all')
@@ -232,7 +235,9 @@ export default function MatchesHub({ id = 'partidos', title = 'PARTIDOS.', showI
   }
 
   const selectDay = day => {
-    setSelectedDateISO(isoFromDay(year, month, day))
+    const dateISO=isoFromDay(year,month,day)
+    setSelectedDateISO(dateISO)
+    scrollMatchListToDate(matchList.current,dateISO,{reducedMotion:window.matchMedia('(prefers-reduced-motion: reduce)').matches})
   }
 
   return (
@@ -288,8 +293,8 @@ export default function MatchesHub({ id = 'partidos', title = 'PARTIDOS.', showI
             </div>
           )}
 
-          <div className="calendar-roster-control"><label htmlFor={id+'-roster'}>PLANTEL</label><select id={id+'-roster'} value={selectedRoster} onChange={event=>{setSelectedRoster(event.target.value);setSelectedDateISO(null)}}><option value="all">Todos los planteles y eventos</option>{rosterChoices.map(roster=><option key={roster.id} value={roster.id}>{roster.name}</option>)}</select></div>
-          <div className="match-list">
+          <div className="calendar-roster-control"><label htmlFor={id+'-roster'}>PLANTEL</label><select id={id+'-roster'} value={selectedRoster} onChange={event=>{setSelectedRoster(event.target.value);setSelectedDateISO(null)}}><option value="all">Todos los planteles</option>{rosterChoices.map(roster=><option key={roster.id} value={roster.id}>{roster.name}</option>)}</select></div>
+          <div className="match-list" ref={matchList} id={id+'-match-list'}>
             {loading && (
               <div className="matches-data-state">
                 CARGANDO PARTIDOS…
@@ -314,6 +319,7 @@ export default function MatchesHub({ id = 'partidos', title = 'PARTIDOS.', showI
               <button
                 type="button"
                 key={match.id}
+                data-match-date={match.dateISO}
                 className={`match-list-row ${
                   match.dateISO === selectedDateISO
                     ? 'active'
@@ -413,6 +419,9 @@ export default function MatchesHub({ id = 'partidos', title = 'PARTIDOS.', showI
                 <button
                   type="button"
                   key={day}
+                  aria-label={`${day} de ${MONTHS[month].toLocaleLowerCase('es')} de ${year}: ${dayMatches.length} partido${dayMatches.length===1?'':'s'}`}
+                  aria-pressed={active}
+                  aria-controls={id+'-match-list'}
                   disabled={dayMatches.length === 0}
                   onClick={() =>
                     dayMatches.length > 0 && selectDay(day)
